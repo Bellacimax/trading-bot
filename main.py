@@ -92,6 +92,20 @@ while True:
             price = last["Close"]
             atr = last["ATR"]
 
+            # ===== TOP MOVER FILTER =====
+
+            # movimento %
+            move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
+
+            # volatilità minima
+            if abs(move_perc) < 0.01:  # almeno 1%
+                continue
+
+            # volume alto
+            volume_avg = df["Volume"].rolling(20).mean()
+            if df["Volume"].iloc[-1] < volume_avg.iloc[-1]:
+                continue
+
             if pd.isna(atr) or atr == 0:
                 continue
 
