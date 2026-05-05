@@ -149,6 +149,7 @@ while True:
 
                 risk = abs(price - stop)
                 reward = abs(target - price)
+
                 rr = round(reward / risk, 2) if risk != 0 else 0
 
                 if rr < 2:
@@ -158,6 +159,14 @@ while True:
                 qty = int(min(rischio_euro / distanza_stop, CAPITALE / price))
 
                 if qty <= 0:
+                    continue
+
+                # ===== FILTRO COMMISSIONI =====
+                COMMISSIONI = 24  # euro totali
+
+                profitto_potenziale = reward * qty
+
+                if profitto_potenziale < COMMISSIONI * 2:
                     continue
 
                 active_trades[ticker] = {
