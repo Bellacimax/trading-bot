@@ -6,8 +6,10 @@ from datetime import datetime
 import csv
 
 # ===== TELEGRAM =====
-TOKEN = "7983595853:AAF830JdsIi0-VYN3-ZTbWMdec-zggJoGdc"
-CHAT_ID = "990319111"
+import os
+
+TOKEN = os.getenv("TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 def send_telegram(msg):
     try:
