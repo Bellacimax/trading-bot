@@ -2,12 +2,11 @@ import yfinance as yf
 import pandas as pd
 import time
 import requests
-from datetime import datetime
+import os
 import csv
+from datetime import datetime
 
 # ===== TELEGRAM =====
-import os
-
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
@@ -30,7 +29,6 @@ MAX_TICKERS = 20
 index = 0
 
 active_trades = {}
-watchlist = {}
 equity = CAPITALE
 
 # ===== CSV =====
@@ -47,27 +45,17 @@ def compute_atr(data, period=14):
     ], axis=1).max(axis=1)
     return tr.rolling(period).mean()
 
-# ===== RSI =====
-def compute_rsi(data, period=14):
-    delta = data["Close"].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(period).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(period).mean()
-    rs = gain / loss
-    return 100 - (100 / (1 + rs))
-
+# ===== INDICATORI =====
 def compute_indicators(df):
-    # EMA
     df["EMA50"] = df["Close"].ewm(span=50).mean()
     df["EMA200"] = df["Close"].ewm(span=200).mean()
 
-    # RSI
     delta = df["Close"].diff()
     gain = (delta.where(delta > 0, 0)).rolling(14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
     rs = gain / loss
     df["RSI"] = 100 - (100 / (1 + rs))
 
-    # MACD
     ema12 = df["Close"].ewm(span=12).mean()
     ema26 = df["Close"].ewm(span=26).mean()
     df["MACD"] = ema12 - ema26
@@ -75,7 +63,7 @@ def compute_indicators(df):
 
     return df
 
-print("🚀 BOT PRO AVVIATO\n")
+print("🚀 BOT AVVIATO")
 send_telegram("🚀 BOT ONLINE")
 
 # ===== LOOP =====
@@ -96,80 +84,81 @@ while True:
             df = df[["Open","High","Low","Close","Volume"]].dropna()
 
             df["ATR"] = compute_atr(df)
-            df["EMA200"] = df["Close"].ewm(span=200).mean()
-
-            df["RSI"] = compute_rsi(df)
-
-            df["EMA12"] = df["Close"].ewm(span=12).mean()
-            df["EMA26"] = df["Close"].ewm(span=26).mean()
-            df["MACD"] = df["EMA12"] - df["EMA26"]
-            df["SIGNAL"] = df["MACD"].ewm(span=9).mean()
+            df = compute_indicators(df)
 
             last = df.iloc[-1]
+            prev = df.iloc[-2]
+
             price = last["Close"]
             atr = last["ATR"]
 
             if pd.isna(atr) or atr == 0:
                 continue
 
-            # evita trade piccoli
-            if atr < price * 0.003:
-                continue
-
-            volume_avg = df["Volume"].rolling(20).mean()
-            volume_ok = df["Volume"].iloc[-1] > volume_avg.iloc[-1]
-
+            # ===== CONDIZIONI =====
             trend_up = price > last["EMA200"]
             trend_down = price < last["EMA200"]
 
-            rsi = last["RSI"]
-            macd = last["MACD"]
-            signal = last["SIGNAL"]
+            rsi_buy = last["RSI"] > 50
+            rsi_sell = last["RSI"] < 50
 
-            high_20 = df["High"].rolling(20).max()
-            low_20 = df["Low"].rolling(20).min()
+            macd_buy = last["MACD"] > last["MACD_signal"]
+            macd_sell = last["MACD"] < last["MACD_signal"]
 
-            resistance = high_20.iloc[-2]
-            support = low_20.iloc[-2]
+            golden_cross = (
+                df["EMA50"].iloc[-2] < df["EMA200"].iloc[-2]
+                and df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1]
+            )
 
-            prev_close = df["Close"].iloc[-2]
+            death_cross = (
+                df["EMA50"].iloc[-2] > df["EMA200"].iloc[-2]
+                and df["EMA50"].iloc[-1] < df["EMA200"].iloc[-1]
+            )
 
-            # ===== WATCHLIST =====
-            if prev_close <= resistance and price > resistance and trend_up:
-                watchlist[ticker] = ("BUY", resistance)
+            # ===== SCORE =====
+            score_buy = 0
+            score_sell = 0
 
-            elif prev_close >= support and price < support and trend_down:
-                watchlist[ticker] = ("SELL", support)
+            if trend_up: score_buy += 1
+            if trend_down: score_sell += 1
+
+            if rsi_buy: score_buy += 1
+            if rsi_sell: score_sell += 1
+
+            if macd_buy: score_buy += 1
+            if macd_sell: score_sell += 1
+
+            if golden_cross: score_buy += 2
+            if death_cross: score_sell += 2
 
             # ===== ENTRY =====
-            if ticker in watchlist and ticker not in active_trades:
+            if ticker not in active_trades:
 
-                side, level = watchlist[ticker]
-
-                distanza_stop = atr * 4
-                rischio_euro = CAPITALE * RISCHIO
-
-                qty = int(min(rischio_euro / distanza_stop, CAPITALE / price))
-                if qty <= 0:
+                if score_buy >= 3:
+                    side = "BUY"
+                    score = score_buy
+                elif score_sell >= 3:
+                    side = "SELL"
+                    score = score_sell
+                else:
                     continue
 
-                stop = price - distanza_stop if side=="BUY" else price + distanza_stop
-                target = price + atr*7 if side=="BUY" else price - atr*7
+                distanza_stop = atr * 4
+                stop = price - distanza_stop if side == "BUY" else price + distanza_stop
+                target = price + atr * 6 if side == "BUY" else price - atr * 6
 
                 risk = abs(price - stop)
                 reward = abs(target - price)
                 rr = round(reward / risk, 2) if risk != 0 else 0
 
-                if rr < 1.6:
+                if rr < 2:
                     continue
 
-                # filtro RSI
-                if side == "BUY":
-                    if not (40 < rsi < 75):
-                        continue
-                else:
-                    if not (25 < rsi < 60):
-                        continue
+                rischio_euro = CAPITALE * RISCHIO
+                qty = int(min(rischio_euro / distanza_stop, CAPITALE / price))
+
+                if qty <= 0:
+                    continue
 
                 active_trades[ticker] = {
                     "side": side,
@@ -177,22 +166,19 @@ while True:
                     "stop": stop,
                     "target": target,
                     "qty": qty,
-                    "risk": rischio_euro
+                    "risk": rischio_euro,
                 }
 
                 send_telegram(
                     f"🚀 {side} {ticker} @ {round(price,2)}\n"
-                    f"📈 Resistenza: {round(resistance,2)}\n"
-                    f"📉 Supporto: {round(support,2)}\n"
-                    f"RSI: {round(rsi,1)}\n"
+                    f"RSI: {round(last['RSI'],1)}\n"
+                    f"GoldenCross: {'YES' if golden_cross else 'NO'}\n"
+                    f"Score: {score}\n"
                     f"🛑 Stop: {round(stop,2)}\n"
                     f"🎯 Target: {round(target,2)}\n"
                     f"⚖️ R/R: {rr}"
                 )
 
-                watchlist.pop(ticker)
-
-        # ===== LOOP =====
         print(f"💰 Equity: {round(equity,2)}€ | Attivi: {len(active_trades)}")
 
         index += MAX_TICKERS
@@ -204,3 +190,4 @@ while True:
     except Exception as e:
         print("❌ ERRORE:", e)
         time.sleep(10)
+   
