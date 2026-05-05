@@ -69,6 +69,14 @@ send_telegram("🚀 BOT ONLINE")
 # ===== LOOP =====
 while True:
     try:
+        # ===== FILTRO ORARIO USA =====
+        ora = datetime.now().hour  # ora italiana
+
+        # lavora solo 10:00 → 02:00
+        if ora >= 2 and ora < 10:
+            print("😴 Notte - bot in pausa")
+            time.sleep(300)  # aspetta 5 minuti
+            continue
         subset = TICKERS[index:index+MAX_TICKERS]
 
         for ticker in subset:
