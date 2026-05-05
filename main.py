@@ -55,7 +55,27 @@ def compute_rsi(data, period=14):
     rs = gain / loss
     return 100 - (100 / (1 + rs))
 
-print("🚀 BOT AVVIATO\n")
+def compute_indicators(df):
+    # EMA
+    df["EMA50"] = df["Close"].ewm(span=50).mean()
+    df["EMA200"] = df["Close"].ewm(span=200).mean()
+
+    # RSI
+    delta = df["Close"].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
+    rs = gain / loss
+    df["RSI"] = 100 - (100 / (1 + rs))
+
+    # MACD
+    ema12 = df["Close"].ewm(span=12).mean()
+    ema26 = df["Close"].ewm(span=26).mean()
+    df["MACD"] = ema12 - ema26
+    df["MACD_signal"] = df["MACD"].ewm(span=9).mean()
+
+    return df
+
+print("🚀 BOT PRO AVVIATO\n")
 send_telegram("🚀 BOT ONLINE")
 
 # ===== LOOP =====
