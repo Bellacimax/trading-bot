@@ -77,6 +77,27 @@ while True:
             print("😴 Notte - bot in pausa")
             time.sleep(300)  # aspetta 5 minuti
             continue
+
+        while True:
+    try:
+        # ===== FILTRO ORARIO =====
+        ora = datetime.now().hour
+
+        if ora >= 2 and ora < 10:
+            print("😴 Notte - bot in pausa")
+            time.sleep(300)
+            continue
+
+        # ===== FASE MERCATO =====
+        if ora < 10:
+            fase = "Pre-market"
+        elif ora < 22:
+            fase = "Market"
+        else:
+            fase = "After-hours"
+
+        print(f"🕒 Fase: {fase}")
+        
         subset = TICKERS[index:index+MAX_TICKERS]
 
         for ticker in subset:
