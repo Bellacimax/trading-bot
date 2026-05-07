@@ -805,6 +805,10 @@ del active_trades[t]
                         price_now + atr_now * 1.5
                     )
 
+                    # =========================================
+                    # STOP SELL
+                    # =========================================
+
                     if price_now >= trade["stop"]:
 
                         pnl = (
@@ -828,7 +832,29 @@ del active_trades[t]
                             f"PnL: {round(pnl,2)}€"
                         )
 
+                        save_trade(
+
+                            t,
+
+                            trade["side"],
+
+                            trade["entry"],
+
+                            price_now,
+
+                            pnl,
+
+                            rr,
+
+                            "STOP"
+
+                        )
+
                         del active_trades[t]
+
+                    # =========================================
+                    # TARGET SELL
+                    # =========================================
 
                     elif price_now <= trade["target"]:
 
@@ -842,36 +868,37 @@ del active_trades[t]
                         stats["wins"] += 1
 
                         send_telegram(
-send_telegram(
 
-    f"💰 TARGET SELL {t}\n"
+                            f"💰 TARGET SELL {t}\n"
 
-    f"Exit: {round(price_now,2)}\n"
+                            f"Exit: {round(price_now,2)}\n"
 
-    f"PnL: {round(pnl,2)}€"
-)
+                            f"PnL: {round(pnl,2)}€"
+                        )
 
-save_trade(
+                        save_trade(
 
-    t,
+                            t,
 
-    trade["side"],
+                            trade["side"],
 
-    trade["entry"],
+                            trade["entry"],
 
-    price_now,
+                            price_now,
 
-    pnl,
+                            pnl,
 
-    rr,
+                            rr,
 
-    "TARGET"
+                            "TARGET"
 
-)
+                        )
 
-del active_trades[t]
+                        del active_trades[t]
 
             except Exception as e:
+
+                print("Errore gestione trade:", e)
 
                 print("Errore gestione trade:", e)
 
