@@ -435,7 +435,7 @@ while True:
 
             )
 
-            # =========================================
+                       # =========================================
             # SCORE
             # =========================================
 
@@ -475,50 +475,43 @@ while True:
 
                 continue
 
-# =========================================
-# DEBUG SCORE
-# =========================================
+            # =========================================
+            # DEBUG SCORE
+            # =========================================
 
-print(
+            print(
+                f"{ticker} | "
+                f"BUY={score_buy} "
+                f"SELL={score_sell} "
+                f"HTF_UP={htf_up} "
+                f"HTF_DOWN={htf_down}"
+            )
 
-    f"{ticker} | "
+            # =========================================
+            # ENTRY
+            # =========================================
 
-    f"BUY={score_buy} "
+            if score_buy >= 3 and htf_up:
 
-    f"SELL={score_sell} "
+                side = "BUY"
 
-    f"HTF_UP={htf_up} "
+                score = score_buy
 
-    f"HTF_DOWN={htf_down}"
+                print(f"🟢 BUY READY -> {ticker}")
 
-)
+            elif score_sell >= 3 and htf_down:
 
-# =========================================
-# ENTRY
-# =========================================
+                side = "SELL"
 
-if score_buy >= 3 and htf_up:
+                score = score_sell
 
-    side = "BUY"
+                print(f"🔴 SELL READY -> {ticker}")
 
-    score = score_buy
+            else:
 
-    print(f"🟢 BUY READY -> {ticker}")
+                print(f"⚠️ SKIP -> {ticker}")
 
-elif score_sell >= 3 and htf_down:
-
-    side = "SELL"
-
-    score = score_sell
-
-    print(f"🔴 SELL READY -> {ticker}")
-
-else:
-
-    print(f"⚠️ SKIP -> {ticker}")
-
-    continue
-
+                continue
             # =========================================
             # STOP / TARGET
             # =========================================
