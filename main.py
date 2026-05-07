@@ -5,6 +5,7 @@ import requests
 import os
 import csv
 from datetime import datetime, UTC
+from scanner import rank_tickers
 
 # =========================================
 # TELEGRAM
@@ -194,7 +195,9 @@ while True:
         # SUBSET TICKER
         # =========================================
 
-        subset = TICKERS[index:index + MAX_TICKERS]
+        subset = rank_tickers(TICKERS)
+
+        print(f"🔥 Top Ranked: {subset}")
 
         # =========================================
         # LOOP TICKER
