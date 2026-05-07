@@ -91,74 +91,106 @@ while True:
 
         for ticker in subset:
 
-            df = yf.download(ticker, period="5d", interval="5m", progress=False)
+            # ===== DATI 5 MIN =====
+df = yf.download(ticker, period="5d", interval="5m", progress=False)
 
-            if df is None or df.empty or len(df) < 50:
-                continue
+if df is None or df.empty or len(df) < 50:
+    continue
 
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = df.columns.get_level_values(0)
+if isinstance(df.columns, pd.MultiIndex):
+    df.columns = df.columns.get_level_values(0)
 
-            df = df[["Open","High","Low","Close","Volume"]].dropna()
+df = df[["Open","High","Low","Close","Volume"]].dropna()
 
-            df["ATR"] = compute_atr(df)
-            df = compute_indicators(df)
+df["ATR"] = compute_atr(df)
+df = compute_indicators(df)
 
-            last = df.iloc[-1]
-            prev = df.iloc[-2]
+last = df.iloc[-1]
+prev = df.iloc[-2]
 
-            price = last["Close"]
-            atr = last["ATR"]
+price = last["Close"]
+atr = last["ATR"]
 
-            # ===== TOP MOVER FILTER =====
-            if len(df) < 20:
-                continue
+# ===== DATI 1H (MULTI TIMEFRAME) =====
+df_htf = yf.download(ticker, period="1mo", interval="1h", progress=False)
 
-            move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
+if df_htf is None or df_htf.empty or len(df_htf) < 50:
+    continue
 
-            if abs(move_perc) < 0.01:
-                continue
+if isinstance(df_htf.columns, pd.MultiIndex):
+    df_htf.columns = df_htf.columns.get_level_values(0)
 
-            volume_avg = df["Volume"].rolling(20).mean()
-            if df["Volume"].iloc[-1] < volume_avg.iloc[-1]:
-                continue
+df_htf = df_htf[["Open","High","Low","Close","Volume"]].dropna()
+df_htf = compute_indicators(df_htf)
 
-            if pd.isna(atr) or atr == 0:
-                continue
+htf_last = df_htf.iloc[-1]
 
-            # ===== CONDIZIONI =====
-            trend_up = price > last["EMA200"]
-            trend_down = price < last["EMA200"]
+# ===== TOP MOVER FILTER =====
+if len(df) < 20:
+    continue
 
-            rsi_buy = last["RSI"] > 50
-            rsi_sell = last["RSI"] < 50
+move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
 
-            macd_buy = last["MACD"] > last["MACD_signal"]
-            macd_sell = last["MACD"] < last["MACD_signal"]
+if abs(move_perc) < 0.01:
+    continue
 
-            golden_cross = (
-                df["EMA50"].iloc[-2] < df["EMA200"].iloc[-2]
-                and df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1]
-            )
+volume_avg = df["Volume"].rolling(20).mean()
+if df["Volume"].iloc[-1] < volume_avg.iloc[-1]:
+    continue
 
-            death_cross = (
-                df["EMA50"].iloc[-2] > df["EMA200"].iloc[-2]
-                and df["EMA50"].iloc[-1] < df["EMA200"].iloc[-1]
-            )
+if pd.isna(atr) or atr == 0:
+    continue
 
-            score_buy = 0
-            score_sell = 0
+# ===== CONDIZIONI =====
+trend_up = price > last["EMA200"]
+trend_down = price < last["EMA200"]
 
-            if trend_up: score_buy += 1
-            if trend_down: score_sell += 1
-            if rsi_buy: score_buy += 1
-            if rsi_sell: score_sell += 1
-            if macd_buy: score_buy += 1
-            if macd_sell: score_sell += 1
-            if golden_cross: score_buy += 2
-            if death_cross: score_sell += 2
+# ===== TREND HTF (1H) =====
+htf_trend_up = htf_last["Close"] > htf_last["EMA200"]
+htf_trend_down = htf_last["Close"] < htf_last["EMA200"]
 
-            if ticker not in active_trades:
+rsi_buy = last["RSI"] > 50
+rsi_sell = last["RSI"] < 50
+
+macd_buy = last["MACD"] > last["MACD_signal"]
+macd_sell = last["MACD"] < last["MACD_signal"]
+
+golden_cross = (
+    df["EMA50"].iloc[-2] < df["EMA200"].iloc[-2]
+    and df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1]
+)
+
+death_cross = (
+    df["EMA50"].iloc[-2] > df["EMA200"].iloc[-2]
+    and df["EMA50"].iloc[-1] < df["EMA200"].iloc[-1]
+)
+
+# ===== SCORE =====
+score_buy = 0
+score_sell = 0
+
+if trend_up: score_buy += 1
+if trend_down: score_sell += 1
+if rsi_buy: score_buy += 1
+if rsi_sell: score_sell += 1
+if macd_buy: score_buy += 1
+if macd_sell: score_sell += 1
+if golden_cross: score_buy += 2
+if death_cross: score_sell += 2
+
+# ===== ENTRY =====
+if ticker not in active_trades:
+
+    if score_buy >= 3 and htf_trend_up:
+        side = "BUY"
+        score = score_buy
+
+    elif score_sell >= 3 and htf_trend_down:
+        side = "SELL"
+        score = score_sell
+
+    else:
+        continue
 
                 if score_buy >= 3:
                     side = "BUY"
