@@ -737,16 +737,34 @@ while True:
 
                         stats["wins"] += 1
 
-                        send_telegram(
+send_telegram(
 
-                            f"💰 TARGET BUY {t}\n"
+    f"💰 TARGET BUY {t}\n"
 
-                            f"Exit: {round(price_now,2)}\n"
+    f"Exit: {round(price_now,2)}\n"
 
-                            f"PnL: {round(pnl,2)}€"
-                        )
+    f"PnL: {round(pnl,2)}€"
+)
 
-                        del active_trades[t]
+save_trade(
+
+    t,
+
+    trade["side"],
+
+    trade["entry"],
+
+    price_now,
+
+    pnl,
+
+    rr,
+
+    "TARGET"
+
+)
+
+del active_trades[t]
 
                 # =========================================
                 # SELL
