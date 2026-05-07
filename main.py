@@ -1,4 +1,3 @@
-```python
 import yfinance as yf
 import pandas as pd
 import time
@@ -840,6 +839,6 @@ while True:
         print("❌ ERRORE:", e)
 
         time.sleep(10)
-```
+
 
          
