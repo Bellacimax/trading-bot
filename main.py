@@ -40,7 +40,7 @@ CAPITALE = 1000
 RISCHIO = 0.01
 MAX_TICKERS = 20
 
-COMMISSIONI = 24
+COMMISSIONI = 2
 
 # =========================================
 # TICKERS
