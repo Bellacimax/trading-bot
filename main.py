@@ -146,6 +146,7 @@ def compute_indicators(df):
 print("🚀 BOT AVVIATO")
 
 send_telegram("🚀 BOT ONLINE")
+init_stats()
 
 # =========================================
 # LOOP PRINCIPALE
