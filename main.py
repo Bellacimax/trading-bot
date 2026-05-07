@@ -74,8 +74,8 @@ while True:
         ny = pytz.timezone("America/New_York")
         ora = datetime.now(ny).hour
 
-        # pausa solo notte USA
-        if 2 <= ora < 8:
+        # pausa SOLO notte vera
+        if 0 <= ora < 4:
             print("😴 Notte USA - pausa")
             time.sleep(300)
             continue
