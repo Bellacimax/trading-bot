@@ -1,4 +1,3 @@
-```python
 import yfinance as yf
 import pandas as pd
 
@@ -127,5 +126,4 @@ def rank_tickers(tickers):
     ]
 
     return top
-```
 
