@@ -435,7 +435,7 @@ while True:
 
             )
 
-                       # =========================================
+            # =========================================
             # SCORE
             # =========================================
 
@@ -538,6 +538,8 @@ while True:
 
             if rr < 2:
 
+                print(f"❌ RR FAIL -> {ticker} | RR={rr}")
+
                 continue
 
             # =========================================
@@ -570,7 +572,12 @@ while True:
 
             if profitto_potenziale < COMMISSIONI * 2:
 
-                continue
+                 print(
+                     f"❌ COMMISSION FAIL -> {ticker} | "
+                     f"Profit={round(profitto_potenziale,2)}"
+                 )
+
+                 continue
 
             # =========================================
             # SALVA TRADE
