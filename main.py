@@ -570,7 +570,7 @@ while True:
 
             profitto_potenziale = reward * qty
 
-            if profitto_potenziale < COMMISSIONI * 2:
+            if profitto_potenziale < COMMISSIONI:
 
                  print(
                      f"❌ COMMISSION FAIL -> {ticker} | "
