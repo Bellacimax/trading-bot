@@ -715,7 +715,6 @@ while True:
                             stats["losses"] += 1
 
                         send_telegram(
-send_telegram(
 
     f"❌ STOP BUY {t}\n"
 
