@@ -69,13 +69,15 @@ send_telegram("🚀 BOT ONLINE")
 while True:
     try:
         # ===== FILTRO ORARIO (IT) =====
-        import pytz
+        ora_utc = datetime.utcnow().hour
 
-        ny = pytz.timezone("America/New_York")
-        ora = datetime.now(ny).hour
+        # New York = UTC - 4 (estate)
+        ora_ny = (ora_utc - 4) % 24
 
-        # pausa SOLO notte vera
-        if 0 <= ora < 4:
+        print(f"🕒 Ora NY: {ora_ny}")
+
+        # pausa solo notte vera
+        if 0 <= ora_ny < 4:
             print("😴 Notte USA - pausa")
             time.sleep(300)
             continue
