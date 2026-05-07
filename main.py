@@ -14,8 +14,8 @@ def send_telegram(msg):
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         requests.get(url, params={"chat_id": CHAT_ID, "text": msg})
-    except:
-        pass
+    except Exception as e:
+        print("Errore Telegram:", e)
 
 # ===== PARAMETRI =====
 CAPITALE = 1000
@@ -40,8 +40,8 @@ with open("trades.csv", "w", newline="") as f:
 def compute_atr(data, period=14):
     tr = pd.concat([
         data["High"] - data["Low"],
-        abs(data["High"] - data["Close"].shift()),
-        abs(data["Low"] - data["Close"].shift())
+        (data["High"] - data["Close"].shift()).abs(),
+        (data["Low"] - data["Close"].shift()).abs()
     ], axis=1).max(axis=1)
     return tr.rolling(period).mean()
 
@@ -60,7 +60,6 @@ def compute_indicators(df):
     ema26 = df["Close"].ewm(span=26).mean()
     df["MACD"] = ema12 - ema26
     df["MACD_signal"] = df["MACD"].ewm(span=9).mean()
-
     return df
 
 print("🚀 BOT AVVIATO")
@@ -69,168 +68,146 @@ send_telegram("🚀 BOT ONLINE")
 # ===== LOOP =====
 while True:
     try:
-        # ===== FILTRO ORARIO =====
+        # ===== FILTRO ORARIO (IT) =====
         ora = datetime.now().hour
-
-        if ora >= 2 and ora < 10:
-            print("😴 Notte - bot in pausa")
+        if 2 <= ora < 10:
+            print("😴 Notte - pausa")
             time.sleep(300)
             continue
 
-        # ===== FASE MERCATO =====
+        # ===== FASE =====
         if ora < 10:
             fase = "Pre-market"
         elif ora < 22:
             fase = "Market"
         else:
             fase = "After-hours"
-
         print(f"🕒 Fase: {fase}")
 
         subset = TICKERS[index:index+MAX_TICKERS]
 
+        # ===== LOOP TICKERS =====
         for ticker in subset:
+            # --- 5m ---
+            df = yf.download(ticker, period="5d", interval="5m", progress=False)
+            if df is None or df.empty or len(df) < 50:
+                continue
 
-    # ===== DATI 5 MIN =====
-    df = yf.download(ticker, period="5d", interval="5m", progress=False)
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
 
-    if df is None or df.empty or len(df) < 50:
-        continue
+            df = df[["Open","High","Low","Close","Volume"]].dropna()
+            df["ATR"] = compute_atr(df)
+            df = compute_indicators(df)
 
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.get_level_values(0)
+            last = df.iloc[-1]
+            price = last["Close"]
+            atr = last["ATR"]
+            if pd.isna(atr) or atr == 0:
+                continue
 
-    df = df[["Open","High","Low","Close","Volume"]].dropna()
+            # --- 1H (HTF) ---
+            df_htf = yf.download(ticker, period="1mo", interval="1h", progress=False)
+            if df_htf is None or df_htf.empty or len(df_htf) < 50:
+                continue
 
-    df["ATR"] = compute_atr(df)
-    df = compute_indicators(df)
+            if isinstance(df_htf.columns, pd.MultiIndex):
+                df_htf.columns = df_htf.columns.get_level_values(0)
 
-    last = df.iloc[-1]
-    prev = df.iloc[-2]
+            df_htf = df_htf[["Open","High","Low","Close","Volume"]].dropna()
+            df_htf = compute_indicators(df_htf)
+            htf_last = df_htf.iloc[-1]
 
-    price = last["Close"]
-    atr = last["ATR"]
+            # --- TOP MOVER ---
+            if len(df) < 20:
+                continue
+            move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
+            if abs(move_perc) < 0.01:
+                continue
+            volume_avg = df["Volume"].rolling(20).mean()
+            if df["Volume"].iloc[-1] < volume_avg.iloc[-1]:
+                continue
 
-    # ===== DATI 1H =====
-    df_htf = yf.download(ticker, period="1mo", interval="1h", progress=False)
+            # --- CONDIZIONI ---
+            trend_up = price > last["EMA200"]
+            trend_down = price < last["EMA200"]
+            htf_up = htf_last["Close"] > htf_last["EMA200"]
+            htf_down = htf_last["Close"] < htf_last["EMA200"]
 
-    if df_htf is None or df_htf.empty or len(df_htf) < 50:
-        continue
+            rsi_buy = last["RSI"] > 50
+            rsi_sell = last["RSI"] < 50
+            macd_buy = last["MACD"] > last["MACD_signal"]
+            macd_sell = last["MACD"] < last["MACD_signal"]
 
-    if isinstance(df_htf.columns, pd.MultiIndex):
-        df_htf.columns = df_htf.columns.get_level_values(0)
+            golden_cross = (
+                df["EMA50"].iloc[-2] < df["EMA200"].iloc[-2]
+                and df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1]
+            )
+            death_cross = (
+                df["EMA50"].iloc[-2] > df["EMA200"].iloc[-2]
+                and df["EMA50"].iloc[-1] < df["EMA200"].iloc[-1]
+            )
 
-    df_htf = df_htf[["Open","High","Low","Close","Volume"]].dropna()
-    df_htf = compute_indicators(df_htf)
+            score_buy = 0
+            score_sell = 0
+            if trend_up: score_buy += 1
+            if trend_down: score_sell += 1
+            if rsi_buy: score_buy += 1
+            if rsi_sell: score_sell += 1
+            if macd_buy: score_buy += 1
+            if macd_sell: score_sell += 1
+            if golden_cross: score_buy += 2
+            if death_cross: score_sell += 2
 
-    htf_last = df_htf.iloc[-1]
+            # --- ENTRY ---
+            if ticker in active_trades:
+                continue
 
-    # ===== TOP MOVER =====
-    if len(df) < 20:
-        continue
+            if score_buy >= 3 and htf_up:
+                side = "BUY"; score = score_buy
+            elif score_sell >= 3 and htf_down:
+                side = "SELL"; score = score_sell
+            else:
+                continue
 
-    move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
+            distanza_stop = atr * 4
+            stop = price - distanza_stop if side == "BUY" else price + distanza_stop
+            target = price + atr * 6 if side == "BUY" else price - atr * 6
 
-    if abs(move_perc) < 0.01:
-        continue
+            risk = abs(price - stop)
+            reward = abs(target - price)
+            rr = round(reward / risk, 2) if risk != 0 else 0
+            if rr < 2:
+                continue
 
-    volume_avg = df["Volume"].rolling(20).mean()
-    if df["Volume"].iloc[-1] < volume_avg.iloc[-1]:
-        continue
+            rischio_euro = CAPITALE * RISCHIO
+            qty = int(min(rischio_euro / distanza_stop, CAPITALE / price))
+            if qty <= 0:
+                continue
 
-    if pd.isna(atr) or atr == 0:
-        continue
+            COMMISSIONI = 24
+            profitto_potenziale = reward * qty
+            if profitto_potenziale < COMMISSIONI * 2:
+                continue
 
-    # ===== CONDIZIONI =====
-    trend_up = price > last["EMA200"]
-    trend_down = price < last["EMA200"]
+            active_trades[ticker] = {
+                "side": side,
+                "entry": price,
+                "stop": stop,
+                "target": target,
+                "qty": qty,
+                "risk": rischio_euro,
+            }
 
-    htf_trend_up = htf_last["Close"] > htf_last["EMA200"]
-    htf_trend_down = htf_last["Close"] < htf_last["EMA200"]
-
-    rsi_buy = last["RSI"] > 50
-    rsi_sell = last["RSI"] < 50
-
-    macd_buy = last["MACD"] > last["MACD_signal"]
-    macd_sell = last["MACD"] < last["MACD_signal"]
-
-    golden_cross = (
-        df["EMA50"].iloc[-2] < df["EMA200"].iloc[-2]
-        and df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1]
-    )
-
-    death_cross = (
-        df["EMA50"].iloc[-2] > df["EMA200"].iloc[-2]
-        and df["EMA50"].iloc[-1] < df["EMA200"].iloc[-1]
-    )
-
-    # ===== SCORE =====
-    score_buy = 0
-    score_sell = 0
-
-    if trend_up: score_buy += 1
-    if trend_down: score_sell += 1
-    if rsi_buy: score_buy += 1
-    if rsi_sell: score_sell += 1
-    if macd_buy: score_buy += 1
-    if macd_sell: score_sell += 1
-    if golden_cross: score_buy += 2
-    if death_cross: score_sell += 2
-
-    # ===== ENTRY =====
-    if ticker not in active_trades:
-
-        if score_buy >= 3 and htf_trend_up:
-            side = "BUY"
-            score = score_buy
-
-        elif score_sell >= 3 and htf_trend_down:
-            side = "SELL"
-            score = score_sell
-
-        else:
-            continue
-
-        distanza_stop = atr * 4
-        stop = price - distanza_stop if side == "BUY" else price + distanza_stop
-        target = price + atr * 6 if side == "BUY" else price - atr * 6
-
-        risk = abs(price - stop)
-        reward = abs(target - price)
-
-        rr = round(reward / risk, 2) if risk != 0 else 0
-        if rr < 2:
-            continue
-
-        rischio_euro = CAPITALE * RISCHIO
-        qty = int(min(rischio_euro / distanza_stop, CAPITALE / price))
-        if qty <= 0:
-            continue
-
-        COMMISSIONI = 24
-        profitto_potenziale = reward * qty
-
-        if profitto_potenziale < COMMISSIONI * 2:
-            continue
-
-        active_trades[ticker] = {
-            "side": side,
-            "entry": price,
-            "stop": stop,
-            "target": target,
-            "qty": qty,
-            "risk": rischio_euro,
-        }
-
-        send_telegram(
-            f"🚀 {side} {ticker} @ {round(price,2)}\n"
-            f"RSI: {round(last['RSI'],1)}\n"
-            f"GoldenCross: {'YES' if golden_cross else 'NO'}\n"
-            f"Score: {score}\n"
-            f"🛑 Stop: {round(stop,2)}\n"
-            f"🎯 Target: {round(target,2)}\n"
-            f"⚖️ R/R: {rr}"
-        )
+            send_telegram(
+                f"🚀 {side} {ticker} @ {round(price,2)}\n"
+                f"RSI: {round(last['RSI'],1)}\n"
+                f"GoldenCross: {'YES' if golden_cross else 'NO'}\n"
+                f"Score: {score}\n"
+                f"🛑 Stop: {round(stop,2)}\n"
+                f"🎯 Target: {round(target,2)}\n"
+                f"⚖️ R/R: {rr}"
+            )
 
         print(f"💰 Equity: {round(equity,2)}€ | Attivi: {len(active_trades)}")
 
