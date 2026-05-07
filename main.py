@@ -69,17 +69,6 @@ send_telegram("🚀 BOT ONLINE")
 # ===== LOOP =====
 while True:
     try:
-        # ===== FILTRO ORARIO USA =====
-        ora = datetime.now().hour  # ora italiana
-
-        # lavora solo 10:00 → 02:00
-        if ora >= 2 and ora < 10:
-            print("😴 Notte - bot in pausa")
-            time.sleep(300)  # aspetta 5 minuti
-            continue
-
-        while True:
-    try:
         # ===== FILTRO ORARIO =====
         ora = datetime.now().hour
 
@@ -97,7 +86,7 @@ while True:
             fase = "After-hours"
 
         print(f"🕒 Fase: {fase}")
-        
+
         subset = TICKERS[index:index+MAX_TICKERS]
 
         for ticker in subset:
@@ -122,15 +111,14 @@ while True:
             atr = last["ATR"]
 
             # ===== TOP MOVER FILTER =====
-
-            # movimento %
-            move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
-
-            # volatilità minima
-            if abs(move_perc) < 0.01:  # almeno 1%
+            if len(df) < 20:
                 continue
 
-            # volume alto
+            move_perc = (df["Close"].iloc[-1] - df["Close"].iloc[-20]) / price
+
+            if abs(move_perc) < 0.01:
+                continue
+
             volume_avg = df["Volume"].rolling(20).mean()
             if df["Volume"].iloc[-1] < volume_avg.iloc[-1]:
                 continue
@@ -158,23 +146,18 @@ while True:
                 and df["EMA50"].iloc[-1] < df["EMA200"].iloc[-1]
             )
 
-            # ===== SCORE =====
             score_buy = 0
             score_sell = 0
 
             if trend_up: score_buy += 1
             if trend_down: score_sell += 1
-
             if rsi_buy: score_buy += 1
             if rsi_sell: score_sell += 1
-
             if macd_buy: score_buy += 1
             if macd_sell: score_sell += 1
-
             if golden_cross: score_buy += 2
             if death_cross: score_sell += 2
 
-            # ===== ENTRY =====
             if ticker not in active_trades:
 
                 if score_buy >= 3:
@@ -194,19 +177,15 @@ while True:
                 reward = abs(target - price)
 
                 rr = round(reward / risk, 2) if risk != 0 else 0
-
                 if rr < 2:
                     continue
 
                 rischio_euro = CAPITALE * RISCHIO
                 qty = int(min(rischio_euro / distanza_stop, CAPITALE / price))
-
                 if qty <= 0:
                     continue
 
-                # ===== FILTRO COMMISSIONI =====
-                COMMISSIONI = 24  # euro totali
-
+                COMMISSIONI = 24
                 profitto_potenziale = reward * qty
 
                 if profitto_potenziale < COMMISSIONI * 2:
@@ -242,4 +221,3 @@ while True:
     except Exception as e:
         print("❌ ERRORE:", e)
         time.sleep(10)
-   
