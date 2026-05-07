@@ -82,10 +82,9 @@ while True:
             time.sleep(300)
             continue
 
-        # fase mercato
-        if ora_ny < 10:
+        if ora < 10:
             fase = "Pre-market"
-        elif ora_ny < 16:
+        elif ora < 22:
             fase = "Market"
         else:
             fase = "After-hours"
