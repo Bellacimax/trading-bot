@@ -68,28 +68,29 @@ send_telegram("🚀 BOT ONLINE")
 # ===== LOOP =====
 while True:
     try:
-        # ===== FILTRO ORARIO (IT) =====
-        from datetime import datetime, UTC
+       # ===== FILTRO ORARIO =====
+from datetime import datetime, UTC
 
-        ora_utc = datetime.now(UTC).hour
-        ora_ny = (ora_utc - 4) % 24
+ora_utc = datetime.now(UTC).hour
+ora_ny = (ora_utc - 4) % 24
 
-        print(f"🕒 Ora NY: {ora_ny}")
+print(f"🕒 Ora NY: {ora_ny}")
 
-        # pausa solo notte vera
-        if 0 <= ora_ny < 4:
-            print("😴 Notte USA - pausa")
-            time.sleep(300)
-            continue
+# pausa solo notte vera
+if 0 <= ora_ny < 4:
+    print("😴 Notte USA - pausa")
+    time.sleep(300)
+    continue
 
-        if ora < 10:
-            fase = "Pre-market"
-        elif ora < 22:
-            fase = "Market"
-        else:
-            fase = "After-hours"
+# ===== FASE MERCATO =====
+if ora_ny < 10:
+    fase = "Pre-market"
+elif ora_ny < 16:
+    fase = "Market"
+else:
+    fase = "After-hours"
 
-        print(f"📊 Fase: {fase}")
+print(f"📊 Fase: {fase}")
 
         # ===== FASE =====
         if ora < 10:
