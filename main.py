@@ -149,6 +149,31 @@ print("🚀 BOT AVVIATO")
 
 send_telegram("🚀 BOT ONLINE")
 init_stats()
+# =========================================
+# DASHBOARD
+# =========================================
+
+app = Flask(__name__)
+
+@app.route("/")
+
+def home():
+
+    return f"""
+
+    <h1>🚀 Trading Bot Online</h1>
+
+    <p>💰 Equity: {round(equity,2)}€</p>
+
+    <p>📈 Active Trades: {len(active_trades)}</p>
+
+    """
+
+def run_dashboard():
+
+    app.run(host="0.0.0.0", port=8080)
+
+Thread(target=run_dashboard).start()
 
 # =========================================
 # LOOP PRINCIPALE
