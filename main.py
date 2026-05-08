@@ -1,3 +1,5 @@
+from flask import Flask
+from threading import Thread
 from stats import init_stats, save_trade
 import yfinance as yf
 import pandas as pd
