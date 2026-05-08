@@ -157,8 +157,6 @@ app = Flask(__name__)
 
 @app.route("/")
 
-@app.route("/")
-
 def home():
 
     pnl = round(stats["pnl"], 2)
@@ -332,14 +330,6 @@ def home():
     </body>
 
     </html>
-
-    """
-
-    <h1>🚀 Trading Bot Online</h1>
-
-    <p>💰 Equity: {round(equity,2)}€</p>
-
-    <p>📈 Active Trades: {len(active_trades)}</p>
 
     """
 
