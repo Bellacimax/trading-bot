@@ -157,9 +157,183 @@ app = Flask(__name__)
 
 @app.route("/")
 
+@app.route("/")
+
 def home():
 
+    pnl = round(stats["pnl"], 2)
+
+    wins = stats["wins"]
+
+    losses = stats["losses"]
+
+    total = wins + losses
+
+    winrate = round((wins / total) * 100, 1) if total > 0 else 0
+
+    active_html = ""
+
+    for t, tr in active_trades.items():
+
+        active_html += f"""
+
+        <tr>
+
+            <td>{t}</td>
+
+            <td>{tr['side']}</td>
+
+            <td>{round(tr['entry'],2)}</td>
+
+            <td>{round(tr['stop'],2)}</td>
+
+            <td>{round(tr['target'],2)}</td>
+
+        </tr>
+
+        """
+
+    history_html = "<p>Nessun trade chiuso</p>"
+
+    if os.path.exists("trade_history.csv"):
+
+        df = pd.read_csv("trade_history.csv")
+
+        if len(df) > 0:
+
+            history_html = df.tail(20).to_html(index=False)
+
     return f"""
+
+    <html>
+
+    <head>
+
+        <title>Trading Bot Dashboard</title>
+
+        <meta http-equiv="refresh" content="15">
+
+        <style>
+
+            body {{
+
+                background: #111;
+
+                color: white;
+
+                font-family: Arial;
+
+                padding: 20px;
+
+            }}
+
+            h1 {{
+
+                color: #00ff99;
+
+            }}
+
+            .card {{
+
+                background: #1e1e1e;
+
+                padding: 20px;
+
+                margin-bottom: 20px;
+
+                border-radius: 10px;
+
+            }}
+
+            table {{
+
+                width: 100%;
+
+                border-collapse: collapse;
+
+                background: #222;
+
+            }}
+
+            th, td {{
+
+                border: 1px solid #333;
+
+                padding: 10px;
+
+                text-align: center;
+
+            }}
+
+            th {{
+
+                background: #333;
+
+            }}
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h1>🚀 Trading Bot Dashboard</h1>
+
+        <div class="card">
+
+            <h2>📊 Stats</h2>
+
+            <p>💰 PnL: {pnl} €</p>
+
+            <p>📈 Winrate: {winrate}%</p>
+
+            <p>🎯 Wins: {wins}</p>
+
+            <p>❌ Losses: {losses}</p>
+
+            <p>📦 Active Trades: {len(active_trades)}</p>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📡 Trade Attivi</h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Ticker</th>
+
+                    <th>Side</th>
+
+                    <th>Entry</th>
+
+                    <th>Stop</th>
+
+                    <th>Target</th>
+
+                </tr>
+
+                {active_html}
+
+            </table>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📜 Trade History</h2>
+
+            {history_html}
+
+        </div>
+
+    </body>
+
+    </html>
+
+    """
 
     <h1>🚀 Trading Bot Online</h1>
 
