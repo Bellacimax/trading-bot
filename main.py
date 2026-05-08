@@ -643,7 +643,7 @@ while True:
                 f"📦 Volume Spike: YES"
             )
 
-        # =========================================
+                # =========================================
         # GESTIONE TRADE
         # =========================================
 
@@ -654,23 +654,16 @@ while True:
                 trade = active_trades[t]
 
                 df_trade = yf.download(
-
                     t,
-
                     period="1d",
-
                     interval="5m",
-
                     progress=False
-
                 )
 
                 if df_trade is None or df_trade.empty:
-
                     continue
 
                 if isinstance(df_trade.columns, pd.MultiIndex):
-
                     df_trade.columns = df_trade.columns.get_level_values(0)
 
                 price_now = df_trade["Close"].iloc[-1]
@@ -683,7 +676,6 @@ while True:
 
                 if trade["side"] == "BUY":
 
-                    # break even
                     if price_now >= trade["entry"] + atr_now:
 
                         trade["stop"] = max(
@@ -691,20 +683,16 @@ while True:
                             trade["entry"]
                         )
 
-                    # trailing stop
                     trade["stop"] = max(
-
                         trade["stop"],
-
                         price_now - atr_now * 1.5
                     )
 
-                    # stop
+                    # STOP BUY
                     if price_now <= trade["stop"]:
 
                         pnl = (
-                            price_now
-                            - trade["entry"]
+                            price_now - trade["entry"]
                         ) * trade["qty"]
 
                         stats["pnl"] += pnl
@@ -716,73 +704,70 @@ while True:
 
                         send_telegram(
 
-    f"❌ STOP BUY {t}\n"
+                            f"❌ STOP BUY {t}\n"
 
-    f"Exit: {round(price_now,2)}\n"
+                            f"Exit: {round(price_now,2)}\n"
 
-    f"PnL: {round(pnl,2)}€"
-)
+                            f"PnL: {round(pnl,2)}€"
+                        )
 
-save_trade(
+                        save_trade(
 
-    t,
+                            t,
 
-    trade["side"],
+                            trade["side"],
 
-    trade["entry"],
+                            trade["entry"],
 
-    price_now,
+                            price_now,
 
-    pnl,
+                            pnl,
 
-    rr,
+                            rr,
 
-    "STOP"
+                            "STOP"
+                        )
 
-)
+                        del active_trades[t]
 
-del active_trades[t]
-
-                    # target
+                    # TARGET BUY
                     elif price_now >= trade["target"]:
 
                         pnl = (
-                            price_now
-                            - trade["entry"]
+                            price_now - trade["entry"]
                         ) * trade["qty"]
 
                         stats["pnl"] += pnl
 
                         stats["wins"] += 1
 
-send_telegram(
+                        send_telegram(
 
-    f"💰 TARGET BUY {t}\n"
+                            f"💰 TARGET BUY {t}\n"
 
-    f"Exit: {round(price_now,2)}\n"
+                            f"Exit: {round(price_now,2)}\n"
 
-    f"PnL: {round(pnl,2)}€"
-)
+                            f"PnL: {round(pnl,2)}€"
+                        )
 
-save_trade(
+                        save_trade(
 
-    t,
+                            t,
 
-    trade["side"],
+                            trade["side"],
 
-    trade["entry"],
+                            trade["entry"],
 
-    price_now,
+                            price_now,
 
-    pnl,
+                            pnl,
 
-    rr,
+                            rr,
 
-    "TARGET"
+                            "TARGET"
+                        )
 
-)
-
-del active_trades[t]
+                        del active_trades[t]
 
                 # =========================================
                 # SELL
@@ -798,21 +783,15 @@ del active_trades[t]
                         )
 
                     trade["stop"] = min(
-
                         trade["stop"],
-
                         price_now + atr_now * 1.5
                     )
 
-                    # =========================================
                     # STOP SELL
-                    # =========================================
-
                     if price_now >= trade["stop"]:
 
                         pnl = (
-                            trade["entry"]
-                            - price_now
+                            trade["entry"] - price_now
                         ) * trade["qty"]
 
                         stats["pnl"] += pnl
@@ -846,20 +825,15 @@ del active_trades[t]
                             rr,
 
                             "STOP"
-
                         )
 
                         del active_trades[t]
 
-                    # =========================================
                     # TARGET SELL
-                    # =========================================
-
                     elif price_now <= trade["target"]:
 
                         pnl = (
-                            trade["entry"]
-                            - price_now
+                            trade["entry"] - price_now
                         ) * trade["qty"]
 
                         stats["pnl"] += pnl
@@ -890,14 +864,11 @@ del active_trades[t]
                             rr,
 
                             "TARGET"
-
                         )
 
                         del active_trades[t]
 
             except Exception as e:
-
-                print("Errore gestione trade:", e)
 
                 print("Errore gestione trade:", e)
 
