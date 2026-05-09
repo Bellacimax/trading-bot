@@ -36,6 +36,60 @@ def send_telegram(msg):
         print("Errore Telegram:", e)
 
 # =========================================
+# SAVE TRADE
+# =========================================
+
+def save_trade(
+
+    ticker,
+
+    side,
+
+    entry,
+
+    exit_price,
+
+    pnl,
+
+    rr,
+
+    result
+
+):
+
+    row = pd.DataFrame([{
+
+        "ticker": ticker,
+
+        "side": side,
+
+        "entry": round(entry, 2),
+
+        "exit": round(exit_price, 2),
+
+        "pnl": round(pnl, 2),
+
+        "rr": rr,
+
+        "result": result,
+
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    }])
+
+    row.to_csv(
+
+        "trade_history.csv",
+
+        mode="a",
+
+        header=not os.path.exists("trade_history.csv"),
+
+        index=False
+
+    )
+
+# =========================================
 # PARAMETRI
 # =========================================
 
