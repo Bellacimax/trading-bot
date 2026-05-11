@@ -912,7 +912,7 @@ while True:
             # ENTRY
             # =========================================
 
-            if score_buy >= 3 and htf_up and daily_up and market_bullish:
+            if score_buy >= 3 and htf_up and daily_up and market_bullish and strong_volume:
 
                 side = "BUY"
 
@@ -920,7 +920,7 @@ while True:
 
                 print(f"🟢 BUY READY -> {ticker}")
 
-            elif score_sell >= 3 and htf_down and daily_down:
+            elif score_sell >= 3 and htf_down and daily_down and strong_volume:
 
                 side = "SELL"
 
