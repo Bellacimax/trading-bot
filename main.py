@@ -527,7 +527,7 @@ while True:
 
                 period="5d",
 
-                interval="1h"
+                interval="1h",
                 
                 progress=False
 
