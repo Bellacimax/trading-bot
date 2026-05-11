@@ -528,6 +528,16 @@ while True:
 
         print(f"📊 Fase: {fase}")
 
+                market_bullish = market_is_bullish()
+
+        print(
+
+            f"📈 Market Bullish: "
+
+            f"{market_bullish}"
+
+        )
+
         # =========================================
         # SUBSET TICKER
         # =========================================
