@@ -500,6 +500,28 @@ while True:
 
         for ticker in subset:
 
+            # =========================================
+            # EARNINGS FILTER
+            # =========================================
+
+            earnings_days = check_earnings(ticker)
+
+            if earnings_days is None:
+
+                continue
+
+            if earnings_days > 3:
+
+                continue
+
+            print(
+
+                f"🔥 Earnings Soon -> "
+
+                f"{ticker} ({earnings_days}d)"
+
+            )
+
             print(f"🔍 Analizzo {ticker}")
 
             # =========================================
