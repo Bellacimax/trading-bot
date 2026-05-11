@@ -528,7 +528,7 @@ while True:
 
         print(f"📊 Fase: {fase}")
 
-            market_bullish = market_is_bullish()
+        market_bullish = market_is_bullish()
 
         print(
 
