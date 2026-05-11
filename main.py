@@ -9,6 +9,7 @@ import os
 import csv
 from datetime import datetime, UTC
 from scanner import rank_tickers
+from datetime import timedelta
 
 # =========================================
 # TELEGRAM
@@ -397,6 +398,40 @@ Thread(target=run_dashboard).start()
 # LOOP PRINCIPALE
 # =========================================
 
+# =========================================
+# EARNINGS CHECK
+# =========================================
+
+def check_earnings(ticker):
+
+    try:
+
+        stock = yf.Ticker(ticker)
+
+        earnings = stock.calendar
+
+        if earnings is None or earnings.empty:
+
+            return None
+
+        earnings_date = earnings.iloc[0][0]
+
+        if earnings_date is None:
+
+            return None
+
+        days_left = (earnings_date.date() - datetime.now().date()).days
+
+        return days_left
+
+    except:
+
+        return None
+
+# =========================================
+# MAIN LOOP
+# =========================================
+
 while True:
 
     try:
@@ -433,7 +468,6 @@ while True:
             time.sleep(300)
 
             continue
-
         # =========================================
         # FASE MERCATO
         # =========================================
