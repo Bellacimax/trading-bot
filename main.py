@@ -506,14 +506,7 @@ while True:
 
             earnings_days = check_earnings(ticker)
 
-            if earnings_days is None:
-
-                continue
-
-            if earnings_days > 3:
-
-                continue
-
+            
             print(
 
                 f"🔥 Earnings Soon -> "
