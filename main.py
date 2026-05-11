@@ -709,6 +709,16 @@ while True:
             daily_down = daily_price < ema200_daily.iloc[-1]
 
             # =========================================
+            # DAILY VOLUME FILTER
+            # =========================================
+
+            volume_today = df_daily["Volume"].iloc[-1]
+
+            avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
+
+            strong_volume = volume_today > avg_volume
+
+            # =========================================
             # SUPPORTI / RESISTENZE
             # =========================================
 
