@@ -607,7 +607,7 @@ while True:
 
             htf_last = df_htf.iloc[-1]
 
-                        htf_last = df_htf.iloc[-1]
+            
 
             # =========================================
             # DATI DAILY
