@@ -993,7 +993,7 @@ while True:
 
                     trade["stop"] = max(
                         trade["stop"],
-                        price_now - atr_now * 1.5
+                        price_now - atr_now * 3
                     )
 
                     # STOP BUY
@@ -1092,7 +1092,7 @@ while True:
 
                     trade["stop"] = min(
                         trade["stop"],
-                        price_now + atr_now * 1.5
+                        price_now + atr_now * 3
                     )
 
                     # STOP SELL
