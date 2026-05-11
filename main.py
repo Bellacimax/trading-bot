@@ -427,6 +427,48 @@ def check_earnings(ticker):
     except:
 
         return None
+# =========================================
+# MARKET FILTER
+# =========================================
+
+def market_is_bullish():
+
+    try:
+
+        spy = yf.download(
+
+            "SPY",
+
+            period="1y",
+
+            interval="1d",
+
+            progress=False
+
+        )
+
+        if spy is None or spy.empty:
+
+            return True
+
+        if isinstance(spy.columns, pd.MultiIndex):
+
+            spy.columns = spy.columns.get_level_values(0)
+
+        ema200 = spy["Close"].ewm(
+
+            span=200,
+
+            adjust=False
+
+        ).mean()
+
+        return spy["Close"].iloc[-1] > ema200.iloc[-1]
+
+    except:
+
+        return True
+
 
 # =========================================
 # MAIN LOOP
