@@ -527,8 +527,8 @@ while True:
 
                 period="5d",
 
-                interval="5m",
-
+                interval="1h"
+                
                 progress=False
 
             )
@@ -579,7 +579,7 @@ while True:
 
                 ticker,
 
-                period="1mo",
+                period="3mo",
 
                 interval="1h",
 
