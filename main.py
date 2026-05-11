@@ -893,7 +893,7 @@ while True:
             # ENTRY
             # =========================================
 
-            if score_buy >= 3 and htf_up and daily_up:
+            if score_buy >= 3 and htf_up and daily_up and market_bullish:
 
                 side = "BUY"
 
