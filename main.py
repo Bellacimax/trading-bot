@@ -607,6 +607,46 @@ while True:
 
             htf_last = df_htf.iloc[-1]
 
+                        htf_last = df_htf.iloc[-1]
+
+            # =========================================
+            # DATI DAILY
+            # =========================================
+
+            df_daily = yf.download(
+
+                ticker,
+
+                period="1y",
+
+                interval="1d",
+
+                progress=False
+
+            )
+
+            if df_daily is None or df_daily.empty:
+
+                continue
+
+            if isinstance(df_daily.columns, pd.MultiIndex):
+
+                df_daily.columns = df_daily.columns.get_level_values(0)
+
+            ema200_daily = df_daily["Close"].ewm(
+
+                span=200,
+
+                adjust=False
+
+            ).mean()
+
+            daily_price = df_daily["Close"].iloc[-1]
+
+            daily_up = daily_price > ema200_daily.iloc[-1]
+
+            daily_down = daily_price < ema200_daily.iloc[-1]
+
             # =========================================
             # SUPPORTI / RESISTENZE
             # =========================================
