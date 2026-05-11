@@ -567,6 +567,15 @@ while True:
                     f"{ticker} ({earnings_days}d)"
 
                 )
+                send_telegram(
+
+                    f"⚠️ EARNINGS SOON\n\n"
+
+                    f"Ticker: {ticker}\n"
+
+                    f"Days: {earnings_days}"
+
+                )    
 
             print(f"🔍 Analizzo {ticker}")
             # =========================================
