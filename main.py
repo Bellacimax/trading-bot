@@ -846,7 +846,7 @@ while True:
 
             rr = round(reward / risk, 2) if risk != 0 else 0
 
-            if rr < 1.5:
+            if rr < 2:
 
                 print(f"❌ RR FAIL -> {ticker} | RR={rr}")
 
