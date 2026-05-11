@@ -402,6 +402,20 @@ while True:
     try:
 
         # =========================================
+        # WEEKEND FILTER
+        # =========================================
+
+        weekday = datetime.now().weekday()
+
+        if weekday >= 5:
+
+            print("📴 Weekend - market closed")
+
+            time.sleep(600)
+
+            continue
+
+        # =========================================
         # ORARIO NEW YORK
         # =========================================
 
