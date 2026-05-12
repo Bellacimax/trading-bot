@@ -570,30 +570,32 @@ while True:
             # =========================================
 
             if ticker in ["SPY", "QQQ", "IWM", "SMH", "ARKK", "XLE"]:
+
                 earnings_days = None
+
             else:
+
                 earnings_days = check_earnings(ticker)
-            
-            earnings_days = check_earnings(ticker)
 
             if earnings_days is not None and earnings_days <= 7:
 
-                print(
+                 print(
 
-                    f"🔥 Earnings Soon -> "
+                      f"🔥 Earnings Soon -> "
 
-                    f"{ticker} ({earnings_days}d)"
+                      f"{ticker} ({earnings_days}d)"
 
-                )
-                send_telegram(
+                 )
 
-                    f"⚠️ EARNINGS SOON\n\n"
+                  send_telegram(
 
-                    f"Ticker: {ticker}\n"
+                       f"⚠️ EARNINGS SOON\n\n"
 
-                    f"Days: {earnings_days}"
+                       f"Ticker: {ticker}\n"
 
-                )    
+                       f"Days: {earnings_days}"
+
+                  )
 
             # =========================================
             # DATI 5M
