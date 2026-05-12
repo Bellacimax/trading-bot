@@ -544,7 +544,7 @@ while True:
 
         subset = TICKERS
 
-        print(f"🔥 Top Ranked: {subset}")
+        print(f"🔥 Tot Tickers: {len(subset)}")
 
         # =========================================
         # LOOP TICKER
