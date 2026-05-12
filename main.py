@@ -595,7 +595,6 @@ while True:
 
                 )    
 
-        
             # =========================================
             # DATI 5M
             # =========================================
@@ -607,26 +606,33 @@ while True:
                 period="5d",
 
                 interval="1h",
-                
+
                 progress=False
 
             )
 
-            if df is None or df.empty or len(df) < 50:
+    if df is None or df.empty:
 
-                continue
+        print(f"❌ NO DATA -> {ticker}")
 
-            if isinstance(df.columns, pd.MultiIndex):
+        continue
 
-                df.columns = df.columns.get_level_values(0)
+     if len(df) < 50:
 
-            df = df[[
-                "Open",
-                "High",
-                "Low",
-                "Close",
-                "Volume"
-            ]].dropna()
+         continue
+
+     if isinstance(df.columns, pd.MultiIndex):
+
+         df.columns = df.columns.get_level_values(0)
+
+     df = df[[
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Volume"
+     ]].dropna()
+            
 
             # =========================================
             # ATR
