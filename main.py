@@ -569,6 +569,11 @@ while True:
             # EARNINGS INFO
             # =========================================
 
+            if ticker in ["SPY", "QQQ", "IWM", "SMH", "ARKK", "XLE"]:
+                earnings_days = None
+            else:
+                earnings_days = check_earnings(ticker)
+            
             earnings_days = check_earnings(ticker)
 
             if earnings_days is not None and earnings_days <= 7:
