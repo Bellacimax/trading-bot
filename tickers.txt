@@ -1,4 +1,4 @@
-tickers = [
+TICKERS = [
 
     "AAPL",
     "MSFT",
