@@ -542,7 +542,7 @@ while True:
         # SUBSET TICKER
         # =========================================
 
-        subset = rank_tickers(TICKERS)
+        subset = TICKERS
 
         print(f"🔥 Top Ranked: {subset}")
 
