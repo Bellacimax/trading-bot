@@ -1,112 +1,172 @@
-AAPL
-MSFT
-NVDA
-AMZN
-META
-TSLA
-GOOGL
-AMD
-NFLX
-INTC
-CRM
-ORCL
-ADBE
-PYPL
-SHOP
-UBER
-LYFT
-SNOW
-PLTR
-COIN
-ROKU
-DOCU
-ZM
-TWLO
-OKTA
-CRWD
-ZS
-NET
-DDOG
-MDB
-TEAM
-WDAY
-NOW
-PANW
-FTNT
-AI
-SMCI
-ARM
-ASML
-AVGO
-QCOM
-TXN
-MU
-LRCX
-AMAT
-KLAC
-NXPI
-MRVL
-ON
-ADI
-INTU
-ISRG
-REGN
-VRTX
-LLY
-JNJ
-PFE
-MRNA
-CVS
-UNH
-ABBV
-XOM
-CVX
-SLB
-COP
-OXY
-BA
-LMT
-NOC
-RTX
-CAT
-DE
-GE
-HON
-MMM
-SPGI
-V
-MA
-AXP
-GS
-MS
-JPM
-BAC
-C
-WFC
-DIS
-CMCSA
-T
-VZ
-KO
-PEP
-MCD
-NKE
-SBUX
-WMT
-COST
-HD
-LOW
-TGT
-GME
-AMC
-BB
-NOK
-BYND
-CVNA
-RIOT
-MARA
-UPST
-SOFI
-AFRM
-LCID
-RIVN
+tickers = [
+
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "TSLA",
+    "GOOGL",
+    "AMD",
+    "NFLX",
+    "INTC",
+    "CRM",
+    "ORCL",
+    "ADBE",
+    "PYPL",
+    "SHOP",
+    "UBER",
+    "LYFT",
+    "SNOW",
+    "PLTR",
+    "COIN",
+    "ROKU",
+    "DOCU",
+    "ZM",
+    "TWLO",
+    "OKTA",
+    "CRWD",
+    "ZS",
+    "NET",
+    "DDOG",
+    "MDB",
+    "TEAM",
+    "WDAY",
+    "NOW",
+    "PANW",
+    "FTNT",
+    "AI",
+    "SMCI",
+    "ARM",
+    "ASML",
+    "AVGO",
+    "QCOM",
+    "TXN",
+    "MU",
+    "LRCX",
+    "AMAT",
+    "KLAC",
+    "NXPI",
+    "MRVL",
+    "ON",
+    "ADI",
+    "INTU",
+    "ISRG",
+    "REGN",
+    "VRTX",
+    "LLY",
+    "JNJ",
+    "PFE",
+    "MRNA",
+    "CVS",
+    "UNH",
+    "ABBV",
+    "XOM",
+    "CVX",
+    "SLB",
+    "COP",
+    "OXY",
+    "BA",
+    "LMT",
+    "NOC",
+    "RTX",
+    "CAT",
+    "DE",
+    "GE",
+    "HON",
+    "MMM",
+    "SPGI",
+    "V",
+    "MA",
+    "AXP",
+    "GS",
+    "MS",
+    "JPM",
+    "BAC",
+    "C",
+    "WFC",
+    "DIS",
+    "CMCSA",
+    "T",
+    "VZ",
+    "KO",
+    "PEP",
+    "MCD",
+    "NKE",
+    "SBUX",
+    "WMT",
+    "COST",
+    "HD",
+    "LOW",
+    "TGT",
+    "GME",
+    "AMC",
+    "BB",
+    "NOK",
+    "BYND",
+    "CVNA",
+    "RIOT",
+    "MARA",
+    "UPST",
+    "SOFI",
+    "AFRM",
+    "LCID",
+    "RIVN",
+
+    # AI / CLOUD
+    "ANET",
+    "DELL",
+    "HPE",
+    "PATH",
+    "ESTC",
+    "FSLY",
+    "AKAM",
+
+    # SEMI
+    "MCHP",
+    "MPWR",
+    "ENTG",
+    "TER",
+    "OLED",
+
+    # CYBERSECURITY
+    "S",
+    "CYBR",
+    "TENB",
+    "RPD",
+
+    # GROWTH
+    "HOOD",
+    "DASH",
+    "ABNB",
+    "DUOL",
+    "CELH",
+    "CAVA",
+
+    # BIOTECH
+    "HIMS",
+    "TEM",
+    "VKTX",
+
+    # ENERGY
+    "HAL",
+    "BKR",
+    "FANG",
+    "DVN",
+
+    # INDUSTRIAL AI
+    "ETN",
+    "PH",
+    "TT",
+    "EMR",
+    "ROP",
+
+    # ETF
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SMH",
+    "ARKK",
+    "XLE"
+
+]
