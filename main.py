@@ -597,8 +597,8 @@ while True:
 
                   )
 
-            # =========================================
-            # DATI 5M
+                        # =========================================
+            # DATI 1H
             # =========================================
 
             df = yf.download(
@@ -621,6 +621,8 @@ while True:
 
             if len(df) < 50:
 
+                print(f"⚠️ FEW DATA -> {ticker}")
+
                 continue
 
             if isinstance(df.columns, pd.MultiIndex):
@@ -634,7 +636,16 @@ while True:
                 "Close",
                 "Volume"
             ]].dropna()
-            
+
+            if len(df) < 50:
+
+                continue
+
+            # =========================================
+            # ATR
+            # =========================================
+
+            df["ATR"] = compute_atr(df)
 
             # =========================================
             # ATR
