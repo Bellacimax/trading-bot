@@ -542,7 +542,7 @@ while True:
         # SUBSET TICKER
         # =========================================
 
-        subset = TICKERS
+        subset = list(set(TICKERS))
 
         print(f"🔥 Tot Tickers: {len(subset)}")
 
