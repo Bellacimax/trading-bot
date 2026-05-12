@@ -613,25 +613,25 @@ while True:
 
             if df is None or df.empty:
 
-            print(f"❌ NO DATA -> {ticker}")
+                print(f"❌ NO DATA -> {ticker}")
 
                 continue
 
-             if len(df) < 50:
+            if len(df) < 50:
 
-                 continue
+                continue
 
-         if isinstance(df.columns, pd.MultiIndex):
+            if isinstance(df.columns, pd.MultiIndex):
 
-         df.columns = df.columns.get_level_values(0)
+                df.columns = df.columns.get_level_values(0)
 
-         df = df[[
-            "Open",
-            "High",
-            "Low",
-            "Close",
-            "Volume"
-          ]].dropna()
+            df = df[[
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume"
+            ]].dropna()
             
 
             # =========================================
