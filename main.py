@@ -552,6 +552,10 @@ while True:
 
         for ticker in subset:
 
+            ticker = ticker.replace('"', '').replace(',', '')
+
+            print(f"🔍 Analizzo {ticker}")
+
             # =========================================
             # EARNINGS INFO
             # =========================================
