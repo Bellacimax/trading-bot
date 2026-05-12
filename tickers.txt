@@ -1,5 +1,4 @@
 TICKERS = [
-
     "AAPL",
     "MSFT",
     "NVDA",
