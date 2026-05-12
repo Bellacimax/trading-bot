@@ -1339,7 +1339,7 @@ while True:
 
         print("❌ ERRORE:", e)
 
-        time.sleep(10)
+        time.sleep(300)
 
 
          
