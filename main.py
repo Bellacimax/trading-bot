@@ -552,7 +552,16 @@ while True:
 
         for ticker in subset:
 
-            ticker = ticker.replace('"', '').replace(',', '')
+            if (
+                "TICKERS" in ticker
+                or "[" in ticker
+                or "]" in ticker
+                or "=" in ticker
+                or "#" in ticker
+            ):
+                continue
+
+            ticker = ticker.replace('"', '').replace(',', '').strip()
 
             print(f"🔍 Analizzo {ticker}")
 
