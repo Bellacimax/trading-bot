@@ -716,7 +716,7 @@ while True:
 
             avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
 
-            strong_volume = volume_today > avg_volume
+            strong_volume = volume_today > avg_volume * 0.8
 
             # =========================================
             # SUPPORTI / RESISTENZE
