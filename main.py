@@ -565,7 +565,7 @@ while True:
 
             print(f"🔍 Analizzo {ticker}")
 
-            # =========================================
+                        # =========================================
             # EARNINGS INFO
             # =========================================
 
@@ -579,23 +579,23 @@ while True:
 
             if earnings_days is not None and earnings_days <= 7:
 
-                 print(
+                print(
 
-                      f"🔥 Earnings Soon -> "
+                    f"🔥 Earnings Soon -> "
 
-                      f"{ticker} ({earnings_days}d)"
+                    f"{ticker} ({earnings_days}d)"
 
-                 )
+                )
 
-                  send_telegram(
+                send_telegram(
 
-                       f"⚠️ EARNINGS SOON\n\n"
+                    f"⚠️ EARNINGS SOON\n\n"
 
-                       f"Ticker: {ticker}\n"
+                    f"Ticker: {ticker}\n"
 
-                       f"Days: {earnings_days}"
+                    f"Days: {earnings_days}"
 
-                  )
+                )
 
             # =========================================
             # DATI 1H
