@@ -163,6 +163,7 @@ def compute_atr(data, period=14):
     ], axis=1).max(axis=1)
 
     return tr.rolling(period).mean()
+    
 
 # =========================================
 # INDICATORI
