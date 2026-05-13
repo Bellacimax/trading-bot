@@ -603,16 +603,16 @@ while True:
 
             df = yf.download(
 
-                ticker,
+                 ticker,
 
-                period="5d",
+                 period="1mo",
 
-                interval="1h",
+                 interval="1h",
 
-                progress=False
+                 progress=False
 
             )
-
+           
             if df is None or df.empty:
 
                 print(f"❌ NO DATA -> {ticker}")
