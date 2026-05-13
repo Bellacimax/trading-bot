@@ -478,6 +478,9 @@ def market_is_bullish():
 # =========================================
 
 MAX_TRADES = 5
+
+open_positions = []
+
 while True:
 
 
