@@ -975,6 +975,19 @@ while True:
                 print(f"⚠️ SKIP -> {ticker}")
 
                 continue
+
+            # =========================================
+            # RSI EXTREME FILTER
+            # =========================================
+
+            if side == "SELL" and rsi < 10:
+
+                print(f"⚠️ RSI TOO LOW -> {ticker}")
+
+                continue
+
+
+            
             # =========================================
             # STOP / TARGET
             # =========================================
