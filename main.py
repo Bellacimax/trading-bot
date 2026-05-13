@@ -476,7 +476,9 @@ def market_is_bullish():
 # MAIN LOOP
 # =========================================
 
+MAX_TRADES = 5
 while True:
+
 
     try:
 
