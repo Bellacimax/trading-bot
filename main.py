@@ -664,7 +664,7 @@ while True:
             price = last["Close"]
 
             atr = last["ATR"]
-            if atr < price * 0.015:
+            if atr < price * 0.01:
 
                 print(f"⚠️ LOW VOLATILITY -> {ticker}")
 
