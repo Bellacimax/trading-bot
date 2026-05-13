@@ -664,6 +664,11 @@ while True:
             price = last["Close"]
 
             atr = last["ATR"]
+            if atr < price * 0.015:
+
+                print(f"⚠️ LOW VOLATILITY -> {ticker}")
+
+                continue
 
             if pd.isna(atr) or atr == 0:
 
