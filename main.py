@@ -1009,6 +1009,15 @@ while True:
             # =========================================
 
             if side == "SELL" and rsi < 10:
+
+                print(f"⚠️ RSI TOO LOW -> {ticker}")
+
+                continue
+
+            # =========================================
+            # VWAP FILTER
+            # =========================================
+
             if side == "BUY" and price < vwap:
 
                 print(f"⚠️ BELOW VWAP -> {ticker}")
@@ -1018,10 +1027,6 @@ while True:
             if side == "SELL" and price > vwap:
 
                 print(f"⚠️ ABOVE VWAP -> {ticker}")
-
-                continue
-
-                print(f"⚠️ RSI TOO LOW -> {ticker}")
 
                 continue
 
