@@ -1094,8 +1094,13 @@ while True:
             # =========================================
             # TELEGRAM
             # =========================================
+                if len(open_positions) >= MAX_TRADES:
 
-            send_telegram(
+                    print("⚠️ MAX TRADES REACHED")
+
+                    continue
+            
+                send_telegram(
 
                 f"🚀 {side} {ticker}\n\n"
 
