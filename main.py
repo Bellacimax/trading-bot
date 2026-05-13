@@ -666,10 +666,18 @@ while True:
             # =========================================
 
             df = compute_indicators(df)
+            df["VWAP"] = (
+
+                (df["Close"] * df["Volume"]).cumsum()
+
+                / df["Volume"].cumsum()
+
+            )
 
             last = df.iloc[-1]
 
             price = last["Close"]
+            vwap = last["VWAP"]
 
             rsi = last["RSI"]
 
