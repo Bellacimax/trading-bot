@@ -1,4 +1,6 @@
 TICKERS = [
+
+    # BIG TECH / AI
     "AAPL",
     "MSFT",
     "NVDA",
@@ -50,6 +52,8 @@ TICKERS = [
     "ON",
     "ADI",
     "INTU",
+
+    # HEALTHCARE / BIOTECH
     "ISRG",
     "REGN",
     "VRTX",
@@ -60,11 +64,22 @@ TICKERS = [
     "CVS",
     "UNH",
     "ABBV",
+    "HIMS",
+    "TEM",
+    "VKTX",
+
+    # ENERGY
     "XOM",
     "CVX",
     "SLB",
     "COP",
     "OXY",
+    "HAL",
+    "BKR",
+    "FANG",
+    "DVN",
+
+    # INDUSTRIAL / DEFENSE
     "BA",
     "LMT",
     "NOC",
@@ -74,6 +89,13 @@ TICKERS = [
     "GE",
     "HON",
     "MMM",
+    "ETN",
+    "PH",
+    "TT",
+    "EMR",
+    "ROP",
+
+    # FINANCIAL
     "SPGI",
     "V",
     "MA",
@@ -84,6 +106,8 @@ TICKERS = [
     "BAC",
     "C",
     "WFC",
+
+    # CONSUMER
     "DIS",
     "CMCSA",
     "T",
@@ -98,6 +122,8 @@ TICKERS = [
     "HD",
     "LOW",
     "TGT",
+
+    # MEME / HIGH BETA
     "GME",
     "AMC",
     "BB",
@@ -120,6 +146,30 @@ TICKERS = [
     "ESTC",
     "FSLY",
     "AKAM",
+    "APP",
+    "CRWV",
+    "SOUN",
+    "BBAI",
+
+    # QUANTUM / FUTURE TECH
+    "IONQ",
+    "QBTS",
+    "RGTI",
+    "QUBT",
+    "ARQQ",
+
+    # SPACE / FUTURE MOBILITY
+    "RKLB",
+    "LUNR",
+    "ASTS",
+    "ACHR",
+    "JOBY",
+
+    # DATA / SOFTWARE
+    "PL",
+    "CFLT",
+    "SNPS",
+    "CDNS",
 
     # SEMI
     "MCHP",
@@ -130,7 +180,6 @@ TICKERS = [
 
     # CYBERSECURITY
     "S",
-    "CYBR",
     "TENB",
     "RPD",
 
@@ -141,24 +190,6 @@ TICKERS = [
     "DUOL",
     "CELH",
     "CAVA",
-
-    # BIOTECH
-    "HIMS",
-    "TEM",
-    "VKTX",
-
-    # ENERGY
-    "HAL",
-    "BKR",
-    "FANG",
-    "DVN",
-
-    # INDUSTRIAL AI
-    "ETN",
-    "PH",
-    "TT",
-    "EMR",
-    "ROP",
 
     # ETF
     "SPY",
