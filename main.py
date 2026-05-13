@@ -661,11 +661,13 @@ while True:
             df = compute_indicators(df)
 
             last = df.iloc[-1]
-            last = df.iloc[-1]
 
             price = last["Close"]
 
+            rsi = last["RSI"]
+
             atr = last["ATR"]
+
             if atr < price * 0.01:
 
                 print(f"⚠️ LOW VOLATILITY -> {ticker}")
