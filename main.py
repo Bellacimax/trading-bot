@@ -59,6 +59,7 @@ def save_trade(
 
 ):
 
+    
     row = pd.DataFrame([{
 
         "ticker": ticker,
