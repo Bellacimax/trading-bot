@@ -976,7 +976,7 @@ while True:
 
                 continue
             # =========================================
-            # STOP / TARGET
+                        # STOP / TARGET
             # =========================================
 
             distanza_stop = atr * 4
@@ -993,17 +993,17 @@ while True:
 
                 target = price - atr * 6
 
-            risk = abs(price - stop)
+           risk = abs(price - stop)
 
-            reward = abs(target - price)
+           reward = abs(target - price)
 
-            rr = round(reward / risk, 2) if risk != 0 else 0
+           rr = round(reward / risk, 2) if risk != 0 else 0
 
-            if rr < 2:
+           if rr < 1.3:
 
-                print(f"❌ RR FAIL -> {ticker} | RR={rr}")
+               print(f"❌ RR FAIL -> {ticker} | RR={rr}")
 
-                continue
+               continue
 
             # =========================================
             # SIZE
