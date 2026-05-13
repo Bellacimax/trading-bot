@@ -668,6 +668,15 @@ while True:
             rsi = last["RSI"]
 
             atr = last["ATR"]
+            volume = last["Volume"]
+
+            volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
+
+            if volume < volume_ma * 1.5:
+
+                print(f"⚠️ LOW VOLUME -> {ticker}")
+
+                continue
 
             if atr < price * 0.01:
 
