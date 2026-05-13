@@ -1110,8 +1110,6 @@ while True:
 
                 f"📊 Fase: {fase}\n\n"
 
-                f"📊 Fase: {fase}\n\n"
-
                 f"💵 Entry: {round(price,2)}\n"
 
                 f"🛑 Stop: {round(stop,2)}\n"
@@ -1143,8 +1141,10 @@ while True:
                 f"📐 Fib 0.618: {round(fib_618,2)}\n\n"
 
                 f"📦 Volume Spike: YES"
+
             )
 
+            open_positions.append(ticker)
         # =========================================
         # GESTIONE TRADE
         # =========================================
