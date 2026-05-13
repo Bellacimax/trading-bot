@@ -1094,15 +1094,18 @@ while True:
             # =========================================
             # TELEGRAM
             # =========================================
-                if len(open_positions) >= MAX_TRADES:
 
-                    print("⚠️ MAX TRADES REACHED")
+            if len(open_positions) >= MAX_TRADES:
 
-                    continue
-            
-                send_telegram(
+                print("⚠️ MAX TRADES REACHED")
+
+                continue
+
+            send_telegram(
 
                 f"🚀 {side} {ticker}\n\n"
+
+                f"📊 Fase: {fase}\n\n"
 
                 f"📊 Fase: {fase}\n\n"
 
@@ -1139,7 +1142,7 @@ while True:
                 f"📦 Volume Spike: YES"
             )
 
-                # =========================================
+        # =========================================
         # GESTIONE TRADE
         # =========================================
 
