@@ -1056,7 +1056,7 @@ while True:
             # GAP FILTER
             # =========================================
 
-            if abs(gap_pct) < 2:
+            if abs(gap_pct) < MIN_GAP:
 
                 print(f"⚠️ LOW GAP -> {ticker}")
 
