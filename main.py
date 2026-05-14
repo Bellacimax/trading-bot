@@ -603,7 +603,9 @@ while True:
         subset = sorted(list(set(TICKERS)))
 
         print(f"🔥 Tot Tickers: {len(subset)}")
- 
+
+
+"""
 # =========================================
 # OPEN POSITIONS MONITOR
 # =========================================
@@ -691,7 +693,7 @@ for tkr, pos in list(open_positions.items()):
         print(f"❌ MONITOR ERROR {tkr}: {e}")
 
 
-        
+        """
         # =========================================
         # LOOP TICKER
         # =========================================
