@@ -589,7 +589,108 @@ while True:
         subset = sorted(list(set(TICKERS)))
 
         print(f"🔥 Tot Tickers: {len(subset)}")
+ 
+# =========================================
+# OPEN POSITIONS MONITOR
+# =========================================
 
+for tkr, pos in list(open_positions.items()):
+
+    try:
+
+        live = yf.download(tkr, period="1d", interval="1m")
+
+        if live.empty:
+
+            continue
+
+        current_price = live["Close"].iloc[-1]
+
+        side = pos["side"]
+
+        entry = pos["entry"]
+
+        stop = pos["stop"]
+
+        target = pos["target"]
+
+        qty = pos["qty"]
+
+        close_trade = False
+
+        result = ""
+
+        pnl = 0
+
+        if side == "BUY":
+
+            if current_price >= target:
+
+                pnl = (target - entry) * qty
+
+                result = "TARGET"
+
+                close_trade = True
+
+            elif current_price <= stop:
+
+                pnl = (stop - entry) * qty
+
+                result = "STOP"
+
+                close_trade = True
+
+        if side == "SELL":
+
+            if current_price <= target:
+
+                pnl = (entry - target) * qty
+
+                result = "TARGET"
+
+                close_trade = True
+
+            elif current_price >= stop:
+
+                pnl = (entry - stop) * qty
+
+                result = "STOP"
+
+                close_trade = True
+
+        if close_trade:
+
+            send_telegram(
+
+                f"✅ TRADE CLOSED {tkr}\n\n"
+
+                f"🎯 Result: {result}\n"
+
+                f"💰 PnL: ${round(pnl,2)}"
+
+            )
+
+            del open_positions[tkr]
+
+    except Exception as e:
+
+        print(f"❌ MONITOR ERROR {tkr}: {e}")
+
+# =========================================
+# LOOP TICKER
+# =========================================
+
+for ticker in subset:
+
+    if (
+        "TICKERS" in ticker
+        or "[" in ticker
+        or "]" in ticker
+        or "=" in ticker
+        or "#" in ticker
+    ):
+        continue
+        
         # =========================================
         # LOOP TICKER
         # =========================================
@@ -624,7 +725,7 @@ while True:
 
                     continue
 
-                        # =========================================
+            # =========================================
             # EARNINGS INFO
             # =========================================
 
