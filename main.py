@@ -693,7 +693,7 @@ for tkr, pos in list(open_positions.items()):
         print(f"❌ MONITOR ERROR {tkr}: {e}")
 
 
-        """
+"""
         # =========================================
         # LOOP TICKER
         # =========================================
