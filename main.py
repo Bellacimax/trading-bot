@@ -666,6 +666,7 @@ while True:
             # =========================================
 
             df = compute_indicators(df)
+
             df["VWAP"] = (
 
                 (df["Close"] * df["Volume"]).cumsum()
@@ -673,6 +674,12 @@ while True:
                 / df["Volume"].cumsum()
 
             )
+
+            df["EMA20"] = df["Close"].ewm(span=20).mean()
+
+            df["EMA50"] = df["Close"].ewm(span=50).mean()
+
+            df["EMA200"] = df["Close"].ewm(span=200).mean()
 
             last = df.iloc[-1]
 
