@@ -1184,10 +1184,6 @@ while True:
 
                 entry=round(price, 2),
 
-                stop=round(stop, 2),
-
-                target=round(target, 2),
-
                 rr=rr
 
             )
