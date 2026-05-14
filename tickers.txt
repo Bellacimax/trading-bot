@@ -256,7 +256,6 @@ TICKERS = [
 "PATH",
 
 # CYBERSECURITY
-"CYBR",
 "TENB",
 "RPD",
 "S",
