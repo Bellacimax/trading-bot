@@ -681,6 +681,11 @@ while True:
             df["EMA200"] = df["Close"].ewm(span=200).mean()
 
             last = df.iloc[-1]
+            ema20 = last["EMA20"]
+
+            ema50 = last["EMA50"]
+
+            ema200 = last["EMA200"]
 
             price = last["Close"]
             vwap = last["VWAP"]
