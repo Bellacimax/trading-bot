@@ -264,7 +264,6 @@ TICKERS = [
 
 # CLOUD / SOFTWARE
 "HCP",
-"CFLT",
 "DOCN",
 "GTLB",
 "PD",
@@ -309,7 +308,6 @@ TICKERS = [
 "SPXS",
 "FNGU",
 "UVXY",
-"BITX",
 
 # DEFENSE / ARMI
 "GD",
