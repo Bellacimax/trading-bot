@@ -214,8 +214,13 @@ init_stats()
 
 app = Flask(__name__)
 @app.route("/dashboard")
+
+@app.route("/dashboard")
 def dashboard():
+
     total_pnl = 0
+
+    safe_positions = {}
 
     for tkr, pos in open_positions.items():
 
@@ -257,13 +262,27 @@ def dashboard():
 
             pos["pnl"] = round(pnl, 2)
 
+            safe_positions[tkr] = pos
+
             total_pnl += pnl
 
-        except:
+        except Exception as e:
 
-            pass
+            print(f"DASHBOARD ERROR {tkr}: {e}")
 
     return {
+
+        "open_positions": safe_positions,
+
+        "total_open": len(safe_positions),
+
+        "max_trades": MAX_TRADES,
+
+        "capital_per_trade": CAPITALE_PER_TRADE,
+
+        "total_pnl": round(total_pnl, 2)
+
+    }
 
         "open_positions": open_positions,
 
