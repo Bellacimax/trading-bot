@@ -475,7 +475,11 @@ def market_is_bullish():
 # =========================================
 # MAIN LOOP
 # =========================================
+CAPITALE_PER_TRADE = int(
 
+    os.getenv("CAPITALE_PER_TRADE", 1000)
+
+)
 MAX_TRADES = 5
 
 open_positions = []
