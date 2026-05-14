@@ -502,6 +502,18 @@ MIN_VOLUME_RATIO = float(
 
 )
 
+RSI_SELL_LIMIT = float(
+
+    os.getenv("RSI_SELL_LIMIT", 10)
+
+)
+
+COOLDOWN_MINUTES = int(
+
+    os.getenv("COOLDOWN_MINUTES", 60)
+
+)
+
 open_positions = []
 
 cooldown_tickers = {}
