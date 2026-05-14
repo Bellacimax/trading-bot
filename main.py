@@ -215,7 +215,7 @@ init_stats()
 app = Flask(__name__)
 @app.route("/dashboard")
 def dashboard():
-        total_pnl = 0
+    total_pnl = 0
 
     for tkr, pos in open_positions.items():
 
