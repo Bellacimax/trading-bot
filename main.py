@@ -482,7 +482,11 @@ CAPITALE_PER_TRADE = int(
     os.getenv("CAPITALE_PER_TRADE", 1000)
 
 )
-MAX_TRADES = 5
+MAX_TRADES = int(
+
+    os.getenv("MAX_TRADES", 5)
+
+)
 MIN_GAP = float(
 
     os.getenv("MIN_GAP", 2)
