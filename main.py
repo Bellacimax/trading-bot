@@ -1209,9 +1209,17 @@ while True:
 
                 entry=round(price, 2),
 
+                exit_price=0,
+
+                pnl=0,
+
+                result="OPEN",
+
                 rr=rr
 
             )
+
+
         # =========================================
         # GESTIONE TRADE
         # =========================================
