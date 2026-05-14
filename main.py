@@ -477,27 +477,36 @@ def market_is_bullish():
 # =========================================
 # MAIN LOOP
 # =========================================
+
 CAPITALE_PER_TRADE = int(
 
     os.getenv("CAPITALE_PER_TRADE", 1000)
 
 )
+
 MAX_TRADES = int(
 
     os.getenv("MAX_TRADES", 5)
 
 )
+
 MIN_GAP = float(
 
     os.getenv("MIN_GAP", 2)
 
 )
 
+MIN_VOLUME_RATIO = float(
+
+    os.getenv("MIN_VOLUME_RATIO", 1.2)
+
+)
+
 open_positions = []
+
 cooldown_tickers = {}
 
 while True:
-
 
     try:
 
