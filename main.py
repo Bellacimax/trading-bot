@@ -1200,11 +1200,21 @@ while True:
 
                 continue
 
+            qty = round(
+
+                CAPITALE_PER_TRADE / price
+
+            )
+
             send_telegram(
 
                 f"🚀 {side} {ticker}\n\n"
 
                 f"📊 Fase: {fase}\n\n"
+
+                f"💰 Capitale: ${CAPITALE_PER_TRADE}\n"
+
+                f"📦 Shares: {qty}\n\n"
 
                 f"💵 Entry: {round(price,2)}\n"
 
