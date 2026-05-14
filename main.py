@@ -284,18 +284,6 @@ def dashboard():
 
     }
 
-        "open_positions": open_positions,
-
-        "total_open": len(open_positions),
-
-        "max_trades": MAX_TRADES,
-
-        "capital_per_trade": CAPITALE_PER_TRADE,
-
-        "total_pnl": round(total_pnl, 2)
-
-    }
-
     
 @app.route("/")
 
