@@ -1100,7 +1100,7 @@ while True:
             # RSI EXTREME FILTER
             # =========================================
 
-            if side == "SELL" and rsi < 10:
+            if side == "SELL" and rsi < RSI_SELL_LIMIT:
 
                 print(f"⚠️ RSI TOO LOW -> {ticker}")
 
