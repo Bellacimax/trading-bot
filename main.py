@@ -747,7 +747,7 @@ while True:
 
             volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
 
-            if volume < volume_ma * 1.2:
+            if volume < volume_ma * MIN_VOLUME_RATIO:
 
                 print(f"⚠️ LOW VOLUME -> {ticker}")
 
