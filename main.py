@@ -690,20 +690,7 @@ for tkr, pos in list(open_positions.items()):
 
         print(f"❌ MONITOR ERROR {tkr}: {e}")
 
-# =========================================
-# LOOP TICKER
-# =========================================
 
-for ticker in subset:
-
-    if (
-        "TICKERS" in ticker
-        or "[" in ticker
-        or "]" in ticker
-        or "=" in ticker
-        or "#" in ticker
-    ):
-        continue
         
         # =========================================
         # LOOP TICKER
