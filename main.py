@@ -1134,7 +1134,7 @@ while True:
 
                 continue
 
-                        send_telegram(
+            send_telegram(
 
                 f"🚀 {side} {ticker}\n\n"
 
