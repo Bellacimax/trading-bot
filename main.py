@@ -216,17 +216,59 @@ app = Flask(__name__)
 @app.route("/dashboard")
 def dashboard():
 
-    return {
+    total_pnl = 0
 
-        "open_positions": open_positions,
+for tkr, pos in open_positions.items():
 
-        "total_open": len(open_positions),
+    try:
 
-        "max_trades": MAX_TRADES,
+        live = yf.download(tkr, period="1d", interval="1m")
 
-        "capital_per_trade": CAPITALE_PER_TRADE
+        if live.empty:
 
-    }
+            continue
+
+        current_price = live["Close"].iloc[-1]
+
+        if pos["side"] == "BUY":
+
+            pnl = (
+
+                current_price - pos["entry"]
+
+            ) * pos["qty"]
+
+        else:
+
+            pnl = (
+
+                pos["entry"] - current_price
+
+            ) * pos["qty"]
+
+        pos["live_price"] = round(current_price, 2)
+
+        pos["pnl"] = round(pnl, 2)
+
+        total_pnl += pnl
+
+    except:
+
+        pass
+
+return {
+
+    "open_positions": open_positions,
+
+    "total_open": len(open_positions),
+
+    "max_trades": MAX_TRADES,
+
+    "capital_per_trade": CAPITALE_PER_TRADE,
+
+    "total_pnl": round(total_pnl, 2)
+
+}
 
 @app.route("/")
 
