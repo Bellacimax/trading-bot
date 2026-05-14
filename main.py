@@ -572,6 +572,21 @@ while True:
             ticker = ticker.replace('"', '').replace(',', '').strip()
 
             print(f"🔍 Analizzo {ticker}")
+            if ticker in cooldown_tickers:
+
+                last_alert = cooldown_tickers[ticker]
+
+                minutes_passed = (
+
+                    datetime.now() - last_alert
+
+                ).seconds / 60
+
+                if minutes_passed < 60:
+
+                    print(f"⏳ COOLDOWN -> {ticker}")
+
+                    continue
 
                         # =========================================
             # EARNINGS INFO
