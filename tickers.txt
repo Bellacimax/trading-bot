@@ -167,7 +167,6 @@ TICKERS = [
 
     # DATA / SOFTWARE
     "PL",
-    "CFLT",
     "SNPS",
     "CDNS",
 
@@ -327,7 +326,6 @@ TICKERS = [
 "VMC",
 "MLM",
 "NUE",
-"X",
 "FCX",
 
 # ETF DIFESA
