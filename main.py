@@ -479,6 +479,7 @@ def market_is_bullish():
 MAX_TRADES = 5
 
 open_positions = []
+cooldown_tickers = {}
 
 while True:
 
