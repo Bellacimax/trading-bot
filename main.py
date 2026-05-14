@@ -704,6 +704,16 @@ while True:
             ema200 = last["EMA200"]
 
             price = last["Close"]
+             prev_close = df["Close"].iloc[-2]
+
+            gap_pct = (
+
+                (price - prev_close)
+
+                / prev_close
+
+            ) * 100
+                    
             vwap = last["VWAP"]
 
             rsi = last["RSI"]
