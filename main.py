@@ -1134,7 +1134,7 @@ while True:
 
                 continue
 
-            send_telegram(
+                        send_telegram(
 
                 f"🚀 {side} {ticker}\n\n"
 
@@ -1175,6 +1175,22 @@ while True:
             )
 
             open_positions.append(ticker)
+
+            save_trade(
+
+                ticker=ticker,
+
+                side=side,
+
+                entry=round(price, 2),
+
+                stop=round(stop, 2),
+
+                target=round(target, 2),
+
+                rr=rr
+
+            )
         # =========================================
         # GESTIONE TRADE
         # =========================================
