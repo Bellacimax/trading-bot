@@ -213,6 +213,20 @@ init_stats()
 # =========================================
 
 app = Flask(__name__)
+@app.route("/dashboard")
+def dashboard():
+
+    return {
+
+        "open_positions": open_positions,
+
+        "total_open": len(open_positions),
+
+        "max_trades": MAX_TRADES,
+
+        "capital_per_trade": CAPITALE_PER_TRADE
+
+    }
 
 @app.route("/")
 
