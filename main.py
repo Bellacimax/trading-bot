@@ -618,7 +618,7 @@ while True:
 
                 ).seconds / 60
 
-                if minutes_passed < 60:
+                if minutes_passed < COOLDOWN_MINUTES:
 
                     print(f"⏳ COOLDOWN -> {ticker}")
 
