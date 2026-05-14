@@ -1016,6 +1016,26 @@ while True:
                 continue
 
             # =========================================
+            # EMA TREND FILTER
+            # =========================================
+
+            if side == "BUY":
+
+                if not (ema20 > ema50 > ema200):
+
+                    print(f"⚠️ EMA TREND FAIL -> {ticker}")
+
+                    continue
+
+            if side == "SELL":
+
+                if not (ema20 < ema50 < ema200):
+
+                    print(f"⚠️ EMA TREND FAIL -> {ticker}")
+
+                    continue
+                    
+            # =========================================
             # RSI EXTREME FILTER
             # =========================================
 
