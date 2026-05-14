@@ -603,7 +603,13 @@ while True:
 
         print(f"🔥 Tot Tickers: {len(subset)}")
 
+# =========================================
+# SIMPLE OPEN POSITIONS CHECK
+# =========================================
 
+for tkr in list(open_positions.keys()):
+
+    print(f"📌 Monitorando {tkr}")
 
         # =========================================
         # LOOP TICKER
