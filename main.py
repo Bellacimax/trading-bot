@@ -513,7 +513,7 @@ COOLDOWN_MINUTES = int(
 
 )
 
-open_positions = []
+open_positions = {}
 
 cooldown_tickers = {}
 
