@@ -608,7 +608,7 @@ while True:
 # OPEN POSITIONS MONITOR
 # =========================================
 
-for tkr, pos in list(open_positions.items()):
+    for tkr, pos in list(open_positions.items()):
 
     try:
 
