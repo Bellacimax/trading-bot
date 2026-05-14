@@ -481,6 +481,11 @@ CAPITALE_PER_TRADE = int(
 
 )
 MAX_TRADES = 5
+MIN_GAP = float(
+
+    os.getenv("MIN_GAP", 2)
+
+)
 
 open_positions = []
 cooldown_tickers = {}
