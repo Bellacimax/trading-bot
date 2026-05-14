@@ -199,4 +199,142 @@ TICKERS = [
     "ARKK",
     "XLE"
 
+# AI / QUANTUM
+"IONQ",
+"QBTS",
+"RGTI",
+"QUBT",
+"BBAI",
+"SOUN",
+"PL",
+"ARQQ",
+
+# SPACE / DEFENSE
+"RKLB",
+"LUNR",
+"ASTS",
+"KTOS",
+"AVAV",
+
+# HIGH BETA MOMENTUM
+"APP",
+"HOOD",
+"CVNA",
+"AFRM",
+"UPST",
+"SOFI",
+"CAVA",
+"CELH",
+
+# SEMI
+"SNPS",
+"CDNS",
+"ENTG",
+"MCHP",
+"MPWR",
+
+# CYBER / CLOUD
+"ESTC",
+
+# ETF
+"SOXL",
+"TQQQ",
+"SQQQ",
+"XBI",
+"IBIT",
+
+# AI / DATACENTER
+"NVTS",
+"ALAB",
+"CRDO",
+"CIEN",
+"FLEX",
+"SMTC",
+
+# ROBOTICS / AUTOMATION
+"SYM",
+"SERV",
+"PATH",
+
+# CYBERSECURITY
+"CYBR",
+"TENB",
+"RPD",
+"S",
+
+# CLOUD / SOFTWARE
+"HCP",
+"CFLT",
+"DOCN",
+"GTLB",
+"PD",
+
+# FINTECH / CRYPTO
+"MSTR",
+"IREN",
+"CLSK",
+"HUT",
+"BTDR",
+
+# EV / BATTERY
+"QS",
+"ENVX",
+"CHPT",
+"BE",
+"ARRY",
+
+# BIOTECH MOMENTUM
+"RXRX",
+"DNA",
+"BEAM",
+"CRSP",
+"NTLA",
+
+# CHINESE HIGH BETA
+"BABA",
+"PDD",
+"NIO",
+"XPEV",
+"LI",
+
+# INDUSTRIAL / ENERGY MOMENTUM
+"GEV",
+"VRT",
+"CEG",
+"NRG",
+"TLN",
+
+# EXTRA ETF
+"SPXL",
+"SPXS",
+"FNGU",
+"UVXY",
+"BITX",
+
+# DEFENSE / ARMI
+"GD",
+"LDOS",
+"LHX",
+"HII",
+
+# DRONI / MILITARY TECH
+"RCAT",
+"PDYN",
+"UAVS",
+
+# RICOSTRUZIONE / INFRASTRUTTURE
+"URI",
+"PWR",
+"EME",
+"VMC",
+"MLM",
+"NUE",
+"X",
+"FCX",
+
+# ETF DIFESA
+"ITA",
+"XAR",
+"PPA",
+
 ]
