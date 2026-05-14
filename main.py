@@ -1281,7 +1281,19 @@ while True:
 
             )
 
-            open_positions.append(ticker)
+            open_positions[ticker] = {
+
+                "side": side,
+
+                "entry": price,
+
+                "stop": stop,
+
+                "target": target,
+
+                "qty": qty
+
+            }
 
             cooldown_tickers[ticker] = datetime.now()
 
