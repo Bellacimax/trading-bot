@@ -704,7 +704,7 @@ while True:
             ema200 = last["EMA200"]
 
             price = last["Close"]
-             prev_close = df["Close"].iloc[-2]
+            prev_close = df["Close"].iloc[-2]
 
             gap_pct = (
 
