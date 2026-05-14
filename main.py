@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 from scanner import rank_tickers
 from datetime import timedelt
 
+
 # =========================================
 # TELEGRAM
 # =========================================
