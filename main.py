@@ -1217,6 +1217,8 @@ while True:
 
             open_positions.append(ticker)
 
+            cooldown_tickers[ticker] = datetime.now()
+
             save_trade(
 
                 ticker=ticker,
