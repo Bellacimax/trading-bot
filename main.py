@@ -641,6 +641,13 @@ while True:
             fase = "After-hours"
 
         print(f"📊 Fase: {fase}")
+        if fase != "Market":
+
+            print("⏸️ Solo market hours")
+
+            time.sleep(60)
+
+            continue
 
         market_bullish = market_is_bullish()
 
