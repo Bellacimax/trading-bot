@@ -1033,9 +1033,9 @@ while True:
             # RSI
             # =========================================
 
-            rsi_buy = last["RSI"] > 50
+            rsi_buy = last["RSI"] > 55
 
-            rsi_sell = last["RSI"] < 50
+            rsi_sell = last["RSI"] < 45
 
             # =========================================
             # MACD
