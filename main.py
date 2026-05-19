@@ -559,7 +559,6 @@ MAX_TRADES = int(
 )
 MIN_GAP = float(
     os.getenv("MIN_GAP", 1)
-)
 
 )
 
