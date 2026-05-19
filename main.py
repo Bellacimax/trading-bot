@@ -679,32 +679,7 @@ while True:
 
     print(f"🔍 Analizzo {ticker}")
 
-    ticker_obj = yf.Ticker(ticker)
-
-    # =========================================
-    # EARNINGS ALERT
-    # =========================================
-
-    try:
-
-        earnings = ticker_obj.calendar
-
-        if earnings is not None and len(earnings) > 0:
-
-            print(f"📢 Earnings found -> {ticker}")
-
-            send_telegram(
-
-                f"📢 EARNINGS ALERT\n\n"
-
-                f"{ticker} has upcoming earnings"
-
-            )
-
-    except Exception as e:
-
-        print(f"❌ Earnings error {ticker}: {e}")
-
+    if ticker in cooldown_tickers:
             # =========================================
             # DATI 1H
             # =========================================
