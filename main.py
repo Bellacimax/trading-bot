@@ -640,9 +640,9 @@ while True:
             fase = "After-hours"
 
         print(f"📊 Fase: {fase}")
-        if fase != "Market":
+            if fase == "After-hours":
 
-            print("⏸️ Solo market hours")
+            print("🌙 After-hours pausa")
 
             time.sleep(60)
 
