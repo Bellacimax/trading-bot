@@ -662,7 +662,8 @@ while True:
             "SPXL",
             "SPXS",
             "PPA",
-            "XAR"
+            "XAR",
+            "HCP",
 
         ]
 
