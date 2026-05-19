@@ -680,21 +680,7 @@ while True:
             print(f"🔍 Analizzo {ticker}")
 
             ticker_obj = yf.Ticker(ticker)
-            try:
-
-                earnings = ticker_obj.calendar
-
-                if earnings is not None:
-
-                    earnings_str = str(earnings)
-
-                    if "2026" in earnings_str:
-
-                        print(f"📢 REAL EARNINGS -> {ticker}")
-
-            except Exception:
-
-                pass
+            
 
             if ticker in cooldown_tickers:
 
