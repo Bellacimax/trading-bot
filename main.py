@@ -680,6 +680,21 @@ while True:
             print(f"🔍 Analizzo {ticker}")
 
             if ticker in cooldown_tickers:
+                            last_alert = cooldown_tickers[ticker]
+
+                minutes_passed = (
+
+                    datetime.now() - last_alert
+
+                ).seconds / 60
+
+                if minutes_passed < COOLDOWN_MINUTES:
+
+                    print(f"⏳ COOLDOWN -> {ticker}")
+
+                    continue
+
+                
             # =========================================
             # DATI 1H
             # =========================================
