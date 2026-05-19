@@ -1482,11 +1482,14 @@ while True:
 
                         send_telegram(
 
-                            f"💰 TARGET BUY {t}\n"
+                            f"✅ TARGET HIT\n\n"
+
+                            f"Ticker: {t}\n"
 
                             f"Exit: {round(price_now,2)}\n"
 
-                            f"PnL: {round(pnl,2)}€"
+                            f"PnL: +{round(pnl,2)}€"
+
                         )
 
                         save_trade(
