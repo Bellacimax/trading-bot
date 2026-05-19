@@ -655,6 +655,26 @@ while True:
         # =========================================
 
         subset = sorted(list(set(TICKERS)))
+        BLACKLIST = [
+
+            "ARKK",
+            "XBI",
+            "UVXY",
+            "SQQQ",
+            "SPXL",
+            "SPXS",
+            "PPA",
+            "XAR"
+
+        ]
+
+        subset = [
+
+            t for t in subset
+
+            if t not in BLACKLIST
+
+        ]
 
         print(f"🔥 Tot Tickers: {len(subset)}")
 
