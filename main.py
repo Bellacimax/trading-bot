@@ -566,7 +566,7 @@ MIN_GAP = float(
 
 MIN_VOLUME_RATIO = float(
 
-    os.getenv("MIN_VOLUME_RATIO", 1.2)
+    os.getenv("MIN_VOLUME_RATIO", 0.7)
 
 )
 
