@@ -680,6 +680,17 @@ while True:
             print(f"🔍 Analizzo {ticker}")
 
             ticker_obj = yf.Ticker(ticker)
+            try:
+
+                earnings = ticker_obj.calendar
+
+                if earnings is not None and len(earnings) > 0:
+
+                    print(f"📢 Earnings found -> {ticker}")
+
+            except Exception as e:
+
+                print(f"❌ Earnings error -> {ticker}")
 
             if ticker in cooldown_tickers:
 
