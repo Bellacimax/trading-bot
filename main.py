@@ -677,54 +677,35 @@ while True:
 
             ticker = ticker.replace('"', '').replace(',', '').strip()
 
-            print(f"🔍 Analizzo {ticker}")
+                        print(f"🔍 Analizzo {ticker}")
+
+            ticker_obj = yf.Ticker(ticker)
+
+            # =========================================
+            # EARNINGS ALERT
+            # =========================================
+
+            try:
+
+                earnings = ticker_obj.calendar
+
+                if earnings is not None and len(earnings) > 0:
+
+                    print(f"📢 Earnings found -> {ticker}")
+
+                    send_telegram(
+
+                        f"📢 EARNINGS ALERT\n\n"
+
+                        f"{ticker} has upcoming earnings"
+
+                    )
+
+            except Exception as e:
+
+                print(f"❌ Earnings error {ticker}: {e}")
+
             if ticker in cooldown_tickers:
-
-                last_alert = cooldown_tickers[ticker]
-
-                minutes_passed = (
-
-                    datetime.now() - last_alert
-
-                ).seconds / 60
-
-                if minutes_passed < COOLDOWN_MINUTES:
-
-                    print(f"⏳ COOLDOWN -> {ticker}")
-
-                    continue
-
-            # =========================================
-            # EARNINGS INFO
-            # =========================================
-
-            if ticker in ["SPY", "QQQ", "IWM", "SMH", "ARKK", "XLE"]:
-
-                earnings_days = None
-
-            else:
-
-                earnings_days = check_earnings(ticker)
-
-            if earnings_days is not None and earnings_days <= 7:
-
-                print(
-
-                    f"🔥 Earnings Soon -> "
-
-                    f"{ticker} ({earnings_days}d)"
-
-                )
-
-                send_telegram(
-
-                    f"⚠️ EARNINGS SOON\n\n"
-
-                    f"Ticker: {ticker}\n"
-
-                    f"Days: {earnings_days}"
-
-                )
 
             # =========================================
             # DATI 1H
