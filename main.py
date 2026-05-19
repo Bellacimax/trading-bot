@@ -684,13 +684,13 @@ while True:
 
                 earnings = ticker_obj.calendar
 
-                if earnings is not None and len(earnings) > 0:
+                if earnings is not None and "Earnings Date" in str(earnings):
 
-                    print(f"📢 Earnings found -> {ticker}")
+                    print(f"📢 Earnings soon -> {ticker}")
 
-            except Exception as e:
+            except Exception:
 
-                print(f"❌ Earnings error -> {ticker}")
+                pass
 
             if ticker in cooldown_tickers:
 
