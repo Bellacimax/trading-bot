@@ -623,6 +623,7 @@ while True:
             time.sleep(300)
 
             continue
+
         # =========================================
         # FASE MERCATO
         # =========================================
@@ -640,23 +641,15 @@ while True:
             fase = "After-hours"
 
         print(f"📊 Fase: {fase}")
-            if fase == "After-hours":
+
+        # pausa solo after-hours
+        if fase == "After-hours":
 
             print("🌙 After-hours pausa")
 
             time.sleep(60)
 
             continue
-
-        market_bullish = market_is_bullish()
-
-        print(
-
-            f"📈 Market Bullish: "
-
-            f"{market_bullish}"
-
-        )
 
         # =========================================
         # SUBSET TICKER
