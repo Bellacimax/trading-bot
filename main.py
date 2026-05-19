@@ -1410,32 +1410,33 @@ while True:
                 # BUY
                 # =========================================
 
-                if trade["side"] == "BUY":
-                # =========================================
-                # BREAK EVEN AUTO
-                # =========================================
+                    if trade["side"] == "BUY":
 
-                risk = trade["entry"] - trade["stop"]
+                        # =========================================
+                        # BREAK EVEN AUTO
+                        # =========================================
 
-                if (
+                        risk = trade["entry"] - trade["stop"]
 
-                    price_now >= trade["entry"] + risk
+                        if (
 
-                    and trade["stop"] < trade["entry"]
+                            price_now >= trade["entry"] + risk
 
-                ):
+                            and trade["stop"] < trade["entry"]
 
-                    trade["stop"] = trade["entry"]
+                        ):
 
-                    send_telegram(
+                            trade["stop"] = trade["entry"]
 
-                        f"🟡 BREAK EVEN\n\n"
+                            send_telegram(
 
-                        f"Ticker: {t}\n"
+                                f"🟡 BREAK EVEN\n\n"
 
-                        f"Stop moved to entry"
+                                f"Ticker: {t}\n"
 
-                    )
+                                f"Stop moved to entry"
+
+                            )
 
                     if price_now >= trade["entry"] + atr_now:
 
