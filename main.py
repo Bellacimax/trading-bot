@@ -684,9 +684,13 @@ while True:
 
                 earnings = ticker_obj.calendar
 
-                if earnings is not None and "Earnings Date" in str(earnings):
+                if earnings is not None:
 
-                    print(f"📢 Earnings soon -> {ticker}")
+                    earnings_str = str(earnings)
+
+                    if "2026" in earnings_str:
+
+                        print(f"📢 REAL EARNINGS -> {ticker}")
 
             except Exception:
 
