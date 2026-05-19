@@ -677,7 +677,7 @@ while True:
 
             ticker = ticker.replace('"', '').replace(',', '').strip()
 
-                        print(f"🔍 Analizzo {ticker}")
+            print(f"🔍 Analizzo {ticker}")
 
             ticker_obj = yf.Ticker(ticker)
 
