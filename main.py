@@ -397,7 +397,7 @@ def home():
             }}
 
         </style>
-
+        
     </head>
 
     <body>
