@@ -677,9 +677,9 @@ while True:
 
             ticker = ticker.replace('"', '').replace(',', '').strip()
 
-    print(f"🔍 Analizzo {ticker}")
+            print(f"🔍 Analizzo {ticker}")
 
-    if ticker in cooldown_tickers:
+            if ticker in cooldown_tickers:
             # =========================================
             # DATI 1H
             # =========================================
