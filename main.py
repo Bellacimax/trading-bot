@@ -680,7 +680,8 @@ while True:
             print(f"🔍 Analizzo {ticker}")
 
             if ticker in cooldown_tickers:
-                            last_alert = cooldown_tickers[ticker]
+
+                last_alert = cooldown_tickers[ticker]
 
                 minutes_passed = (
 
