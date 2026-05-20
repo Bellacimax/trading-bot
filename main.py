@@ -825,7 +825,7 @@ while True:
 
                 print(f"⚠️ LOW VOLUME -> {ticker}")
 
-                continue
+                # continue
 
             if atr < price * 0.01:
 
