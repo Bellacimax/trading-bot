@@ -686,44 +686,44 @@ while True:
         subset = subset[:20]
 
 
-# =========================================
-# LOOP TICKER
-# =========================================
+        # =========================================
+        # LOOP TICKER
+        # =========================================
+        
+        for ticker in subset:
 
-for ticker in subset:
+            if (
+                "TICKERS" in ticker
+                or "[" in ticker
+                or "]" in ticker
+                or "=" in ticker
+                or "#" in ticker
+            ):
 
-    if (
-        "TICKERS" in ticker
-        or "[" in ticker
-        or "]" in ticker
-        or "=" in ticker
-        or "#" in ticker
-    ):
+                continue
 
-        continue
+            ticker = ticker.replace('"', '').replace(',', '').strip()
 
-    ticker = ticker.replace('"', '').replace(',', '').strip()
+            print(f"🔍 Analizzo {ticker}")
 
-    print(f"🔍 Analizzo {ticker}")
+            # evita rate limit Yahoo
+            time.sleep(2)
 
-    # evita rate limit Yahoo
-    time.sleep(2)
+            if ticker in cooldown_tickers:
 
-    if ticker in cooldown_tickers:
+                last_alert = cooldown_tickers[ticker]
 
-        last_alert = cooldown_tickers[ticker]
+                minutes_passed = (
 
-        minutes_passed = (
+                    datetime.now() - last_alert
 
-            datetime.now() - last_alert
+                ).seconds / 60
 
-        ).seconds / 60
+                if minutes_passed < COOLDOWN_MINUTES:
 
-        if minutes_passed < COOLDOWN_MINUTES:
+                    print(f"⏳ COOLDOWN -> {ticker}")
 
-            print(f"⏳ COOLDOWN -> {ticker}")
-
-            continue
+                    continue
 
                 
 # =========================================
