@@ -1065,33 +1065,37 @@ while True:
             # SCORE
             # =========================================
 
-            score_buy = 0
-
-            score_sell = 0
-
             if trend_up:
                 score_buy += 1
+                print(f"{ticker} -> BUY TREND")
 
             if trend_down:
                 score_sell += 1
+                print(f"{ticker} -> SELL TREND")
 
             if rsi_buy:
                 score_buy += 1
+                print(f"{ticker} -> BUY RSI")
 
             if rsi_sell:
                 score_sell += 1
+                print(f"{ticker} -> SELL RSI")
 
             if macd_buy:
                 score_buy += 1
+                print(f"{ticker} -> BUY MACD")
 
             if macd_sell:
                 score_sell += 1
+                print(f"{ticker} -> SELL MACD")
 
             if golden_cross:
                 score_buy += 2
+                print(f"{ticker} -> GOLDEN CROSS")
 
             if death_cross:
                 score_sell += 2
+                print(f"{ticker} -> DEATH CROSS")
 
             # =========================================
             # TRADE GIÀ ATTIVO
