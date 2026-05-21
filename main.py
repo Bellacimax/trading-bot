@@ -1643,7 +1643,6 @@ while True:
             except Exception as e:
 
                 print("Errore gestione trade:", e)
-
         # =========================================
         # STATS
         # =========================================
