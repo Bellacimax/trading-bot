@@ -462,7 +462,6 @@ def home():
 
 def run_dashboard():
 
-    app.run(host="0.0.0.0", port=8080)
     if __name__ == "__main__":
 
         threading.Thread(target=trading_loop).start()
