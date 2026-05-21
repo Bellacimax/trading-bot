@@ -205,12 +205,12 @@ print("🚀 BOT AVVIATO")
 
 send_telegram("🚀 BOT ONLINE")
 init_stats()
+
 # =========================================
 # DASHBOARD
 # =========================================
 
 app = Flask(__name__)
-@app.route("/dashboard")
 
 @app.route("/dashboard")
 def dashboard():
@@ -229,7 +229,11 @@ def dashboard():
 
                 period="1d",
 
-                interval="1m"
+                interval="1m",
+
+                progress=False,
+
+                threads=False
 
             )
 
@@ -281,9 +285,8 @@ def dashboard():
 
     }
 
-    
-@app.route("/")
 
+@app.route("/")
 def home():
 
     pnl = round(stats["pnl"], 2)
@@ -338,121 +341,49 @@ def home():
 
         <meta http-equiv="refresh" content="15">
 
-        <style>
-
-            body {{
-
-                background: #111;
-
-                color: white;
-
-                font-family: Arial;
-
-                padding: 20px;
-
-            }}
-
-            h1 {{
-
-                color: #00ff99;
-
-            }}
-
-            .card {{
-
-                background: #1e1e1e;
-
-                padding: 20px;
-
-                margin-bottom: 20px;
-
-                border-radius: 10px;
-
-            }}
-
-            table {{
-
-                width: 100%;
-
-                border-collapse: collapse;
-
-                background: #222;
-
-            }}
-
-            th, td {{
-
-                border: 1px solid #333;
-
-                padding: 10px;
-
-                text-align: center;
-
-            }}
-
-            th {{
-
-                background: #333;
-
-            }}
-
-        </style>
-        
     </head>
 
-    <body>
+    <body style="background:#111;color:white;font-family:Arial;padding:20px;">
 
         <h1>🚀 Trading Bot Dashboard</h1>
 
-        <div class="card">
+        <h2>📊 Stats</h2>
 
-            <h2>📊 Stats</h2>
+        <p>💰 PnL: {pnl} €</p>
 
-            <p>💰 PnL: {pnl} €</p>
+        <p>📈 Winrate: {winrate}%</p>
 
-            <p>📈 Winrate: {winrate}%</p>
+        <p>🎯 Wins: {wins}</p>
 
-            <p>🎯 Wins: {wins}</p>
+        <p>❌ Losses: {losses}</p>
 
-            <p>❌ Losses: {losses}</p>
+        <p>📦 Active Trades: {len(active_trades)}</p>
 
-            <p>📦 Active Trades: {len(active_trades)}</p>
+        <h2>📡 Trade Attivi</h2>
 
-        </div>
+        <table border="1" cellpadding="10">
 
-        <div class="card">
+            <tr>
 
-            <h2>📡 Trade Attivi</h2>
+                <th>Ticker</th>
 
-            <table>
+                <th>Side</th>
 
-                <tr>
+                <th>Entry</th>
 
-                    <th>Ticker</th>
+                <th>Stop</th>
 
-                    <th>Side</th>
+                <th>Target</th>
 
-                    <th>Entry</th>
+            </tr>
 
-                    <th>Stop</th>
+            {active_html}
 
-                    <th>Target</th>
+        </table>
 
-                </tr>
+        <h2>📜 Trade History</h2>
 
-                {active_html}
-
-            </table>
-
-        </div>
-
-        <div class="card">
-
-            <h2>📜 Trade History</h2>
-
-            {history_html}
-
-        </div>
+        {history_html}
 
     </body>
 
@@ -460,20 +391,15 @@ def home():
 
     """
 
+
+# =========================================
+# DASHBOARD RUNNER
+# =========================================
+
 def run_dashboard():
 
     app.run(host="0.0.0.0", port=8080)
 
-
-if __name__ == "__main__":
-
-    Thread(target=trading_loop).start()
-
-    run_dashboard()
-
-# =========================================
-# LOOP PRINCIPALE
-# =========================================
 
 # =========================================
 # EARNINGS CHECK
@@ -497,13 +423,30 @@ def check_earnings(ticker):
 
             return None
 
-        days_left = (earnings_date.date() - datetime.now().date()).days
+        days_left = (
+
+            earnings_date.date()
+
+            - datetime.now().date()
+
+        ).days
 
         return days_left
 
     except:
 
         return None
+
+
+# =========================================
+# MAIN
+# =========================================
+
+if __name__ == "__main__":
+
+    Thread(target=trading_loop).start()
+
+    run_dashboard()
 # =========================================
 # MARKET FILTER
 # =========================================
