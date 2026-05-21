@@ -859,7 +859,7 @@ if len(df) < 50:
 
                 period="3mo",
 
-                interval="1h",
+                interval="1d",
 
                 progress=False
 
