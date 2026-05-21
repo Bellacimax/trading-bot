@@ -684,46 +684,52 @@ while True:
         print(f"🔥 Tot Tickers: {len(subset)}")
 
 
-# =========================================
-# LOOP TICKER
-# =========================================
+try:
 
-for ticker in subset:
+    # =========================================
+    # LOOP TICKER
+    # =========================================
 
-    if (
-        "TICKERS" in ticker
-        or "[" in ticker
-        or "]" in ticker
-        or "=" in ticker
-        or "#" in ticker
-    ):
+    for ticker in subset:
 
-        continue
-
-    ticker = ticker.replace('"', '').replace(',', '').strip()
-
-    print(f"🔍 Analizzo {ticker}")
-
-    ticker_obj = yf.Ticker(ticker)
-
-    # evita rate limit Yahoo
-    time.sleep(1)
-
-    if ticker in cooldown_tickers:
-
-        last_alert = cooldown_tickers[ticker]
-
-        minutes_passed = (
-
-            datetime.now() - last_alert
-
-        ).seconds / 60
-
-        if minutes_passed < COOLDOWN_MINUTES:
-
-            print(f"⏳ COOLDOWN -> {ticker}")
+        if (
+            "TICKERS" in ticker
+            or "[" in ticker
+            or "]" in ticker
+            or "=" in ticker
+            or "#" in ticker
+        ):
 
             continue
+
+        ticker = ticker.replace('"', '').replace(',', '').strip()
+
+        print(f"🔍 Analizzo {ticker}")
+
+        ticker_obj = yf.Ticker(ticker)
+
+        # evita rate limit Yahoo
+        time.sleep(1)
+
+        if ticker in cooldown_tickers:
+
+            last_alert = cooldown_tickers[ticker]
+
+            minutes_passed = (
+
+                datetime.now() - last_alert
+
+            ).seconds / 60
+
+            if minutes_passed < COOLDOWN_MINUTES:
+
+                print(f"⏳ COOLDOWN -> {ticker}")
+
+                continue
+
+except Exception as e:
+
+    print(f"❌ ERRORE: {e}")
 
                 
             # =========================================
