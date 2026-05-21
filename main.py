@@ -684,43 +684,46 @@ while True:
         print(f"🔥 Tot Tickers: {len(subset)}")
 
 
-        # =========================================
-        # LOOP TICKER
-        # =========================================
+# =========================================
+# LOOP TICKER
+# =========================================
 
-        for ticker in subset:
+for ticker in subset:
 
-            if (
-                "TICKERS" in ticker
-                or "[" in ticker
-                or "]" in ticker
-                or "=" in ticker
-                or "#" in ticker
-            ):
-                continue
+    if (
+        "TICKERS" in ticker
+        or "[" in ticker
+        or "]" in ticker
+        or "=" in ticker
+        or "#" in ticker
+    ):
 
-            ticker = ticker.replace('"', '').replace(',', '').strip()
+        continue
 
-            print(f"🔍 Analizzo {ticker}")
+    ticker = ticker.replace('"', '').replace(',', '').strip()
 
-            ticker_obj = yf.Ticker(ticker)
-            
+    print(f"🔍 Analizzo {ticker}")
 
-            if ticker in cooldown_tickers:
+    ticker_obj = yf.Ticker(ticker)
 
-                last_alert = cooldown_tickers[ticker]
+    # evita rate limit Yahoo
+    time.sleep(1)
 
-                minutes_passed = (
+    if ticker in cooldown_tickers:
 
-                    datetime.now() - last_alert
+        last_alert = cooldown_tickers[ticker]
 
-                ).seconds / 60
+        minutes_passed = (
 
-                if minutes_passed < COOLDOWN_MINUTES:
+            datetime.now() - last_alert
 
-                    print(f"⏳ COOLDOWN -> {ticker}")
+        ).seconds / 60
 
-                    continue
+        if minutes_passed < COOLDOWN_MINUTES:
+
+            print(f"⏳ COOLDOWN -> {ticker}")
+
+            continue
 
                 
             # =========================================
