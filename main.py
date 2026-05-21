@@ -527,9 +527,12 @@ open_positions = {}
 
 cooldown_tickers = {}
 
-while True:
 
-    try:
+def trading_loop():
+
+    while True:
+
+        try:
 
         # =========================================
         # WEEKEND FILTER
