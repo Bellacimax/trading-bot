@@ -708,8 +708,6 @@ for ticker in subset:
     # evita rate limit Yahoo
     time.sleep(2)
 
-    ticker_obj = yf.Ticker(ticker)
-
     if ticker in cooldown_tickers:
 
         last_alert = cooldown_tickers[ticker]
@@ -731,7 +729,7 @@ for ticker in subset:
 # DATI 1H
 # =========================================
 
-time.sleep(2)
+time.sleep(3)
 
 df = yf.download(
 
