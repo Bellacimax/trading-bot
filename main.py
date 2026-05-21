@@ -530,9 +530,21 @@ cooldown_tickers = {}
 
 def trading_loop():
 
+    def trading_loop():
+
     while True:
 
         try:
+
+            weekday = datetime.now().weekday()
+
+            if weekday >= 5:
+
+                print("📴 Weekend - market closed")
+
+                time.sleep(600)
+
+                continue
 
         # =========================================
         # WEEKEND FILTER
