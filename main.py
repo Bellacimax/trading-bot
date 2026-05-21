@@ -467,7 +467,7 @@ def run_dashboard():
 
 if __name__ == "__main__":
 
-    threading.Thread(target=trading_loop).start()
+    Thread(target=trading_loop).start()
 
     run_dashboard()
 
