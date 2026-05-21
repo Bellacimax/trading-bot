@@ -683,6 +683,7 @@ subset = [
 ]
 
 print(f"🔥 Tot Tickers: {len(subset)}")
+subset = subset[:20]
 
 
 # =========================================
