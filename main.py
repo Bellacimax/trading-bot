@@ -726,53 +726,53 @@ while True:
                     continue
 
                 
-# =========================================
-# DATI 1H
-# =========================================
+            # =========================================
+            # DATI 1H
+            # =========================================
 
-time.sleep(3)
+            time.sleep(3)
 
-df = yf.download(
+            df = yf.download(
 
-    ticker,
+                ticker,
 
-    period="5d",
+                period="5d",
 
-    interval="1d",
+                interval="1d",
 
-    progress=False,
+                progress=False,
 
-    threads=False
+                threads=False
 
-)
+            )
 
-if df is None or df.empty:
+            if df is None or df.empty:
 
-    print(f"❌ NO DATA -> {ticker}")
+                print(f"❌ NO DATA -> {ticker}")
 
-    continue
+                continue
 
-if len(df) < 50:
+            if len(df) < 50:
 
-    print(f"⚠️ FEW DATA -> {ticker}")
+                print(f"⚠️ FEW DATA -> {ticker}")
 
-    continue
+                continue
 
-if isinstance(df.columns, pd.MultiIndex):
+            if isinstance(df.columns, pd.MultiIndex):
 
-    df.columns = df.columns.get_level_values(0)
+                df.columns = df.columns.get_level_values(0)
 
-df = df[[
-    "Open",
-    "High",
-    "Low",
-    "Close",
-    "Volume"
-]].dropna()
+            df = df[[
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume"
+            ]].dropna()
 
-if len(df) < 50:
+            if len(df) < 50:
 
-    continue
+                continue
 
             # =========================================
             # ATR
