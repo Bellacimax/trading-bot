@@ -654,82 +654,77 @@ while True:
 
             continue
 
-        # =========================================
-        # SUBSET TICKER
-        # =========================================
+# =========================================
+# SUBSET TICKER
+# =========================================
 
-        subset = sorted(list(set(TICKERS)))
-        BLACKLIST = [
+subset = sorted(list(set(TICKERS)))
 
-            "ARKK",
-            "XBI",
-            "UVXY",
-            "SQQQ",
-            "SPXL",
-            "SPXS",
-            "PPA",
-            "XAR",
-            "HCP",
+BLACKLIST = [
 
-        ]
+    "ARKK",
+    "XBI",
+    "UVXY",
+    "SQQQ",
+    "SPXL",
+    "SPXS",
+    "PPA",
+    "XAR",
+    "HCP",
 
-        subset = [
+]
 
-            t for t in subset
+subset = [
 
-            if t not in BLACKLIST
+    t for t in subset
 
-        ]
+    if t not in BLACKLIST
 
-        print(f"🔥 Tot Tickers: {len(subset)}")
+]
+
+print(f"🔥 Tot Tickers: {len(subset)}")
 
 
-try:
+# =========================================
+# LOOP TICKER
+# =========================================
 
-    # =========================================
-    # LOOP TICKER
-    # =========================================
+for ticker in subset:
 
-    for ticker in subset:
+    if (
+        "TICKERS" in ticker
+        or "[" in ticker
+        or "]" in ticker
+        or "=" in ticker
+        or "#" in ticker
+    ):
 
-        if (
-            "TICKERS" in ticker
-            or "[" in ticker
-            or "]" in ticker
-            or "=" in ticker
-            or "#" in ticker
-        ):
+        continue
+
+    ticker = ticker.replace('"', '').replace(',', '').strip()
+
+    print(f"🔍 Analizzo {ticker}")
+
+    # evita rate limit Yahoo
+    time.sleep(2)
+
+    ticker_obj = yf.Ticker(ticker)
+
+    if ticker in cooldown_tickers:
+
+        last_alert = cooldown_tickers[ticker]
+
+        minutes_passed = (
+
+            datetime.now() - last_alert
+
+        ).seconds / 60
+
+        if minutes_passed < COOLDOWN_MINUTES:
+
+            print(f"⏳ COOLDOWN -> {ticker}")
 
             continue
-
-        ticker = ticker.replace('"', '').replace(',', '').strip()
-
-        print(f"🔍 Analizzo {ticker}")
-
-        ticker_obj = yf.Ticker(ticker)
-
-        # evita rate limit Yahoo
-        time.sleep(1)
-
-        if ticker in cooldown_tickers:
-
-            last_alert = cooldown_tickers[ticker]
-
-            minutes_passed = (
-
-                datetime.now() - last_alert
-
-            ).seconds / 60
-
-            if minutes_passed < COOLDOWN_MINUTES:
-
-                print(f"⏳ COOLDOWN -> {ticker}")
-
-                continue
-
-except Exception as e:
-
-    print(f"❌ ERRORE: {e}")
 
                 
 # =========================================
