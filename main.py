@@ -732,49 +732,53 @@ except Exception as e:
     print(f"❌ ERRORE: {e}")
 
                 
-            # =========================================
-            # DATI 1H
-            # =========================================
+# =========================================
+# DATI 1H
+# =========================================
 
-            df = yf.download(
+time.sleep(2)
 
-                 ticker,
+df = yf.download(
 
-                 period="1mo",
+    ticker,
 
-                 interval="1h",
+    period="1mo",
 
-                 progress=False
+    interval="1h",
 
-            )
-           
-            if df is None or df.empty:
+    progress=False,
 
-                print(f"❌ NO DATA -> {ticker}")
+    threads=False
 
-                continue
+)
 
-            if len(df) < 50:
+if df is None or df.empty:
 
-                print(f"⚠️ FEW DATA -> {ticker}")
+    print(f"❌ NO DATA -> {ticker}")
 
-                continue
+    continue
 
-            if isinstance(df.columns, pd.MultiIndex):
+if len(df) < 50:
 
-                df.columns = df.columns.get_level_values(0)
+    print(f"⚠️ FEW DATA -> {ticker}")
 
-            df = df[[
-                "Open",
-                "High",
-                "Low",
-                "Close",
-                "Volume"
-            ]].dropna()
+    continue
 
-            if len(df) < 50:
+if isinstance(df.columns, pd.MultiIndex):
 
-                continue
+    df.columns = df.columns.get_level_values(0)
+
+df = df[[
+    "Open",
+    "High",
+    "Low",
+    "Close",
+    "Volume"
+]].dropna()
+
+if len(df) < 50:
+
+    continue
 
             # =========================================
             # ATR
