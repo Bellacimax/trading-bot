@@ -654,36 +654,36 @@ while True:
 
             continue
 
-# =========================================
-# SUBSET TICKER
-# =========================================
+        # =========================================
+        # SUBSET TICKER
+        # =========================================
 
-subset = sorted(list(set(TICKERS)))
+        subset = sorted(list(set(TICKERS)))
 
-BLACKLIST = [
+        BLACKLIST = [
 
-    "ARKK",
-    "XBI",
-    "UVXY",
-    "SQQQ",
-    "SPXL",
-    "SPXS",
-    "PPA",
-    "XAR",
-    "HCP",
+            "ARKK",
+            "XBI",
+            "UVXY",
+            "SQQQ",
+            "SPXL",
+            "SPXS",
+            "PPA",
+            "XAR",
+            "HCP",
 
-]
+        ]
 
-subset = [
+        subset = [
 
-    t for t in subset
+            t for t in subset
 
-    if t not in BLACKLIST
+            if t not in BLACKLIST
 
-]
+        ]
 
-print(f"🔥 Tot Tickers: {len(subset)}")
-subset = subset[:20]
+        print(f"🔥 Tot Tickers: {len(subset)}")
+        subset = subset[:20]
 
 
 # =========================================
