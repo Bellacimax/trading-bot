@@ -442,11 +442,6 @@ def check_earnings(ticker):
 # MAIN
 # =========================================
 
-if __name__ == "__main__":
-
-    Thread(target=trading_loop).start()
-
-    run_dashboard()
 # =========================================
 # MARKET FILTER
 # =========================================
@@ -1647,6 +1642,13 @@ while True:
         print("❌ ERRORE:", e)
 
         time.sleep(300)
+
+
+    if __name__ == "__main__":
+
+        Thread(target=trading_loop).start()
+
+        run_dashboard()
 
 
          
