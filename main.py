@@ -736,9 +736,9 @@ df = yf.download(
 
     ticker,
 
-    period="1mo",
+    period="5d",
 
-    interval="1h",
+    interval="1d",
 
     progress=False,
 
