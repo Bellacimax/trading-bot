@@ -707,49 +707,52 @@ if (
 
         interval="1d",
 
-        progress=False,
+            progress=False,
 
-        threads=False
+    threads=False
 
-    )
+)
 
-    market_data_cache[ticker] = df
+market_data_cache[ticker] = df
 
-    last_download[ticker] = current_time
+last_download[ticker] = current_time
 
-    time.sleep(1)
+time.sleep(1)
 
 else:
 
     df = market_data_cache[ticker]
-            
-            if df is None or df.empty:
 
-                print(f"❌ NO DATA -> {ticker}")
 
-                continue
+if df is None or df.empty:
 
-            if len(df) < 50:
+    print(f"❌ NO DATA -> {ticker}")
 
-                print(f"⚠️ FEW DATA -> {ticker}")
+    continue
 
-                continue
+if len(df) < 50:
 
-            if isinstance(df.columns, pd.MultiIndex):
+    print(f"⚠️ FEW DATA -> {ticker}")
 
-                df.columns = df.columns.get_level_values(0)
+    continue
 
-            df = df[[
-                "Open",
-                "High",
-                "Low",
-                "Close",
-                "Volume"
-            ]].dropna()
+if isinstance(df.columns, pd.MultiIndex):
 
-            if len(df) < 50:
+    df.columns = df.columns.get_level_values(0)
 
-                continue
+df = df[[
+
+    "Open",
+    "High",
+    "Low",
+    "Close",
+    "Volume"
+
+]].dropna()
+
+if len(df) < 50:
+
+    continue
 
             # =========================================
             # ATR
