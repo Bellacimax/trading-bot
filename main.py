@@ -530,8 +530,6 @@ cooldown_tickers = {}
 
 def trading_loop():
 
-    def trading_loop():
-
     while True:
 
         try:
