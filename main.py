@@ -1639,24 +1639,21 @@ def trading_loop():
 
             index = 0
 
-        # =========================================
-        # SLEEP
-        # =========================================
+            # =========================================
+            # SLEEP
+            # =========================================
 
-        time.sleep(60)
+            time.sleep(60)
 
-    except Exception as e:
+        except Exception as e:
 
-        print("❌ ERRORE:", e)
+            print("❌ ERRORE:", e)
 
-        time.sleep(300)
-
-
-    if __name__ == "__main__":
-
-        Thread(target=trading_loop).start()
-
-        run_dashboard()
+            time.sleep(300)
 
 
-         
+if __name__ == "__main__":
+
+    Thread(target=trading_loop).start()
+
+    run_dashboard()
