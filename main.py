@@ -548,25 +548,30 @@ def trading_loop():
 
                 continue
 
-        
-        # =========================================
-        # ORARIO NEW YORK
-        # =========================================
+            # =========================================
+            # ORARIO NEW YORK
+            # =========================================
 
-        ora_utc = datetime.now(UTC).hour
+            ora_utc = datetime.now(UTC).hour
 
-        ora_ny = (ora_utc - 4) % 24
+            ora_ny = (ora_utc - 4) % 24
 
-        print(f"🕒 Ora NY: {ora_ny}")
+            print(f"🕒 Ora NY: {ora_ny}")
 
-        # pausa solo notte vera
-        if 0 <= ora_ny < 4:
+            # pausa solo notte vera
+            if 0 <= ora_ny < 4:
 
-            print("😴 Notte USA - pausa")
+                print("😴 Notte USA - pausa")
 
-            time.sleep(300)
+                time.sleep(300)
 
-            continue
+                continue
+
+        except Exception as e:
+
+            print(f"❌ ERRORE: {e}")
+
+            time.sleep(60)
 
         # =========================================
         # FASE MERCATO
