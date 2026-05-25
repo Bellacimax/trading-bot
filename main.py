@@ -1649,7 +1649,7 @@ def trading_loop():
 
     except Exception as e:
 
-        print("❌ ERRORE:", e)
+        print(f"❌ ERRORE: {e}")
 
         time.sleep(300)
 
