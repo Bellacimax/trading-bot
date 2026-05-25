@@ -528,6 +528,11 @@ open_positions = {}
 cooldown_tickers = {}
 
 
+market_data_cache = {}
+
+last_download = {}
+
+
 def trading_loop():
 
     while True:
