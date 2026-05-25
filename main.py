@@ -534,6 +534,10 @@ def trading_loop():
 
         try:
 
+            # =========================================
+            # WEEKEND FILTER
+            # =========================================
+
             weekday = datetime.now().weekday()
 
             if weekday >= 5:
@@ -543,24 +547,6 @@ def trading_loop():
                 time.sleep(600)
 
                 continue
-
-        while True:
-
-            try:
-
-                # =========================================
-                # WEEKEND FILTER
-                # =========================================
-
-                weekday = datetime.now().weekday()
-
-                if weekday >= 5:
-
-                    print("📴 Weekend - market closed")
-
-                    time.sleep(600)
-
-                    continue
 
         
         # =========================================
