@@ -1602,6 +1602,7 @@ def trading_loop():
 
             except Exception as e:
 
+                
                 print("Errore gestione trade:", e)
         # =========================================
         # STATS
