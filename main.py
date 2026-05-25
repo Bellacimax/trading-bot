@@ -673,25 +673,42 @@ def trading_loop():
 
                 
             # =========================================
-            # DATI 1H
-            # =========================================
+# DATI 1H
+# =========================================
 
-            time.sleep(3)
+current_time = time.time()
 
-            df = yf.download(
+if (
 
-                ticker,
+    ticker not in market_data_cache
 
-                period="5d",
+    or current_time - last_download.get(ticker, 0) > 60
 
-                interval="1d",
+):
 
-                progress=False,
+    df = yf.download(
 
-                threads=False
+        ticker,
 
-            )
-            time.sleep(1)
+        period="5d",
+
+        interval="1d",
+
+        progress=False,
+
+        threads=False
+
+    )
+
+    market_data_cache[ticker] = df
+
+    last_download[ticker] = current_time
+
+    time.sleep(1)
+
+else:
+
+    df = market_data_cache[ticker]
             
             if df is None or df.empty:
 
