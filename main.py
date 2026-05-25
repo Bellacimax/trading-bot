@@ -700,7 +700,7 @@ if (
 
 ):
 
-    df = yf.download(
+df = yf.download(
 
         ticker,
 
