@@ -692,7 +692,8 @@ def trading_loop():
                 threads=False
 
             )
-
+            time.sleep(1)
+            
             if df is None or df.empty:
 
                 print(f"❌ NO DATA -> {ticker}")
