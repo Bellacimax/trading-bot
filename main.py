@@ -742,68 +742,71 @@ if len(df) < 50:
 
 df["ATR"] = compute_atr(df)
 
-            # =========================================
-            # INDICATORI
-            # =========================================
+# =========================================
+# INDICATORI
+# =========================================
 
-            df = compute_indicators(df)
+df = compute_indicators(df)
 
-            df["VWAP"] = (
+df["VWAP"] = (
 
-                (df["Close"] * df["Volume"]).cumsum()
+    (df["Close"] * df["Volume"]).cumsum()
 
-                / df["Volume"].cumsum()
+    / df["Volume"].cumsum()
 
-            )
+)
 
-            df["EMA20"] = df["Close"].ewm(span=20).mean()
+df["EMA20"] = df["Close"].ewm(span=20).mean()
 
-            df["EMA50"] = df["Close"].ewm(span=50).mean()
+df["EMA50"] = df["Close"].ewm(span=50).mean()
 
-            df["EMA200"] = df["Close"].ewm(span=200).mean()
+df["EMA200"] = df["Close"].ewm(span=200).mean()
 
-            last = df.iloc[-1]
-            ema20 = last["EMA20"]
+last = df.iloc[-1]
 
-            ema50 = last["EMA50"]
+ema20 = last["EMA20"]
 
-            ema200 = last["EMA200"]
+ema50 = last["EMA50"]
 
-            price = last["Close"]
-            prev_close = df["Close"].iloc[-2]
+ema200 = last["EMA200"]
 
-            gap_pct = (
+price = last["Close"]
 
-                (price - prev_close)
+prev_close = df["Close"].iloc[-2]
 
-                / prev_close
+gap_pct = (
 
-            ) * 100
-                    
-            vwap = last["VWAP"]
+    (price - prev_close)
 
-            rsi = last["RSI"]
+    / prev_close
 
-            atr = last["ATR"]
-            volume = last["Volume"]
+) * 100
 
-            volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
+vwap = last["VWAP"]
 
-            if volume < volume_ma * MIN_VOLUME_RATIO:
+rsi = last["RSI"]
 
-                print(f"⚠️ LOW VOLUME -> {ticker}")
+atr = last["ATR"]
 
-                # continue
+volume = last["Volume"]
 
-            if atr < price * 0.01:
+volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
 
-                print(f"⚠️ LOW VOLATILITY -> {ticker}")
+if volume < volume_ma * MIN_VOLUME_RATIO:
 
-                continue
+    print(f"⚠️ LOW VOLUME -> {ticker}")
 
-            if pd.isna(atr) or atr == 0:
+    # continue
 
-                continue
+if atr < price * 0.01:
+
+    print(f"⚠️ LOW VOLATILITY -> {ticker}")
+
+    continue
+
+if pd.isna(atr) or atr == 0:
+
+    continue
 
             # =========================================
             # DATI 1H
