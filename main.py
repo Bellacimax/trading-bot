@@ -544,7 +544,11 @@ last_download = {}
 
 def trading_loop():
 
+    index = 0
+
     while True:
+
+        try:
 
         try:
 
