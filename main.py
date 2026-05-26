@@ -686,128 +686,145 @@ def trading_loop():
                     continue
 
                 
-# =========================================
-# DATI 1H
-# =========================================
+                        # =========================================
+            # DATI 1H
+            # =========================================
 
-current_time = time.time()
+            current_time = time.time()
 
-if (
+            if (
 
-    ticker not in market_data_cache
+                ticker not in market_data_cache
 
-    or current_time - last_download.get(ticker, 0) > 60
+                or current_time - last_download.get(ticker, 0) > 60
 
-):
+            ):
 
-df = yf.download(
+                df = yf.download(
 
-        ticker,
+                    ticker,
 
-        period="5d",
+                    period="5d",
 
-        interval="1d",
+                    interval="1d",
 
-        progress=False,
+                    progress=False,
 
-        threads=False
+                    threads=False
 
-    )
+                )
 
-    market_data_cache[ticker] = df
+                market_data_cache[ticker] = df
 
-    last_download[ticker] = current_time
+                last_download[ticker] = current_time
 
-    time.sleep(1)
+                time.sleep(1)
 
-else:
+            else:
 
-    df = market_data_cache[ticker]
+                df = market_data_cache[ticker]
 
+            if df is None or df.empty:
 
-if df is None or df.empty:
+                print(f"❌ NO DATA -> {ticker}")
 
-    print(f"❌ NO DATA -> {ticker}")
+                continue
 
-    continue
+            if len(df) < 50:
 
-if len(df) < 50:
+                print(f"⚠️ FEW DATA -> {ticker}")
 
-    print(f"⚠️ FEW DATA -> {ticker}")
+                continue
 
-    continue
+            if isinstance(df.columns, pd.MultiIndex):
 
-# =========================================
-# ATR
-# =========================================
+                df.columns = df.columns.get_level_values(0)
 
-df["ATR"] = compute_atr(df)
+            df = df[[
 
-# =========================================
-# INDICATORI
-# =========================================
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume"
 
-df = compute_indicators(df)
+            ]].dropna()
 
-df["VWAP"] = (
+            if len(df) < 50:
 
-    (df["Close"] * df["Volume"]).cumsum()
+                continue
 
-    / df["Volume"].cumsum()
+            # =========================================
+            # ATR
+            # =========================================
 
-)
+            df["ATR"] = compute_atr(df)
 
-df["EMA20"] = df["Close"].ewm(span=20).mean()
+            # =========================================
+            # INDICATORI
+            # =========================================
 
-df["EMA50"] = df["Close"].ewm(span=50).mean()
+            df = compute_indicators(df)
 
-df["EMA200"] = df["Close"].ewm(span=200).mean()
+            df["VWAP"] = (
 
-last = df.iloc[-1]
+                (df["Close"] * df["Volume"]).cumsum()
 
-ema20 = last["EMA20"]
+                / df["Volume"].cumsum()
 
-ema50 = last["EMA50"]
+            )
 
-ema200 = last["EMA200"]
+            df["EMA20"] = df["Close"].ewm(span=20).mean()
 
-price = last["Close"]
+            df["EMA50"] = df["Close"].ewm(span=50).mean()
 
-prev_close = df["Close"].iloc[-2]
+            df["EMA200"] = df["Close"].ewm(span=200).mean()
 
-gap_pct = (
+            last = df.iloc[-1]
 
-    (price - prev_close)
+            ema20 = last["EMA20"]
 
-    / prev_close
+            ema50 = last["EMA50"]
 
-) * 100
+            ema200 = last["EMA200"]
 
-vwap = last["VWAP"]
+            price = last["Close"]
 
-rsi = last["RSI"]
+            prev_close = df["Close"].iloc[-2]
 
-atr = last["ATR"]
+            gap_pct = (
 
-volume = last["Volume"]
+                (price - prev_close)
 
-volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
+                / prev_close
 
-if volume < volume_ma * MIN_VOLUME_RATIO:
+            ) * 100
 
-    print(f"⚠️ LOW VOLUME -> {ticker}")
+            vwap = last["VWAP"]
 
-    # continue
+            rsi = last["RSI"]
 
-if atr < price * 0.01:
+            atr = last["ATR"]
 
-    print(f"⚠️ LOW VOLATILITY -> {ticker}")
+            volume = last["Volume"]
 
-    continue
+            volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
 
-if pd.isna(atr) or atr == 0:
+            if volume < volume_ma * MIN_VOLUME_RATIO:
 
-    continue
+                print(f"⚠️ LOW VOLUME -> {ticker}")
+
+                # continue
+
+            if atr < price * 0.01:
+
+                print(f"⚠️ LOW VOLATILITY -> {ticker}")
+
+                continue
+
+            if pd.isna(atr) or atr == 0:
+
+                continue
 
 
             # =========================================
