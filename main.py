@@ -1602,15 +1602,11 @@ def trading_loop():
 
         time.sleep(60)
 
-    except Exception as e:
-
-        print(f"❌ ERRORE: {e}")
-
-        time.sleep(300)
-
 
 if __name__ == "__main__":
 
     Thread(target=trading_loop).start()
+
+    run_dashboard()
 
     run_dashboard()
