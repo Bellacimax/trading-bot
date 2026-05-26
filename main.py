@@ -650,6 +650,7 @@ def trading_loop():
         # LOOP TICKER
         # =========================================
         
+        time.sleep(15)
         for ticker in subset:
 
             if (
@@ -667,7 +668,7 @@ def trading_loop():
             print(f"🔍 Analizzo {ticker}")
 
             # evita rate limit Yahoo
-            time.sleep(2)
+            time.sleep(8)
 
             if ticker in cooldown_tickers:
 
