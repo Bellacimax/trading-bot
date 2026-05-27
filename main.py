@@ -688,6 +688,12 @@ for ticker in subset:
                 print(f"⏳ COOLDOWN -> {ticker}")
 
                 continue
+
+    except Exception as e:
+
+        print(f"❌ ERRORE {ticker}: {e}")
+
+        continue
                 
                     # =========================================
                     # CACHE
