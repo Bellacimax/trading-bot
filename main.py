@@ -638,13 +638,16 @@ def trading_loop():
 
             print(f"🔥 Tot Tickers: {len(subset)}")
 
-                       # =========================================
+            # =========================================
             # LOOP TICKER
             # =========================================
 
             time.sleep(3)
 
             for ticker in subset:
+                if ticker in bad_tickers:
+
+                    continue           
 
                 try:
 
