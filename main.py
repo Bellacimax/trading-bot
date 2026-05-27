@@ -992,7 +992,8 @@ for ticker in subset:
                 print(f"⚠️ LOW GAP -> {ticker}")
 
                 continue
-                    
+
+
             # =========================================
             # EMA TREND FILTER
             # =========================================
