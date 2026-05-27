@@ -644,7 +644,8 @@ def trading_loop():
             time.sleep(15)
 
             for ticker in subset:
-            if not ticker.isalpha():
+
+                if not ticker.isalpha():
 
                 continue
 
@@ -652,11 +653,9 @@ def trading_loop():
 
                 continue
 
-                try:
+            ticker = ticker.replace('"', '').replace(',', '').strip()
 
-                    ticker = ticker.replace('"', '').replace(',', '').strip()
-
-                    print(f"🔍 Analizzo {ticker}")
+            print(f"🔍 Analizzo {ticker}")
                     if not ticker.isalpha():
 
                         continue
