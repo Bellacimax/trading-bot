@@ -715,7 +715,15 @@ def trading_loop():
 
                     threads=False
 
-                )
+            )
+
+            if df is None or df.empty:
+
+                time.sleep(30)
+
+                print(f"❌ NO DATA -> {ticker}")
+
+                continue
 
                 market_data_cache[ticker] = df
 
