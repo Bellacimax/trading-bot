@@ -559,6 +559,14 @@ def trading_loop():
 
         try:
 
+            # tutto il codice loop
+
+        except Exception as e:
+
+            print(f"❌ ERRORE LOOP: {e}")
+
+            time.sleep(60)
+
             # =========================================
             # WEEKEND FILTER
             # =========================================
