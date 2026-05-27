@@ -560,7 +560,37 @@ def trading_loop():
 
         try:
 
-            # tutto il codice loop
+            # =========================================
+            # WEEKEND FILTER
+            # =========================================
+
+            weekday = datetime.now().weekday()
+
+            if weekday >= 5:
+
+                print("📴 Weekend - market closed")
+
+                time.sleep(600)
+
+                continue
+
+            # =========================================
+            # LOOP TICKER
+            # =========================================
+
+            time.sleep(3)
+
+            for ticker in subset:
+
+                try:
+
+                    # ticker logic...
+
+                except Exception as e:
+
+                    print(f"❌ ERRORE {ticker}: {e}")
+
+                    continue
 
         except Exception as e:
 
