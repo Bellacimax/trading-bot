@@ -332,4 +332,50 @@ TICKERS = [
 "XAR",
 "PPA",
 
+# =========================================
+# SPACE / AEROSPACE
+# =========================================
+
+"RKLB",   # Rocket Lab
+"LUNR",   # Intuitive Machines
+"ASTS",   # AST SpaceMobile
+"PL",     # Planet Labs
+"RDW",    # Redwire
+"LLAP",   # Terran Orbital
+"SATS",   # EchoStar
+"SPCE",   # Virgin Galactic
+"IRDM",   # Iridium
+"ACHR",   # Archer Aviation
+"JOBY",   # Joby Aviation
+"KTOS",   # Kratos Defense
+"AVAV",   # AeroVironment
+
+# =========================================
+# QUANTUM COMPUTING
+# =========================================
+
+"IONQ",
+"RGTI",
+"QUBT",
+"QBTS",
+"ARQQ",
+
+# =========================================
+# AI / FUTURE TECH
+# =========================================
+
+"SOUN",
+"BBAI",
+"PLTR",
+"AI",
+"SYM",
+"TEM",
+
+# =========================================
+# SPACE / DEFENSE ETF
+# =========================================
+
+"ITA",
+"XAR",
+"ARKX",
 ]
