@@ -534,6 +534,7 @@ COOLDOWN_MINUTES = int(
 open_positions = {}
 
 cooldown_tickers = {}
+bad_tickers = set()
 
 
 market_data_cache = {}
