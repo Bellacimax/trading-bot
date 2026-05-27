@@ -657,9 +657,16 @@ def trading_loop():
                     ticker = ticker.replace('"', '').replace(',', '').strip()
 
                     print(f"🔍 Analizzo {ticker}")
+                    if not ticker.isalpha():
+
+                        continue
+
+                    if len(ticker) > 5:
+
+                        continue
 
                     # evita rate limit Yahoo
-                    time.sleep(8)
+                    time.sleep(15)
 
                     # =========================================
                     # COOLDOWN
