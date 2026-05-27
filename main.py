@@ -644,6 +644,13 @@ def trading_loop():
             time.sleep(15)
 
             for ticker in subset:
+            if not ticker.isalpha():
+
+                continue
+
+            if len(ticker) > 5:
+
+                continue
 
                 try:
 
