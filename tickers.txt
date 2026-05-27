@@ -376,18 +376,14 @@ TICKERS = [
 # =========================================
 
 "ITA",
-"XAR",
 "ARKX",
+
+# =========================================
+# DEFENSE / AEROSPACE
+# =========================================
 
 "BA",     # Boeing
 "LMT",    # Lockheed Martin
 "NOC",    # Northrop Grumman
 "RTX",    # Raytheon
 "TXT",    # Textron
-"IONQ",   # Quantum
-"RGTI",   # Rigetti
-"QBTS",   # D-Wave
-"QUBT",   # Quantum Computing Inc
-
-
-]
