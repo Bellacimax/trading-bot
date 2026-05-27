@@ -202,8 +202,17 @@ def compute_indicators(df):
 # =========================================
 
 print("🚀 BOT AVVIATO")
+try:
 
-send_telegram("🚀 BOT ONLINE")
+    print("📨 TEST TELEGRAM...")
+
+    send_telegram("🚀 BOT ONLINE")
+
+    print("✅ TELEGRAM OK")
+
+except Exception as e:
+
+    print(f"❌ TELEGRAM ERROR: {e}")
 init_stats()
 
 # =========================================
