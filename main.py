@@ -638,54 +638,57 @@ def trading_loop():
 
             print(f"🔥 Tot Tickers: {len(subset)}")
 
-            # =========================================
-            # LOOP TICKER
-            # =========================================
+# =========================================
+# LOOP TICKER
+# =========================================
 
-            time.sleep(3)
+time.sleep(3)
 
-            for ticker in subset:
-                if ticker in bad_tickers:
+for ticker in subset:
 
-                    continue           
+    try:
 
-                try:
+        if ticker in bad_tickers:
 
-                    if not ticker.isalpha():
+            continue
 
-                        continue
+        if not ticker.isalpha():
 
-                    if len(ticker) > 5:
+            continue
 
-                        continue
+        if len(ticker) > 5:
 
-                    ticker = ticker.replace('"', '').replace(',', '').strip()
+            continue
 
-                    print(f"🔍 Analizzo {ticker}")
-                    print(f"🧠 Loop attivo -> {ticker}")
+        ticker = ticker.replace('"', '').replace(',', '').strip()
 
-                    # evita rate limit Yahoo
-                    time.sleep(3)
+        print(f"🔍 Analizzo {ticker}")
 
-                    # =========================================
-                    # COOLDOWN
-                    # =========================================
+        print(f"🧠 Scanner attivo -> {ticker}")
 
-                    if ticker in cooldown_tickers:
+        # evita rate limit Yahoo
+        time.sleep(3)
 
-                        last_alert = cooldown_tickers[ticker]
+        # =========================================
+        # COOLDOWN
+        # =========================================
 
-                        minutes_passed = (
+        if ticker in cooldown_tickers:
 
-                            datetime.now() - last_alert
+            last_alert = cooldown_tickers[ticker]
 
-                        ).seconds / 60
+            minutes_passed = (
 
-                        if minutes_passed < COOLDOWN_MINUTES:
+                datetime.now() - last_alert
 
-                            print(f"⏳ COOLDOWN -> {ticker}")
+            ).seconds / 60
 
-                            continue
+            if minutes_passed < COOLDOWN_MINUTES:
+
+                print(f"⏳ COOLDOWN -> {ticker}")
+
+                continue
+                
                     # =========================================
                     # CACHE
                     # =========================================
@@ -714,11 +717,14 @@ def trading_loop():
 
                         )
 
-                        if df is None or df.empty:
+                       if df is None or df.empty:
 
-                            print(f"❌ NO DATA -> {ticker}")
+                            bad_tickers.add(ticker)
+
+                            print(f"❌ BAD TICKER -> {ticker}")
 
                             continue
+
 
                         market_data_cache[ticker] = df
 
