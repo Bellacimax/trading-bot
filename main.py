@@ -678,6 +678,12 @@ for ticker in subset:
         # evita rate limit Yahoo
         time.sleep(3)
 
+    except Exception as e:
+
+        print(f"❌ ERRORE {ticker}: {e}")
+
+        continue
+
         # =========================================
         # COOLDOWN
         # =========================================
