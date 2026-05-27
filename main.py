@@ -641,7 +641,7 @@ def trading_loop():
             # LOOP TICKER
             # =========================================
 
-            time.sleep(15)
+            time.sleep(3)
 
             for ticker in subset:
 
@@ -658,9 +658,10 @@ def trading_loop():
                     ticker = ticker.replace('"', '').replace(',', '').strip()
 
                     print(f"🔍 Analizzo {ticker}")
+                    print(f"🧠 Loop attivo -> {ticker}")
 
                     # evita rate limit Yahoo
-                    time.sleep(15)
+                    time.sleep(3)
 
                     # =========================================
                     # COOLDOWN
