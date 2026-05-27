@@ -573,7 +573,6 @@ def trading_loop():
 
             print(f"🕒 Ora NY: {ora_ny}")
 
-            # pausa solo notte vera
             if 0 <= ora_ny < 4:
 
                 print("😴 Notte USA - pausa")
@@ -582,956 +581,516 @@ def trading_loop():
 
                 continue
 
-        except Exception as e:
-
-            print(f"❌ ERRORE: {e}")
-
-            time.sleep(60)
-
-        # =========================================
-        # FASE MERCATO
-        # =========================================
-
-        if ora_ny < 10:
-
-            fase = "Pre-market"
-
-        elif ora_ny < 16:
-
-            fase = "Market"
-
-        else:
-
-            fase = "After-hours"
-
-        print(f"📊 Fase: {fase}")
-
-        # pausa solo after-hours
-        if fase == "After-hours":
-
-            print("🌙 After-hours pausa")
-
-            time.sleep(60)
-
-            continue
-
-        # =========================================
-        # SUBSET TICKER
-        # =========================================
-
-        subset = sorted(list(set(TICKERS)))
-
-        BLACKLIST = [
-
-            "ARKK",
-            "XBI",
-            "UVXY",
-            "SQQQ",
-            "SPXL",
-            "SPXS",
-            "PPA",
-            "XAR",
-            "HCP",
-
-        ]
-
-        subset = [
-
-            t for t in subset
-
-            if t not in BLACKLIST
-
-        ]
-
-        print(f"🔥 Tot Tickers: {len(subset)}")
-        subset = subset[:20]
-
-
-        # =========================================
-# LOOP TICKER
-# =========================================
-
-time.sleep(15)
-
-for ticker in subset:
-
-    if (
-        "TICKERS" in ticker
-        or "[" in ticker
-        or "]" in ticker
-        or "=" in ticker
-        or "#" in ticker
-    ):
-
-        continue
-
-    ticker = ticker.replace('"', '').replace(',', '').strip()
-
-    print(f"🔍 Analizzo {ticker}")
-
-    # evita rate limit Yahoo
-    time.sleep(8)
-
-    # =========================================
-    # COOLDOWN
-    # =========================================
-
-    if ticker in cooldown_tickers:
-
-        last_alert = cooldown_tickers[ticker]
-
-        minutes_passed = (
-
-            datetime.now() - last_alert
-
-        ).seconds / 60
-
-        if minutes_passed < COOLDOWN_MINUTES:
-
-            print(f"⏳ COOLDOWN -> {ticker}")
-
-            continue
-
-    # =========================================
-    # DATI PRINCIPALI
-    # =========================================
-
-    current_time = time.time()
-
-    if (
-
-        ticker not in market_data_cache
-
-        or current_time - last_download.get(ticker, 0) > 60
-
-    ):
-
-        df = yf.download(
-
-            ticker,
-
-            period="5d",
-
-            interval="1d",
-
-            progress=False,
-
-            threads=False
-
-        )
-
-        if df is None or df.empty:
-
-            print(f"❌ NO DATA -> {ticker}")
-
-            time.sleep(30)
-
-            continue
-
-        market_data_cache[ticker] = df
-
-        last_download[ticker] = current_time
-
-        time.sleep(1)
-
-    else:
-
-        df = market_data_cache[ticker]
-
-    if len(df) < 50:
-
-        print(f"⚠️ FEW DATA -> {ticker}")
-
-        continue
-
-    if isinstance(df.columns, pd.MultiIndex):
-
-        df.columns = df.columns.get_level_values(0)
-
-    df = df[[
-
-        "Open",
-        "High",
-        "Low",
-        "Close",
-        "Volume"
-
-    ]].dropna()
-
-    # =========================================
-    # ATR + INDICATORI
-    # =========================================
-
-    df["ATR"] = compute_atr(df)
-
-    df = compute_indicators(df)
-
-    df["VWAP"] = (
-
-        (df["Close"] * df["Volume"]).cumsum()
-
-        / df["Volume"].cumsum()
-
-    )
-
-    df["EMA20"] = df["Close"].ewm(span=20).mean()
-
-    df["EMA50"] = df["Close"].ewm(span=50).mean()
-
-    df["EMA200"] = df["Close"].ewm(span=200).mean()
-
-    last = df.iloc[-1]
-
-    price = last["Close"]
-
-    ema20 = last["EMA20"]
-
-    ema50 = last["EMA50"]
-
-    ema200 = last["EMA200"]
-
-    atr = last["ATR"]
-
-    rsi = last["RSI"]
-
-    volume = last["Volume"]
-
-    prev_close = df["Close"].iloc[-2]
-
-    gap_pct = ((price - prev_close) / prev_close) * 100
-
-    vwap = last["VWAP"]
-
-    if pd.isna(atr) or atr == 0:
-
-        continue
-
-    # =========================================
-    # HTF
-    # =========================================
-
-    df_htf = yf.download(
-
-        ticker,
-
-        period="3mo",
-
-        interval="1d",
-
-        progress=False,
-
-        threads=False
-
-    )
-
-    if df_htf is None or df_htf.empty:
-
-        continue
-
-    if isinstance(df_htf.columns, pd.MultiIndex):
-
-        df_htf.columns = df_htf.columns.get_level_values(0)
-
-    df_htf = compute_indicators(df_htf)
-
-    htf_last = df_htf.iloc[-1]
-
-    # =========================================
-    # DAILY
-    # =========================================
-
-    df_daily = yf.download(
-
-        ticker,
-
-        period="1y",
-
-        interval="1d",
-
-        progress=False,
-
-        threads=False
-
-    )
-
-    if df_daily is None or df_daily.empty:
-
-        continue
-
-    if isinstance(df_daily.columns, pd.MultiIndex):
-
-        df_daily.columns = df_daily.columns.get_level_values(0)
-
-    ema200_daily = df_daily["Close"].ewm(
-
-        span=200,
-
-        adjust=False
-
-    ).mean()
-
-    daily_price = df_daily["Close"].iloc[-1]
-
-    daily_up = daily_price > ema200_daily.iloc[-1]
-
-    daily_down = daily_price < ema200_daily.iloc[-1]
-
-    # =========================================
-    # VOLUME
-    # =========================================
-
-    volume_today = df_daily["Volume"].iloc[-1]
-
-    avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
-
-    relative_volume = volume_today / avg_volume
-
-    strong_volume = relative_volume > 1.5
-
-    # =========================================
-    # SCORE
-    # =========================================
-
-    score_buy = 0
-
-    score_sell = 0
-
-    trend_up = price > ema200
-
-    trend_down = price < ema200
-
-    htf_up = htf_last["Close"] > htf_last["EMA200"]
-
-    htf_down = htf_last["Close"] < htf_last["EMA200"]
-
-    rsi_buy = rsi > 55
-
-    rsi_sell = rsi < 45
-
-    macd_buy = last["MACD"] > last["MACD_signal"]
-
-    macd_sell = last["MACD"] < last["MACD_signal"]
-
-    if trend_up:
-        score_buy += 1
-
-    if trend_down:
-        score_sell += 1
-
-    if rsi_buy:
-        score_buy += 1
-
-    if rsi_sell:
-        score_sell += 1
-
-    if macd_buy:
-        score_buy += 1
-
-    if macd_sell:
-        score_sell += 1
-
-    print(
-        f"{ticker} | "
-        f"BUY={score_buy} "
-        f"SELL={score_sell}"
-    )
-
             # =========================================
-            # TRADE GIÀ ATTIVO
+            # FASE MERCATO
             # =========================================
 
-            if ticker in active_trades:
+            if ora_ny < 10:
 
-                continue
+                fase = "Pre-market"
 
-            # =========================================
-            # DEBUG SCORE
-            # =========================================
+            elif ora_ny < 16:
 
-            print(
-                f"{ticker} | "
-                f"BUY={score_buy} "
-                f"SELL={score_sell} "
-                f"HTF_UP={htf_up} "
-                f"HTF_DOWN={htf_down}"
-            )
-
-            # =========================================
-            # ENTRY
-            # =========================================
-
-            if score_buy >= 2 and strong_volume:
-
-                side = "BUY"
-
-                score = score_buy
-
-                print(f"🟢 BUY READY -> {ticker}")
-
-            elif score_sell >= 2 and strong_volume:
-
-                side = "SELL"
-
-                score = score_sell
-
-                print(f"🔴 SELL READY -> {ticker}")
+                fase = "Market"
 
             else:
 
-                print(f"⚠️ SKIP -> {ticker}")
+                fase = "After-hours"
 
-                continue
+            print(f"📊 Fase: {fase}")
 
+            if fase == "After-hours":
 
-            # =========================================
-            # GAP FILTER
-            # =========================================
+                print("🌙 After-hours pausa")
 
-            if abs(gap_pct) < MIN_GAP:
-
-                print(f"⚠️ LOW GAP -> {ticker}")
-
-                continue
-
-
-            # =========================================
-            # EMA TREND FILTER
-            # =========================================
-
-            if side == "BUY":
-
-                if not (ema20 > ema50 > ema200):
-
-                    print(f"⚠️ EMA TREND FAIL -> {ticker}")
-
-                    continue
-
-            if side == "SELL":
-
-                if not (ema20 < ema50 < ema200):
-
-                    print(f"⚠️ EMA TREND FAIL -> {ticker}")
-
-                    continue
-                    
-            # =========================================
-            # RSI EXTREME FILTER
-            # =========================================
-
-            if side == "SELL" and rsi < RSI_SELL_LIMIT:
-
-                print(f"⚠️ RSI TOO LOW -> {ticker}")
-
-                continue
-            # =========================================
-            # VWAP FILTER
-            # =========================================
-
-            if side == "BUY" and price < vwap:
-
-                print(f"⚠️ BELOW VWAP -> {ticker}")
-
-                continue
-
-            if side == "SELL" and price > vwap:
-
-                print(f"⚠️ ABOVE VWAP -> {ticker}")
-
-                continue
-
-
-            
-            # =========================================
-            # STOP / TARGET
-            # =========================================
-
-            distanza_stop = atr * 4
-
-            if side == "BUY":
-
-                stop = price - distanza_stop
-
-                target = price + atr * 6
-
-            else:
-
-                stop = price + distanza_stop
-
-                target = price - atr * 6
-
-            risk = abs(price - stop)
-
-            reward = abs(target - price)
-
-            rr = round(reward / risk, 2) if risk != 0 else 0
-
-            if rr < 1.3:
-
-                print(f"❌ RR FAIL -> {ticker} | RR={rr}")
-
-                continue
-
-            
-            # =========================================
-            # SIZE
-            # =========================================
-
-            rischio_euro = CAPITALE * RISCHIO
-
-            qty = int(
-
-                min(
-
-                    rischio_euro / distanza_stop,
-
-                    CAPITALE / price
-
-                )
-
-            )
-
-            if qty <= 0:
+                time.sleep(60)
 
                 continue
 
             # =========================================
-            # COMMISSIONI
+            # TICKERS
             # =========================================
 
-            profitto_potenziale = reward * qty
+            subset = sorted(list(set(TICKERS)))
 
-            if profitto_potenziale < COMMISSIONI:
+            BLACKLIST = [
 
-                 print(
-                     f"❌ COMMISSION FAIL -> {ticker} | "
-                     f"Profit={round(profitto_potenziale,2)}"
-                 )
+                "ARKK",
+                "XBI",
+                "UVXY",
+                "SQQQ",
+                "SPXL",
+                "SPXS",
+                "PPA",
+                "XAR",
+                "HCP"
 
-                 continue
+            ]
 
-            # =========================================
-            # SALVA TRADE
-            # =========================================
+            subset = [
 
-            active_trades[ticker] = {
+                t for t in subset
 
-                "side": side,
+                if t not in BLACKLIST
 
-                "entry": price,
+            ]
 
-                "stop": stop,
-
-                "target": target,
-
-                "qty": qty,
-
-                "risk": rischio_euro
-            }
+            print(f"🔥 Tot Tickers: {len(subset)}")
 
             # =========================================
-            # TELEGRAM
+            # LOOP TICKER
             # =========================================
 
-            if len(open_positions) >= MAX_TRADES:
+            time.sleep(15)
 
-                print("⚠️ MAX TRADES REACHED")
+            for ticker in subset:
 
-                continue
+                try:
 
-            qty = round(
+                    ticker = ticker.replace('"', '').replace(',', '').strip()
 
-                CAPITALE_PER_TRADE / price
+                    print(f"🔍 Analizzo {ticker}")
 
-            )
-
-            send_telegram(
-
-                f"🚀 {side} {ticker}\n\n"
-
-                f"📊 Fase: {fase}\n\n"
-
-                f"💰 Capitale: ${CAPITALE_PER_TRADE}\n"
-
-                f"📦 Shares: {qty}\n\n"
-
-                f"💵 Entry: {round(price,2)}\n"
-
-                f"🛑 Stop: {round(stop,2)}\n"
-
-                f"🎯 Target: {round(target,2)}\n"
-
-                f"⚖️ R/R: {rr}\n\n"
-
-                f"📈 RSI: {round(last['RSI'],1)}\n"
-
-                f"📉 MACD: {'Bullish' if macd_buy else 'Bearish'}\n"
-
-                f"🔥 GoldenCross: {'YES' if golden_cross else 'NO'}\n\n"
-
-                f"🟢 Supporto: {round(support,2)}\n"
-
-                f"🔴 Resistenza: {round(resistance,2)}\n\n"
-
-                f"🌀 Pivot: {round(pivot,2)}\n"
-
-                f"⬆️ R1: {round(r1,2)}\n"
-
-                f"⬇️ S1: {round(s1,2)}\n\n"
-
-                f"📐 Fib 0.382: {round(fib_382,2)}\n"
-
-                f"📐 Fib 0.5: {round(fib_50,2)}\n"
-
-                f"📐 Fib 0.618: {round(fib_618,2)}\n\n"
-
-                f"📦 Volume Spike: YES"
-
-            )
-
-            open_positions[ticker] = {
-
-                "side": side,
-
-                "entry": price,
-
-                "stop": stop,
-
-                "target": target,
-
-                "qty": qty
-
-            }
-
-            cooldown_tickers[ticker] = datetime.now()
-
-            save_trade(
-
-                ticker=ticker,
-
-                side=side,
-
-                entry=round(price, 2),
-
-                exit_price=0,
-
-                pnl=0,
-
-                result="OPEN",
-
-                rr=rr
-
-            )
-
-        # =========================================
-        # GESTIONE TRADE
-        # =========================================
-
-        for t in list(active_trades.keys()):
-
-            try:
-
-                trade = active_trades[t]
-
-                df_trade = yf.download(
-                    t,
-                    period="1d",
-                    interval="5m",
-                    progress=False
-                )
-
-                if df_trade is None or df_trade.empty:
-                    continue
-
-                if isinstance(df_trade.columns, pd.MultiIndex):
-                    df_trade.columns = df_trade.columns.get_level_values(0)
-
-                price_now = df_trade["Close"].iloc[-1]
-
-                atr_now = compute_atr(df_trade).iloc[-1]
-
-                # =========================================
-                # BUY
-                # =========================================
-
-                if trade["side"] == "BUY":
+                    # evita rate limit Yahoo
+                    time.sleep(8)
 
                     # =========================================
-                    # BREAK EVEN AUTO
+                    # COOLDOWN
                     # =========================================
 
-                    risk = trade["entry"] - trade["stop"]
+                    if ticker in cooldown_tickers:
+
+                        last_alert = cooldown_tickers[ticker]
+
+                        minutes_passed = (
+
+                            datetime.now() - last_alert
+
+                        ).seconds / 60
+
+                        if minutes_passed < COOLDOWN_MINUTES:
+
+                            print(f"⏳ COOLDOWN -> {ticker}")
+
+                            continue
+
+                    # =========================================
+                    # CACHE
+                    # =========================================
+
+                    current_time = time.time()
 
                     if (
 
-                        price_now >= trade["entry"] + risk
+                        ticker not in market_data_cache
 
-                        and trade["stop"] < trade["entry"]
+                        or current_time - last_download.get(ticker, 0) > 60
 
                     ):
 
-                        trade["stop"] = trade["entry"]
+                        df = yf.download(
 
-                        send_telegram(
+                            ticker,
 
-                            f"🟡 BREAK EVEN\n\n"
+                            period="5d",
 
-                            f"Ticker: {t}\n"
+                            interval="1d",
 
-                            f"Stop moved to entry"
+                            progress=False,
 
-                        )    
+                            threads=False
 
-                    if price_now >= trade["entry"] + atr_now:
-
-                        trade["stop"] = max(
-                            trade["stop"],
-                            trade["entry"]
                         )
 
-                    trade["stop"] = max(
-                        trade["stop"],
-                        price_now - atr_now * 3
+                        if df is None or df.empty:
+
+                            print(f"❌ NO DATA -> {ticker}")
+
+                            continue
+
+                        market_data_cache[ticker] = df
+
+                        last_download[ticker] = current_time
+
+                    else:
+
+                        df = market_data_cache[ticker]
+
+                    if len(df) < 50:
+
+                        print(f"⚠️ FEW DATA -> {ticker}")
+
+                        continue
+
+                    if isinstance(df.columns, pd.MultiIndex):
+
+                        df.columns = df.columns.get_level_values(0)
+
+                    df = df[[
+
+                        "Open",
+                        "High",
+                        "Low",
+                        "Close",
+                        "Volume"
+
+                    ]].dropna()
+
+    
+                     # =========================================
+                    # INDICATORI
+                    # =========================================
+
+                    df["ATR"] = compute_atr(df)
+
+                    df = compute_indicators(df)
+
+                    df["VWAP"] = (
+
+                        (df["Close"] * df["Volume"]).cumsum()
+
+                        / df["Volume"].cumsum()
+
                     )
 
-                    # STOP BUY
-                    if price_now <= trade["stop"]:
+                    df["EMA20"] = df["Close"].ewm(span=20).mean()
 
-                        pnl = (
-                            price_now - trade["entry"]
-                        ) * trade["qty"]
+                    df["EMA50"] = df["Close"].ewm(span=50).mean()
 
-                        stats["pnl"] += pnl
+                    df["EMA200"] = df["Close"].ewm(span=200).mean()
 
-                        if pnl > 0:
-                            stats["wins"] += 1
-                        else:
-                            stats["losses"] += 1
+                    last = df.iloc[-1]
 
-                        send_telegram(
+                    price = last["Close"]
 
-                            f"❌ STOP BUY\n\n"
+                    ema20 = last["EMA20"]
 
-                            f"Ticker: {t}\n"
+                    ema50 = last["EMA50"]
 
-                            f"Exit: {round(price_now,2)}\n"
+                    ema200 = last["EMA200"]
 
-                            f"PnL: {round(pnl,2)}€"
-                    
-                        )
+                    atr = last["ATR"]
 
-                        save_trade(
+                    rsi = last["RSI"]
 
-                            t,
+                    volume = last["Volume"]
 
-                            trade["side"],
+                    vwap = last["VWAP"]
 
-                            trade["entry"],
+                    prev_close = df["Close"].iloc[-2]
 
-                            price_now,
+                    gap_pct = (
 
-                            pnl,
+                        (price - prev_close)
 
-                            rr,
+                        / prev_close
 
-                            "STOP"
-                        )
+                    ) * 100
 
-                        del active_trades[t]
+                    if pd.isna(atr) or atr == 0:
 
-                    # TARGET BUY
-                    elif price_now >= trade["target"]:
+                        continue
 
-                        pnl = (
-                            price_now - trade["entry"]
-                        ) * trade["qty"]
+                    # =========================================
+                    # HTF
+                    # =========================================
 
-                        stats["pnl"] += pnl
+                    df_htf = yf.download(
 
-                        stats["wins"] += 1
+                        ticker,
 
-                        send_telegram(
+                        period="3mo",
 
-                            f"✅ TARGET HIT\n\n"
+                        interval="1d",
 
-                            f"Ticker: {t}\n"
+                        progress=False,
 
-                            f"Exit: {round(price_now,2)}\n"
+                        threads=False
 
-                            f"PnL: +{round(pnl,2)}€"
-
-                        )
-
-                        save_trade(
-
-                            t,
-
-                            trade["side"],
-
-                            trade["entry"],
-
-                            price_now,
-
-                            pnl,
-
-                            rr,
-
-                            "TARGET"
-                        )
-
-                        del active_trades[t]
-
-                # =========================================
-                # SELL
-                # =========================================
-
-                else:
-
-                    if price_now <= trade["entry"] - atr_now:
-
-                        trade["stop"] = min(
-                            trade["stop"],
-                            trade["entry"]
-                        )
-
-                    trade["stop"] = min(
-                        trade["stop"],
-                        price_now + atr_now * 3
                     )
 
-                    # STOP SELL
-                    if price_now >= trade["stop"]:
+                    if df_htf is None or df_htf.empty:
 
-                        pnl = (
-                            trade["entry"] - price_now
-                        ) * trade["qty"]
+                        continue
 
-                        stats["pnl"] += pnl
+                    if isinstance(df_htf.columns, pd.MultiIndex):
 
-                        if pnl > 0:
-                            stats["wins"] += 1
-                        else:
-                            stats["losses"] += 1
+                        df_htf.columns = df_htf.columns.get_level_values(0)
 
-                        send_telegram(
+                    df_htf = compute_indicators(df_htf)
 
-                            f"❌ STOP SELL {t}\n"
+                    htf_last = df_htf.iloc[-1]
 
-                            f"Exit: {round(price_now,2)}\n"
+                    # =========================================
+                    # DAILY
+                    # =========================================
 
-                            f"PnL: {round(pnl,2)}€"
-                        )
+                    df_daily = yf.download(
 
-                        save_trade(
+                        ticker,
 
-                            t,
+                        period="1y",
 
-                            trade["side"],
+                        interval="1d",
 
-                            trade["entry"],
+                        progress=False,
 
-                            price_now,
+                        threads=False
 
-                            pnl,
+                    )
 
-                            rr,
+                    if df_daily is None or df_daily.empty:
 
-                            "STOP"
-                        )
+                        continue
 
-                        del active_trades[t]
+                    if isinstance(df_daily.columns, pd.MultiIndex):
 
-                    # TARGET SELL
-                    elif price_now <= trade["target"]:
+                        df_daily.columns = df_daily.columns.get_level_values(0)
 
-                        pnl = (
-                            trade["entry"] - price_now
-                        ) * trade["qty"]
+                    ema200_daily = df_daily["Close"].ewm(
 
-                        stats["pnl"] += pnl
+                        span=200,
 
-                        stats["wins"] += 1
+                        adjust=False
 
-                        send_telegram(
+                    ).mean()
 
-                            f"💰 TARGET SELL {t}\n"
+                    daily_price = df_daily["Close"].iloc[-1]
 
-                            f"Exit: {round(price_now,2)}\n"
+                    daily_up = daily_price > ema200_daily.iloc[-1]
 
-                            f"PnL: {round(pnl,2)}€"
-                        )
+                    daily_down = daily_price < ema200_daily.iloc[-1]
 
-                        save_trade(
+                    # =========================================
+                    # VOLUME
+                    # =========================================
 
-                            t,
+                    volume_today = df_daily["Volume"].iloc[-1]
 
-                            trade["side"],
+                    avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
 
-                            trade["entry"],
+                    relative_volume = volume_today / avg_volume
 
-                            price_now,
+                    strong_volume = relative_volume > 1.5
 
-                            pnl,
+                    # =========================================
+                    # SCORE
+                    # =========================================
 
-                            rr,
+                    score_buy = 0
 
-                            "TARGET"
-                        )
+                    score_sell = 0
 
-                        del active_trades[t]
+                    trend_up = price > ema200
 
-            except Exception as e:
+                    trend_down = price < ema200
 
-                
-                print("Errore gestione trade:", e)
-        # =========================================
-        # STATS
-        # =========================================
+                    rsi_buy = rsi > 55
 
-        total = stats["wins"] + stats["losses"]
+                    rsi_sell = rsi < 45
 
-        if total > 0:
+                    macd_buy = last["MACD"] > last["MACD_signal"]
 
-            winrate = round(
-                stats["wins"] / total * 100,
-                1
-            )
+                    macd_sell = last["MACD"] < last["MACD_signal"]
 
-        else:
+                    if trend_up:
+                        score_buy += 1
 
-            winrate = 0
+                    if trend_down:
+                        score_sell += 1
 
-        print(
+                    if rsi_buy:
+                        score_buy += 1
 
-            f"💰 Equity: {round(equity,2)}€ | "
+                    if rsi_sell:
+                        score_sell += 1
 
-            f"PnL: {round(stats['pnl'],2)}€ | "
+                    if macd_buy:
+                        score_buy += 1
 
-            f"Winrate: {winrate}% | "
+                    if macd_sell:
+                        score_sell += 1
 
-            f"Attivi: {len(active_trades)}"
-        )
+                    print(
 
-        # =========================================
-        # NEXT BATCH
-        # =========================================
+                        f"{ticker} | "
 
-        index += MAX_TICKERS
+                        f"BUY={score_buy} | "
 
-        if index >= len(TICKERS):
+                        f"SELL={score_sell}"
 
-            index = 0
+                    )
 
-        # =========================================
-        # SLEEP
-        # =========================================
+                    # =========================================
+                    # TRADE ATTIVO
+                    # =========================================
 
-        time.sleep(60)
+                    if ticker in active_trades:
+
+                        continue
+
+            
+                    # =========================================
+                    # ENTRY
+                    # =========================================
+
+                    if score_buy >= 2 and strong_volume:
+
+                        side = "BUY"
+
+                        print(f"🟢 BUY READY -> {ticker}")
+
+                    elif score_sell >= 2 and strong_volume:
+
+                        side = "SELL"
+
+                        print(f"🔴 SELL READY -> {ticker}")
+
+                    else:
+
+                        print(f"⚠️ SKIP -> {ticker}")
+
+                        continue
+
+                    # =========================================
+                    # GAP FILTER
+                    # =========================================
+
+                    if abs(gap_pct) < MIN_GAP:
+
+                        print(f"⚠️ LOW GAP -> {ticker}")
+
+                        continue
+
+                    # =========================================
+                    # EMA FILTER
+                    # =========================================
+
+                    if side == "BUY":
+
+                        if not (ema20 > ema50 > ema200):
+
+                            print(f"⚠️ EMA FAIL -> {ticker}")
+
+                            continue
+
+                    if side == "SELL":
+
+                        if not (ema20 < ema50 < ema200):
+
+                            print(f"⚠️ EMA FAIL -> {ticker}")
+
+                            continue
+
+                    # =========================================
+                    # VWAP FILTER
+                    # =========================================
+
+                    if side == "BUY" and price < vwap:
+
+                        continue
+
+                    if side == "SELL" and price > vwap:
+
+                        continue
+
+                    # =========================================
+                    # STOP / TARGET
+                    # =========================================
+
+                    distanza_stop = atr * 4
+
+                    if side == "BUY":
+
+                        stop = price - distanza_stop
+
+                        target = price + atr * 6
+
+                    else:
+
+                        stop = price + distanza_stop
+
+                        target = price - atr * 6
+
+                    risk = abs(price - stop)
+
+                    reward = abs(target - price)
+
+                    rr = round(reward / risk, 2) if risk != 0 else 0
+
+                    if rr < 1.3:
+
+                        print(f"❌ RR FAIL -> {ticker}")
+
+                        continue
+
+                    # =========================================
+                    # SIZE
+                    # =========================================
+
+                    qty = round(
+
+                        CAPITALE_PER_TRADE / price
+
+                    )
+
+                    # =========================================
+                    # SALVA
+                    # =========================================
+
+                    active_trades[ticker] = {
+
+                        "side": side,
+
+                        "entry": price,
+
+                        "stop": stop,
+
+                        "target": target,
+
+                        "qty": qty
+
+                    }
+
+                    cooldown_tickers[ticker] = datetime.now()
+
+                    print(
+
+                        f"🚀 {side} {ticker} | "
+
+                        f"Entry={round(price,2)} | "
+
+                        f"Target={round(target,2)}"
+
+                    )
+
+                except Exception as e:
+
+                    print(f"❌ ERRORE {ticker}: {e}")
+
+                    continue
+
+            # =========================================
+            # NEXT LOOP
+            # =========================================
+
+            index += MAX_TICKERS
+
+            if index >= len(TICKERS):
+
+                index = 0
+
+            time.sleep(60)
+
+        except Exception as e:
+
+            print(f"❌ ERRORE LOOP: {e}")
+
+            time.sleep(60)
 
 
 if __name__ == "__main__":
 
     Thread(target=trading_loop).start()
-
-    run_dashboard()
 
     run_dashboard()
