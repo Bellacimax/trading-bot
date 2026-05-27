@@ -649,378 +649,293 @@ def trading_loop():
 
 
         # =========================================
-        # LOOP TICKER
-        # =========================================
-        
-        time.sleep(15)
-        for ticker in subset:
+# LOOP TICKER
+# =========================================
 
-            if (
-                "TICKERS" in ticker
-                or "[" in ticker
-                or "]" in ticker
-                or "=" in ticker
-                or "#" in ticker
-            ):
+time.sleep(15)
 
-                continue
+for ticker in subset:
 
-            ticker = ticker.replace('"', '').replace(',', '').strip()
+    if (
+        "TICKERS" in ticker
+        or "[" in ticker
+        or "]" in ticker
+        or "=" in ticker
+        or "#" in ticker
+    ):
 
-            print(f"🔍 Analizzo {ticker}")
+        continue
 
-            # evita rate limit Yahoo
-            time.sleep(8)
+    ticker = ticker.replace('"', '').replace(',', '').strip()
 
-            if ticker in cooldown_tickers:
+    print(f"🔍 Analizzo {ticker}")
 
-                last_alert = cooldown_tickers[ticker]
+    # evita rate limit Yahoo
+    time.sleep(8)
 
-                minutes_passed = (
+    # =========================================
+    # COOLDOWN
+    # =========================================
 
-                    datetime.now() - last_alert
+    if ticker in cooldown_tickers:
 
-                ).seconds / 60
+        last_alert = cooldown_tickers[ticker]
 
-                if minutes_passed < COOLDOWN_MINUTES:
+        minutes_passed = (
 
-                    print(f"⏳ COOLDOWN -> {ticker}")
+            datetime.now() - last_alert
 
-                    continue
+        ).seconds / 60
 
-                
-                        # =========================================
-            # DATI 1H
-            # =========================================
+        if minutes_passed < COOLDOWN_MINUTES:
 
-            current_time = time.time()
+            print(f"⏳ COOLDOWN -> {ticker}")
 
-            if (
+            continue
 
-                ticker not in market_data_cache
+    # =========================================
+    # DATI PRINCIPALI
+    # =========================================
 
-                or current_time - last_download.get(ticker, 0) > 60
+    current_time = time.time()
 
-            ):
+    if (
 
-                df = yf.download(
+        ticker not in market_data_cache
 
-                    ticker,
+        or current_time - last_download.get(ticker, 0) > 60
 
-                    period="5d",
+    ):
 
-                    interval="1d",
+        df = yf.download(
 
-                    progress=False,
+            ticker,
 
-                    threads=False
+            period="5d",
 
-            )
+            interval="1d",
 
-            if df is None or df.empty:
+            progress=False,
 
-                time.sleep(30)
+            threads=False
 
-                print(f"❌ NO DATA -> {ticker}")
+        )
 
-                continue
+        if df is None or df.empty:
 
-                market_data_cache[ticker] = df
+            print(f"❌ NO DATA -> {ticker}")
 
-                last_download[ticker] = current_time
+            time.sleep(30)
 
-                time.sleep(1)
+            continue
 
-            else:
+        market_data_cache[ticker] = df
 
-                df = market_data_cache[ticker]
+        last_download[ticker] = current_time
 
-            if df is None or df.empty:
+        time.sleep(1)
 
-                print(f"❌ NO DATA -> {ticker}")
+    else:
 
-                continue
+        df = market_data_cache[ticker]
 
-            if len(df) < 50:
+    if len(df) < 50:
 
-                print(f"⚠️ FEW DATA -> {ticker}")
+        print(f"⚠️ FEW DATA -> {ticker}")
 
-                continue
+        continue
 
-            if isinstance(df.columns, pd.MultiIndex):
+    if isinstance(df.columns, pd.MultiIndex):
 
-                df.columns = df.columns.get_level_values(0)
+        df.columns = df.columns.get_level_values(0)
 
-            df = df[[
+    df = df[[
 
-                "Open",
-                "High",
-                "Low",
-                "Close",
-                "Volume"
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Volume"
 
-            ]].dropna()
+    ]].dropna()
 
-            if len(df) < 50:
+    # =========================================
+    # ATR + INDICATORI
+    # =========================================
 
-                continue
+    df["ATR"] = compute_atr(df)
 
-            # =========================================
-            # ATR
-            # =========================================
+    df = compute_indicators(df)
 
-            df["ATR"] = compute_atr(df)
+    df["VWAP"] = (
 
-            # =========================================
-            # INDICATORI
-            # =========================================
+        (df["Close"] * df["Volume"]).cumsum()
 
-            df = compute_indicators(df)
+        / df["Volume"].cumsum()
 
-            df["VWAP"] = (
+    )
 
-                (df["Close"] * df["Volume"]).cumsum()
+    df["EMA20"] = df["Close"].ewm(span=20).mean()
 
-                / df["Volume"].cumsum()
+    df["EMA50"] = df["Close"].ewm(span=50).mean()
 
-            )
+    df["EMA200"] = df["Close"].ewm(span=200).mean()
 
-            df["EMA20"] = df["Close"].ewm(span=20).mean()
+    last = df.iloc[-1]
 
-            df["EMA50"] = df["Close"].ewm(span=50).mean()
+    price = last["Close"]
 
-            df["EMA200"] = df["Close"].ewm(span=200).mean()
+    ema20 = last["EMA20"]
 
-            last = df.iloc[-1]
+    ema50 = last["EMA50"]
 
-            ema20 = last["EMA20"]
+    ema200 = last["EMA200"]
 
-            ema50 = last["EMA50"]
+    atr = last["ATR"]
 
-            ema200 = last["EMA200"]
+    rsi = last["RSI"]
 
-            price = last["Close"]
+    volume = last["Volume"]
 
-            prev_close = df["Close"].iloc[-2]
+    prev_close = df["Close"].iloc[-2]
 
-            gap_pct = (
+    gap_pct = ((price - prev_close) / prev_close) * 100
 
-                (price - prev_close)
+    vwap = last["VWAP"]
 
-                / prev_close
+    if pd.isna(atr) or atr == 0:
 
-            ) * 100
+        continue
 
-            vwap = last["VWAP"]
+    # =========================================
+    # HTF
+    # =========================================
 
-            rsi = last["RSI"]
+    df_htf = yf.download(
 
-            atr = last["ATR"]
+        ticker,
 
-            volume = last["Volume"]
+        period="3mo",
 
-            volume_ma = df["Volume"].rolling(20).mean().iloc[-1]
+        interval="1d",
 
-            if volume < volume_ma * MIN_VOLUME_RATIO:
+        progress=False,
 
-                print(f"⚠️ LOW VOLUME -> {ticker}")
+        threads=False
 
-                # continue
+    )
 
-            if atr < price * 0.01:
+    if df_htf is None or df_htf.empty:
 
-                print(f"⚠️ LOW VOLATILITY -> {ticker}")
+        continue
 
-                continue
+    if isinstance(df_htf.columns, pd.MultiIndex):
 
-            if pd.isna(atr) or atr == 0:
+        df_htf.columns = df_htf.columns.get_level_values(0)
 
-                continue
+    df_htf = compute_indicators(df_htf)
 
+    htf_last = df_htf.iloc[-1]
 
-            # =========================================
-            # DAILY VOLUME FILTER
-            # =========================================
+    # =========================================
+    # DAILY
+    # =========================================
 
-            volume_today = df_daily["Volume"].iloc[-1]
+    df_daily = yf.download(
 
-            avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
+        ticker,
 
-            strong_volume = volume_today > avg_volume * 0.8
+        period="1y",
 
-            # =========================================
-            # SUPPORTI / RESISTENZE
-            # =========================================
+        interval="1d",
 
-            support = df["Low"].rolling(20).min().iloc[-1]
+        progress=False,
 
-            resistance = df["High"].rolling(20).max().iloc[-1]
+        threads=False
 
-            # =========================================
-            # FIBONACCI
-            # =========================================
+    )
 
-            swing_high = df["High"].rolling(50).max().iloc[-1]
+    if df_daily is None or df_daily.empty:
 
-            swing_low = df["Low"].rolling(50).min().iloc[-1]
+        continue
 
-            fib_382 = swing_high - (swing_high - swing_low) * 0.382
+    if isinstance(df_daily.columns, pd.MultiIndex):
 
-            fib_50 = swing_high - (swing_high - swing_low) * 0.5
+        df_daily.columns = df_daily.columns.get_level_values(0)
 
-            fib_618 = swing_high - (swing_high - swing_low) * 0.618
+    ema200_daily = df_daily["Close"].ewm(
 
-            # =========================================
-            # PIVOT
-            # =========================================
+        span=200,
 
-            pivot = (
+        adjust=False
 
-                last["High"]
+    ).mean()
 
-                + last["Low"]
+    daily_price = df_daily["Close"].iloc[-1]
 
-                + last["Close"]
+    daily_up = daily_price > ema200_daily.iloc[-1]
 
-            ) / 3
+    daily_down = daily_price < ema200_daily.iloc[-1]
 
-            r1 = (2 * pivot) - last["Low"]
+    # =========================================
+    # VOLUME
+    # =========================================
 
-            s1 = (2 * pivot) - last["High"]
+    volume_today = df_daily["Volume"].iloc[-1]
 
-            # =========================================
-            # TOP MOVER
-            # =========================================
+    avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
 
-            if len(df) < 20:
+    relative_volume = volume_today / avg_volume
 
-                continue
+    strong_volume = relative_volume > 1.5
 
-            move_perc = (
+    # =========================================
+    # SCORE
+    # =========================================
 
-                df["Close"].iloc[-1]
+    score_buy = 0
 
-                - df["Close"].iloc[-20]
+    score_sell = 0
 
-            ) / price
+    trend_up = price > ema200
 
-            if abs(move_perc) < 0.01:
+    trend_down = price < ema200
 
-                continue
+    htf_up = htf_last["Close"] > htf_last["EMA200"]
 
-            # =========================================
-            # VOLUME SPIKE
-            # =========================================
+    htf_down = htf_last["Close"] < htf_last["EMA200"]
 
-            volume_avg = df["Volume"].rolling(20).mean()
+    rsi_buy = rsi > 55
 
-            volume_spike = (
+    rsi_sell = rsi < 45
 
-                df["Volume"].iloc[-1]
+    macd_buy = last["MACD"] > last["MACD_signal"]
 
-                > volume_avg.iloc[-1] * 1.5
+    macd_sell = last["MACD"] < last["MACD_signal"]
 
-            )
+    if trend_up:
+        score_buy += 1
 
-            if not volume_spike:
+    if trend_down:
+        score_sell += 1
 
-                continue
+    if rsi_buy:
+        score_buy += 1
 
-            # =========================================
-            # TREND
-            # =========================================
+    if rsi_sell:
+        score_sell += 1
 
-            trend_up = price > last["EMA200"]
+    if macd_buy:
+        score_buy += 1
 
-            trend_down = price < last["EMA200"]
+    if macd_sell:
+        score_sell += 1
 
-            htf_up = htf_last["Close"] > htf_last["EMA200"]
-
-            htf_down = htf_last["Close"] < htf_last["EMA200"]
-
-            # =========================================
-            # RSI
-            # =========================================
-
-            rsi_buy = last["RSI"] > 55
-
-            rsi_sell = last["RSI"] < 45
-
-            # =========================================
-            # MACD
-            # =========================================
-
-            macd_buy = last["MACD"] > last["MACD_signal"]
-
-            macd_sell = last["MACD"] < last["MACD_signal"]
-
-            # =========================================
-            # GOLDEN / DEATH CROSS
-            # =========================================
-
-            golden_cross = (
-
-                df["EMA50"].iloc[-2]
-
-                < df["EMA200"].iloc[-2]
-
-                and
-
-                df["EMA50"].iloc[-1]
-
-                > df["EMA200"].iloc[-1]
-
-            )
-
-            death_cross = (
-
-                df["EMA50"].iloc[-2]
-
-                > df["EMA200"].iloc[-2]
-
-                and
-
-                df["EMA50"].iloc[-1]
-
-                < df["EMA200"].iloc[-1]
-
-            )
-
-            # =========================================
-            # SCORE
-            # =========================================
-
-            if trend_up:
-                score_buy += 1
-                print(f"{ticker} -> BUY TREND")
-
-            if trend_down:
-                score_sell += 1
-                print(f"{ticker} -> SELL TREND")
-
-            if rsi_buy:
-                score_buy += 1
-                print(f"{ticker} -> BUY RSI")
-
-            if rsi_sell:
-                score_sell += 1
-                print(f"{ticker} -> SELL RSI")
-
-            if macd_buy:
-                score_buy += 1
-                print(f"{ticker} -> BUY MACD")
-
-            if macd_sell:
-                score_sell += 1
-                print(f"{ticker} -> SELL MACD")
-
-            if golden_cross:
-                score_buy += 2
-                print(f"{ticker} -> GOLDEN CROSS")
-
-            if death_cross:
-                score_sell += 2
-                print(f"{ticker} -> DEATH CROSS")
+    print(
+        f"{ticker} | "
+        f"BUY={score_buy} "
+        f"SELL={score_sell}"
+    )
 
             # =========================================
             # TRADE GIÀ ATTIVO
