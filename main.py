@@ -660,26 +660,25 @@ def trading_loop():
                 # evita rate limit Yahoo
                 time.sleep(15)
 
-                    # =========================================
-                    # COOLDOWN
-                    # =========================================
+                # =========================================
+                # COOLDOWN
+                # =========================================
 
-                    if ticker in cooldown_tickers:
+                if ticker in cooldown_tickers:
 
-                        last_alert = cooldown_tickers[ticker]
+                    last_alert = cooldown_tickers[ticker]
 
-                        minutes_passed = (
+                    minutes_passed = (
 
-                            datetime.now() - last_alert
+                        datetime.now() - last_alert
 
-                        ).seconds / 60
+                    ).seconds / 60
 
-                        if minutes_passed < COOLDOWN_MINUTES:
+                    if minutes_passed < COOLDOWN_MINUTES:
 
-                            print(f"⏳ COOLDOWN -> {ticker}")
+                        print(f"⏳ COOLDOWN -> {ticker}")
 
-                            continue
-
+                        continue
                     # =========================================
                     # CACHE
                     # =========================================
