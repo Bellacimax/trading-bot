@@ -574,29 +574,29 @@ def trading_loop():
 
                 continue
 
-            # =========================================
-            # LOOP TICKER
-            # =========================================
+# =========================================
+# LOOP TICKER
+# =========================================
 
-            time.sleep(3)
+time.sleep(3)
 
-            for ticker in subset:
+for ticker in subset:
 
-                try:
+    try:
 
-                    # ticker logic...
+        print(f"🔍 Analizzo {ticker}")
 
-                except Exception as e:
+    except Exception as e:
 
-                    print(f"❌ ERRORE {ticker}: {e}")
+        print(f"❌ ERRORE {ticker}: {e}")
 
-                    continue
+        continue
 
-        except Exception as e:
+except Exception as e:
 
-            print(f"❌ ERRORE LOOP: {e}")
+    print(f"❌ ERRORE LOOP: {e}")
 
-            time.sleep(60)
+    time.sleep(60)
 
             # =========================================
             # WEEKEND FILTER
