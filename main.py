@@ -656,6 +656,13 @@ def trading_loop():
             # LOOP TICKER
             # =========================================
 
+            
+            market_bullish = market_is_bullish()
+
+            print(f"📈 MARKET BULLISH: {market_bullish}")
+
+
+            
             for ticker in subset:
 
                 try:
