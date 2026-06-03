@@ -776,8 +776,11 @@ def trading_loop():
             print(f"❌ ERRORE LOOP: {e}")
 
             time.sleep(60)
-
+            
+if __name__ == "__main__":
 
     Thread(target=trading_loop).start()
 
     run_dashboard()
+
+    
