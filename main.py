@@ -549,7 +549,7 @@ bad_tickers = set()
 market_data_cache = {}
 
 last_download = {}
-```python
+python
 def trading_loop():
 
     index = 0
