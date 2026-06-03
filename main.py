@@ -474,7 +474,7 @@ def check_earnings(ticker):
 # MARKET FILTER
 # =========================================
 
-spy_cache = None
+spy_cache = True
 spy_last_update = 0
 
 
@@ -487,36 +487,44 @@ def market_is_bullish():
 
         current_time = time.time()
 
-        # aggiorna SPY solo ogni 15 minuti
+        # aggiorna SPY ogni 15 minuti
         if (
 
-            spy_cache is None
-
-            or current_time - spy_last_update > 900
+            current_time - spy_last_update > 900
 
         ):
 
             print("📥 Download SPY...")
 
-            spy = yf.download(
+            try:
 
-                "SPY",
+                spy = yf.download(
 
-                period="3mo",
+                    "SPY",
 
-                interval="1d",
+                    period="3mo",
 
-                progress=False,
+                    interval="1d",
 
-                threads=False
+                    progress=False,
 
-            )
+                    threads=False
 
-            if spy is None or spy.empty:
+                )
 
-                print("⚠️ SPY RATE LIMIT -> fallback bullish")
+            except Exception as e:
 
-                return True
+                print(f"❌ SPY DOWNLOAD ERROR: {e}")
+
+                print("⚠️ SPY fallback bullish")
+
+                return spy_cache
+
+            if spy is None or len(spy) == 0:
+
+                print("⚠️ SPY EMPTY -> fallback bullish")
+
+                return spy_cache
 
             if isinstance(spy.columns, pd.MultiIndex):
 
@@ -540,15 +548,16 @@ def market_is_bullish():
 
             spy_last_update = current_time
 
+            print(f"📈 SPY BULLISH: {spy_cache}")
+
         return spy_cache
 
     except Exception as e:
 
-        print(f"❌ SPY ERROR: {e}")
-
-        print("⚠️ SPY fallback bullish")
+        print(f"❌ MARKET FILTER ERROR: {e}")
 
         return True
+
 
 
 
