@@ -682,23 +682,20 @@ def trading_loop():
             ]
 
             print(f"🔥 Tot Tickers: {len(subset)}")
-
             # =========================================
             # LOOP TICKER
             # =========================================
 
-       
-try:
+            try:
 
-    market_bullish = market_is_bullish()
+                market_bullish = market_is_bullish()
 
-except Exception as e:
+            except Exception as e:
 
-    print(f"❌ MARKET FILTER ERROR: {e}")
+                print(f"❌ MARKET FILTER ERROR: {e}")
 
-    market_bullish = True
+                market_bullish = True
 
-            
             for ticker in subset:
 
                 try:
@@ -720,7 +717,6 @@ except Exception as e:
                     print(f"🔍 Analizzo {ticker}")
 
                     time.sleep(8)
-
                     # =========================================
                     # COOLDOWN
                     # =========================================
