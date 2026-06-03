@@ -767,7 +767,7 @@ for ticker in subset:
 
         continue
                 
-    
+```
             # =========================================
             # CACHE
             # =========================================
@@ -830,63 +830,9 @@ for ticker in subset:
                 "Close",
                 "Volume"
 
-            ]].dropna()                  
+            ]].dropna()
+```
 
-for ticker in subset:
-
-    try:
-
-        print(f"🔍 Analizzo {ticker}")
-
-        # =========================================
-        # CACHE
-        # =========================================
-
-        current_time = time.time()
-
-        if (
-
-            ticker not in market_data_cache
-
-            or current_time - last_download.get(ticker, 0) > 60
-
-        ):
-
-            df = yf.download(
-
-                ticker,
-
-                period="5d",
-
-                interval="1d",
-
-                progress=False,
-
-                threads=False
-
-            )
-
-            if df is None or df.empty:
-
-                bad_tickers.add(ticker)
-
-                print(f"❌ BAD TICKER -> {ticker}")
-
-                continue
-
-            market_data_cache[ticker] = df
-
-            last_download[ticker] = current_time
-
-        else:
-
-            df = market_data_cache[ticker]
-
-    except Exception as e:
-
-        print(f"❌ ERRORE {ticker}: {e}")
-
-        continue
 
 
     
