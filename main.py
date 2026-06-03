@@ -687,11 +687,16 @@ def trading_loop():
             # LOOP TICKER
             # =========================================
 
-            
-            market_bullish = market_is_bullish()
+       
+try:
 
-            print(f"📈 MARKET BULLISH: {market_bullish}")
+    market_bullish = market_is_bullish()
 
+except Exception as e:
+
+    print(f"❌ MARKET FILTER ERROR: {e}")
+
+    market_bullish = True
 
             
             for ticker in subset:
