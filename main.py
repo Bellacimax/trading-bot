@@ -551,7 +551,6 @@ market_data_cache = {}
 
 last_download = {}
 
-
 def trading_loop():
 
     index = 0
@@ -574,7 +573,41 @@ def trading_loop():
 
                 continue
 
-            # loop ticker...
+            # =========================================
+            # ORARIO NEW YORK
+            # =========================================
+
+            ora_utc = datetime.now(UTC).hour
+
+            ora_ny = (ora_utc - 4) % 24
+
+            print(f"🕒 Ora NY: {ora_ny}")
+
+            if 0 <= ora_ny < 4:
+
+                print("😴 Notte USA - pausa")
+
+                time.sleep(300)
+
+                continue
+
+            # =========================================
+            # LOOP TICKER
+            # =========================================
+
+            time.sleep(3)
+
+            for ticker in subset:
+
+                try:
+
+                    print(f"🔍 Analizzo {ticker}")
+
+                except Exception as e:
+
+                    print(f"❌ ERRORE {ticker}: {e}")
+
+                    continue
 
         except Exception as e:
 
@@ -582,29 +615,6 @@ def trading_loop():
 
             time.sleep(60)
 
-        # =========================================
-        # LOOP TICKER
-        # =========================================
-
-        time.sleep(3)
-
-        for ticker in subset:
-
-            try:
-
-                print(f"🔍 Analizzo {ticker}")
-
-            except Exception as e:
-
-                print(f"❌ ERRORE {ticker}: {e}")
-
-                continue
-
-    except Exception as e:
-
-        print(f"❌ ERRORE LOOP: {e}")
-
-        time.sleep(60)
 
             # =========================================
             # WEEKEND FILTER
