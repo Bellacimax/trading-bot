@@ -767,74 +767,70 @@ for ticker in subset:
 
         continue
     
-            # =========================================
-            # CACHE
-            # =========================================
+        # =========================================
+        # CACHE
+        # =========================================
 
-            current_time = time.time()
+        current_time = time.time()
 
-            if (
+        if (
 
-                ticker not in market_data_cache
+            ticker not in market_data_cache
 
-                or current_time - last_download.get(ticker, 0) > 60
+            or current_time - last_download.get(ticker, 0) > 60
 
-            ):
+        ):
 
-                df = yf.download(
+            df = yf.download(
 
-                    ticker,
+                ticker,
 
-                    period="5d",
+                period="5d",
 
-                    interval="1d",
+                interval="1d",
 
-                    progress=False,
+                progress=False,
 
-                    threads=False
+                threads=False
 
-                )
+            )
 
-                if df is None or df.empty:
+            if df is None or df.empty:
 
-                    bad_tickers.add(ticker)
+                bad_tickers.add(ticker)
 
-                    print(f"❌ BAD TICKER -> {ticker}")
-
-                    continue
-
-                market_data_cache[ticker] = df
-
-                last_download[ticker] = current_time
-
-            else:
-
-                df = market_data_cache[ticker]
-
-            if len(df) < 50:
-
-                print(f"⚠️ FEW DATA -> {ticker}")
+                print(f"❌ BAD TICKER -> {ticker}")
 
                 continue
 
-            if isinstance(df.columns, pd.MultiIndex):
+            market_data_cache[ticker] = df
 
-                df.columns = df.columns.get_level_values(0)
+            last_download[ticker] = current_time
 
-            df = df[[
+        else:
 
-                "Open",
-                "High",
-                "Low",
-                "Close",
-                "Volume"
+            df = market_data_cache[ticker]
 
-            ]].dropna()
-```
+        if len(df) < 50:
 
+            print(f"⚠️ FEW DATA -> {ticker}")
 
+            continue
 
-    
+        if isinstance(df.columns, pd.MultiIndex):
+
+            df.columns = df.columns.get_level_values(0)
+
+        df = df[[
+
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "Volume"
+
+        ]].dropna()
+
                      # =========================================
                     # INDICATORI
                     # =========================================
