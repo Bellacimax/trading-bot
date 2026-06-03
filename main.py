@@ -831,65 +831,62 @@ for ticker in subset:
                 "Volume"
 
             ]].dropna()                  
-```
 
 for ticker in subset:
 
-```
-try:
+    try:
 
-    print(f"🔍 Analizzo {ticker}")
+        print(f"🔍 Analizzo {ticker}")
 
-    # =========================================
-    # CACHE
-    # =========================================
+        # =========================================
+        # CACHE
+        # =========================================
 
-    current_time = time.time()
+        current_time = time.time()
 
-    if (
+        if (
 
-        ticker not in market_data_cache
+            ticker not in market_data_cache
 
-        or current_time - last_download.get(ticker, 0) > 60
+            or current_time - last_download.get(ticker, 0) > 60
 
-    ):
+        ):
 
-        df = yf.download(
+            df = yf.download(
 
-            ticker,
+                ticker,
 
-            period="5d",
+                period="5d",
 
-            interval="1d",
+                interval="1d",
 
-            progress=False,
+                progress=False,
 
-            threads=False
+                threads=False
 
-        )
+            )
 
-        if df is None or df.empty:
+            if df is None or df.empty:
 
-            bad_tickers.add(ticker)
+                bad_tickers.add(ticker)
 
-            print(f"❌ BAD TICKER -> {ticker}")
+                print(f"❌ BAD TICKER -> {ticker}")
 
-            continue
+                continue
 
-        market_data_cache[ticker] = df
+            market_data_cache[ticker] = df
 
-        last_download[ticker] = current_time
+            last_download[ticker] = current_time
 
-    else:
+        else:
 
-        df = market_data_cache[ticker]
+            df = market_data_cache[ticker]
 
-except Exception as e:
+    except Exception as e:
 
-    print(f"❌ ERRORE {ticker}: {e}")
+        print(f"❌ ERRORE {ticker}: {e}")
 
-    continue
-```
+        continue
 
 
     
