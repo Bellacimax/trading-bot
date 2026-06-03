@@ -663,7 +663,7 @@ def trading_loop():
             # TICKERS
             # =========================================
 
-            subset = sorted(list(set(TICKERS)))
+            subset = sorted(list(set(TICKERS)))[index:index+MAX_TICKERS]
 
             BLACKLIST = [
 
