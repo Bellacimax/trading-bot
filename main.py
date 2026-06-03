@@ -19,22 +19,32 @@ TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 def send_telegram(msg):
-    
+
     try:
 
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
-        requests.get(
+        response = requests.get(
+
             url,
+
             params={
+
                 "chat_id": CHAT_ID,
+
                 "text": msg
+
             }
+
         )
+
+        print("📨 TELEGRAM STATUS:", response.status_code)
+
+        print("📨 TELEGRAM RESPONSE:", response.text)
 
     except Exception as e:
 
-        print("Errore Telegram:", e)
+        print("❌ Errore Telegram:", e)
 
 # =========================================
 # SAVE TRADE
