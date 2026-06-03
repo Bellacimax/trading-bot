@@ -43,9 +43,22 @@ def send_telegram(msg):
 
         print("📨 TELEGRAM RESPONSE:", response.text)
 
-    except Exception as e:
 
-        print("❌ Errore Telegram:", e)
+                except Exception as e:
+
+                    print(f"❌ ERRORE {ticker}: {e}")
+
+                    continue
+
+            index += MAX_TICKERS
+
+            if index >= len(TICKERS):
+
+                index = 0
+
+            time.sleep(60)
+
+
 
 # =========================================
 # SAVE TRADE
