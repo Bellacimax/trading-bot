@@ -549,7 +549,7 @@ bad_tickers = set()
 market_data_cache = {}
 
 last_download = {}
-
+```python
 def trading_loop():
 
     index = 0
@@ -557,63 +557,6 @@ def trading_loop():
     while True:
 
         try:
-
-            # =========================================
-            # WEEKEND FILTER
-            # =========================================
-
-            weekday = datetime.now().weekday()
-
-            if weekday >= 5:
-
-                print("📴 Weekend - market closed")
-
-                time.sleep(600)
-
-                continue
-
-            # =========================================
-            # ORARIO NEW YORK
-            # =========================================
-
-            ora_utc = datetime.now(UTC).hour
-
-            ora_ny = (ora_utc - 4) % 24
-
-            print(f"🕒 Ora NY: {ora_ny}")
-
-            if 0 <= ora_ny < 4:
-
-                print("😴 Notte USA - pausa")
-
-                time.sleep(300)
-
-                continue
-
-            # =========================================
-            # LOOP TICKER
-            # =========================================
-
-            time.sleep(3)
-
-            for ticker in subset:
-
-                try:
-
-                    print(f"🔍 Analizzo {ticker}")
-
-                except Exception as e:
-
-                    print(f"❌ ERRORE {ticker}: {e}")
-
-                    continue
-
-        except Exception as e:
-
-            print(f"❌ ERRORE LOOP: {e}")
-
-            time.sleep(60)
-
 
             # =========================================
             # WEEKEND FILTER
@@ -684,12 +627,7 @@ def trading_loop():
                 "ARKK",
                 "XBI",
                 "UVXY",
-                "SQQQ",
-                "SPXL",
-                "SPXS",
-                "PPA",
-                "XAR",
-                "HCP"
+                "SQQQ"
 
             ]
 
@@ -703,134 +641,99 @@ def trading_loop():
 
             print(f"🔥 Tot Tickers: {len(subset)}")
 
-# =========================================
-# LOOP TICKER
-# =========================================
+            # =========================================
+            # LOOP TICKER
+            # =========================================
 
-time.sleep(3)
+            for ticker in subset:
 
-for ticker in subset:
+                try:
 
-    try:
+                    if ticker in bad_tickers:
 
-        if ticker in bad_tickers:
+                        continue
 
-            continue
+                    if not ticker.isalpha():
 
-        if not ticker.isalpha():
+                        continue
 
-            continue
+                    if len(ticker) > 5:
 
-        if len(ticker) > 5:
+                        continue
 
-            continue
+                    ticker = ticker.strip()
 
-        ticker = ticker.replace('"', '').replace(',', '').strip()
+                    print(f"🔍 Analizzo {ticker}")
 
-        print(f"🔍 Analizzo {ticker}")
+                    time.sleep(3)
 
-        print(f"🧠 Scanner attivo -> {ticker}")
+                    # =========================================
+                    # COOLDOWN
+                    # =========================================
 
-        # evita rate limit Yahoo
-        time.sleep(3)
+                    if ticker in cooldown_tickers:
 
-    except Exception as e:
+                        last_alert = cooldown_tickers[ticker]
 
-        print(f"❌ ERRORE {ticker}: {e}")
+                        minutes_passed = (
 
-        continue
+                            datetime.now() - last_alert
 
-        # =========================================
-        # COOLDOWN
-        # =========================================
+                        ).seconds / 60
 
-        if ticker in cooldown_tickers:
+                        if minutes_passed < COOLDOWN_MINUTES:
 
-            last_alert = cooldown_tickers[ticker]
+                            print(f"⏳ COOLDOWN -> {ticker}")
 
-            minutes_passed = (
+                            continue
 
-                datetime.now() - last_alert
+                    # =========================================
+                    # DOWNLOAD
+                    # =========================================
 
-            ).seconds / 60
+                    df = yf.download(
 
-            if minutes_passed < COOLDOWN_MINUTES:
+                        ticker,
 
-                print(f"⏳ COOLDOWN -> {ticker}")
+                        period="5d",
 
-                continue
+                        interval="1d",
 
-    except Exception as e:
+                        progress=False,
 
-        print(f"❌ ERRORE {ticker}: {e}")
+                        threads=False
 
-        continue
-    
-        # =========================================
-        # CACHE
-        # =========================================
+                    )
 
-        current_time = time.time()
+                    if df is None or df.empty:
 
-        if (
+                        bad_tickers.add(ticker)
 
-            ticker not in market_data_cache
+                        print(f"❌ BAD TICKER -> {ticker}")
 
-            or current_time - last_download.get(ticker, 0) > 60
+                        continue
 
-        ):
+                    if isinstance(df.columns, pd.MultiIndex):
 
-            df = yf.download(
+                        df.columns = df.columns.get_level_values(0)
 
-                ticker,
+                    df = df[[
 
-                period="5d",
+                        "Open",
+                        "High",
+                        "Low",
+                        "Close",
+                        "Volume"
 
-                interval="1d",
+                    ]].dropna()
 
-                progress=False,
+                    if len(df) < 50:
 
-                threads=False
+                        print(f"⚠️ FEW DATA -> {ticker}")
 
-            )
+                        continue
 
-            if df is None or df.empty:
-
-                bad_tickers.add(ticker)
-
-                print(f"❌ BAD TICKER -> {ticker}")
-
-                continue
-
-            market_data_cache[ticker] = df
-
-            last_download[ticker] = current_time
-
-        else:
-
-            df = market_data_cache[ticker]
-
-        if len(df) < 50:
-
-            print(f"⚠️ FEW DATA -> {ticker}")
-
-            continue
-
-        if isinstance(df.columns, pd.MultiIndex):
-
-            df.columns = df.columns.get_level_values(0)
-
-        df = df[[
-
-            "Open",
-            "High",
-            "Low",
-            "Close",
-            "Volume"
-
-        ]].dropna()
-
-                     # =========================================
+                    # =========================================
                     # INDICATORI
                     # =========================================
 
@@ -838,340 +741,23 @@ for ticker in subset:
 
                     df = compute_indicators(df)
 
-                    df["VWAP"] = (
-
-                        (df["Close"] * df["Volume"]).cumsum()
-
-                        / df["Volume"].cumsum()
-
-                    )
-
-                    df["EMA20"] = df["Close"].ewm(span=20).mean()
-
-                    df["EMA50"] = df["Close"].ewm(span=50).mean()
-
-                    df["EMA200"] = df["Close"].ewm(span=200).mean()
-
                     last = df.iloc[-1]
 
                     price = last["Close"]
 
-                    ema20 = last["EMA20"]
-
-                    ema50 = last["EMA50"]
-
-                    ema200 = last["EMA200"]
-
                     atr = last["ATR"]
-
-                    rsi = last["RSI"]
-
-                    volume = last["Volume"]
-
-                    vwap = last["VWAP"]
-
-                    prev_close = df["Close"].iloc[-2]
-
-                    gap_pct = (
-
-                        (price - prev_close)
-
-                        / prev_close
-
-                    ) * 100
 
                     if pd.isna(atr) or atr == 0:
 
                         continue
 
-                    # =========================================
-                    # HTF
-                    # =========================================
-
-                    df_htf = yf.download(
-
-                        ticker,
-
-                        period="3mo",
-
-                        interval="1d",
-
-                        progress=False,
-
-                        threads=False
-
-                    )
-
-                    if df_htf is None or df_htf.empty:
-
-                        continue
-
-                    if isinstance(df_htf.columns, pd.MultiIndex):
-
-                        df_htf.columns = df_htf.columns.get_level_values(0)
-
-                    df_htf = compute_indicators(df_htf)
-
-                    htf_last = df_htf.iloc[-1]
-
-                    # =========================================
-                    # DAILY
-                    # =========================================
-
-                    df_daily = yf.download(
-
-                        ticker,
-
-                        period="1y",
-
-                        interval="1d",
-
-                        progress=False,
-
-                        threads=False
-
-                    )
-
-                    if df_daily is None or df_daily.empty:
-
-                        continue
-
-                    if isinstance(df_daily.columns, pd.MultiIndex):
-
-                        df_daily.columns = df_daily.columns.get_level_values(0)
-
-                    ema200_daily = df_daily["Close"].ewm(
-
-                        span=200,
-
-                        adjust=False
-
-                    ).mean()
-
-                    daily_price = df_daily["Close"].iloc[-1]
-
-                    daily_up = daily_price > ema200_daily.iloc[-1]
-
-                    daily_down = daily_price < ema200_daily.iloc[-1]
-
-                    # =========================================
-                    # VOLUME
-                    # =========================================
-
-                    volume_today = df_daily["Volume"].iloc[-1]
-
-                    avg_volume = df_daily["Volume"].rolling(20).mean().iloc[-1]
-
-                    relative_volume = volume_today / avg_volume
-
-                    strong_volume = relative_volume > 1.5
-
-                    # =========================================
-                    # SCORE
-                    # =========================================
-
-                    score_buy = 0
-
-                    score_sell = 0
-
-                    trend_up = price > ema200
-
-                    trend_down = price < ema200
-
-                    rsi_buy = rsi > 55
-
-                    rsi_sell = rsi < 45
-
-                    macd_buy = last["MACD"] > last["MACD_signal"]
-
-                    macd_sell = last["MACD"] < last["MACD_signal"]
-
-                    if trend_up:
-                        score_buy += 1
-
-                    if trend_down:
-                        score_sell += 1
-
-                    if rsi_buy:
-                        score_buy += 1
-
-                    if rsi_sell:
-                        score_sell += 1
-
-                    if macd_buy:
-                        score_buy += 1
-
-                    if macd_sell:
-                        score_sell += 1
-
-                    print(
-
-                        f"{ticker} | "
-
-                        f"BUY={score_buy} | "
-
-                        f"SELL={score_sell}"
-
-                    )
-
-                    # =========================================
-                    # TRADE ATTIVO
-                    # =========================================
-
-                    if ticker in active_trades:
-
-                        continue
-
-            
-                    # =========================================
-                    # ENTRY
-                    # =========================================
-
-                    if score_buy >= 2 and strong_volume:
-
-                        side = "BUY"
-
-                        print(f"🟢 BUY READY -> {ticker}")
-
-                    elif score_sell >= 2 and strong_volume:
-
-                        side = "SELL"
-
-                        print(f"🔴 SELL READY -> {ticker}")
-
-                    else:
-
-                        print(f"⚠️ SKIP -> {ticker}")
-
-                        continue
-
-                    # =========================================
-                    # GAP FILTER
-                    # =========================================
-
-                    if abs(gap_pct) < MIN_GAP:
-
-                        print(f"⚠️ LOW GAP -> {ticker}")
-
-                        continue
-
-                    # =========================================
-                    # EMA FILTER
-                    # =========================================
-
-                    if side == "BUY":
-
-                        if not (ema20 > ema50 > ema200):
-
-                            print(f"⚠️ EMA FAIL -> {ticker}")
-
-                            continue
-
-                    if side == "SELL":
-
-                        if not (ema20 < ema50 < ema200):
-
-                            print(f"⚠️ EMA FAIL -> {ticker}")
-
-                            continue
-
-                    # =========================================
-                    # VWAP FILTER
-                    # =========================================
-
-                    if side == "BUY" and price < vwap:
-
-                        continue
-
-                    if side == "SELL" and price > vwap:
-
-                        continue
-
-                    # =========================================
-                    # STOP / TARGET
-                    # =========================================
-
-                    distanza_stop = atr * 4
-
-                    if side == "BUY":
-
-                        stop = price - distanza_stop
-
-                        target = price + atr * 6
-
-                    else:
-
-                        stop = price + distanza_stop
-
-                        target = price - atr * 6
-
-                    risk = abs(price - stop)
-
-                    reward = abs(target - price)
-
-                    rr = round(reward / risk, 2) if risk != 0 else 0
-
-                    if rr < 1.3:
-
-                        print(f"❌ RR FAIL -> {ticker}")
-
-                        continue
-
-                    # =========================================
-                    # SIZE
-                    # =========================================
-
-                    qty = round(
-
-                        CAPITALE_PER_TRADE / price
-
-                    )
-
-                    # =========================================
-                    # SALVA
-                    # =========================================
-
-                    active_trades[ticker] = {
-
-                        "side": side,
-
-                        "entry": price,
-
-                        "stop": stop,
-
-                        "target": target,
-
-                        "qty": qty
-
-                    }
-
-                    cooldown_tickers[ticker] = datetime.now()
-
-                    print(
-
-                        f"🚀 {side} {ticker} | "
-
-                        f"Entry={round(price,2)} | "
-
-                        f"Target={round(target,2)}"
-
-                    )
+                    print(f"✅ {ticker} OK | Price={round(price,2)}")
 
                 except Exception as e:
 
                     print(f"❌ ERRORE {ticker}: {e}")
 
                     continue
-
-            # =========================================
-            # NEXT LOOP
-            # =========================================
-
-            index += MAX_TICKERS
-
-            if index >= len(TICKERS):
-
-                index = 0
 
             time.sleep(60)
 
@@ -1180,9 +766,8 @@ for ticker in subset:
             print(f"❌ ERRORE LOOP: {e}")
 
             time.sleep(60)
+```
 
-
-if __name__ == "__main__":
 
     Thread(target=trading_loop).start()
 
