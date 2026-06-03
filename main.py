@@ -488,43 +488,38 @@ def market_is_bullish():
         current_time = time.time()
 
         # aggiorna SPY ogni 15 minuti
-        if (
-
-            current_time - spy_last_update > 900
-
-        ):
+        if current_time - spy_last_update > 900:
 
             print("📥 Download SPY...")
 
-            try:
+            spy = yf.download(
 
-                spy = yf.download(
+                "SPY",
 
-                    "SPY",
+                period="3mo",
 
-                    period="3mo",
+                interval="1d",
 
-                    interval="1d",
+                progress=False,
 
-                    progress=False,
+                threads=False
 
-                    threads=False
+            )
 
-                )
+            # RATE LIMIT / EMPTY DATA
+            if (
 
-            except Exception as e:
+                spy is None
 
-                print(f"❌ SPY DOWNLOAD ERROR: {e}")
+                or spy.empty
 
-                print("⚠️ SPY fallback bullish")
+                or "Close" not in spy.columns
 
-                return spy_cache
+            ):
 
-            if spy is None or len(spy) == 0:
+                print("⚠️ SPY RATE LIMIT -> fallback bullish")
 
-                print("⚠️ SPY EMPTY -> fallback bullish")
-
-                return spy_cache
+                return True
 
             if isinstance(spy.columns, pd.MultiIndex):
 
@@ -556,11 +551,9 @@ def market_is_bullish():
 
         print(f"❌ MARKET FILTER ERROR: {e}")
 
+        print("⚠️ fallback bullish")
+
         return True
-
-
-
-
 
 # =========================================
 # MAIN LOOP
