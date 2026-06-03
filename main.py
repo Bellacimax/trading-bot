@@ -766,7 +766,6 @@ def trading_loop():
             print(f"❌ ERRORE LOOP: {e}")
 
             time.sleep(60)
-```
 
 
     Thread(target=trading_loop).start()
