@@ -770,6 +770,141 @@ def trading_loop():
 
                     print(f"✅ {ticker} OK | Price={round(price,2)}")
 
+                    # =========================================
+                    # SIGNALS
+                    # =========================================
+
+                    score_buy = 0
+                    score_sell = 0
+
+                    if last["EMA50"] > last["EMA200"]:
+
+                        score_buy += 1
+
+                    else:
+
+                        score_sell += 1
+
+                    if last["RSI"] > 55:
+
+                        score_buy += 1
+
+                    if last["RSI"] < 45:
+
+                        score_sell += 1
+
+                    if last["MACD"] > last["MACD_signal"]:
+
+                        score_buy += 1
+
+                    else:
+
+                        score_sell += 1
+
+                    volume_ratio = (
+
+                        df["Volume"].iloc[-1]
+
+                        / df["Volume"].rolling(20).mean().iloc[-1]
+
+                    )
+
+                    strong_volume = volume_ratio > MIN_VOLUME_RATIO
+
+                    # =========================================
+                    # BUY
+                    # =========================================
+
+                    if (
+
+                        score_buy >= 2
+
+                        and strong_volume
+
+                        and market_bullish
+
+                    ):
+
+                        side = "BUY"
+
+                        stop = price - atr
+
+                        target = price + (atr * 2)
+
+                        rr = 2
+
+                    # =========================================
+                    # SELL
+                    # =========================================
+
+                    elif (
+
+                        score_sell >= 2
+
+                        and strong_volume
+
+                        and not market_bullish
+
+                    ):
+
+                        side = "SELL"
+
+                        stop = price + atr
+
+                        target = price - (atr * 2)
+
+                        rr = 2
+
+                    else:
+
+                        continue
+
+                    qty = int(
+
+                        CAPITALE_PER_TRADE / price
+
+                    )
+
+                    active_trades[ticker] = {
+
+                        "side": side,
+
+                        "entry": price,
+
+                        "stop": stop,
+
+                        "target": target,
+
+                        "qty": qty
+
+                    }
+
+                    cooldown_tickers[ticker] = datetime.now()
+
+                    print(
+
+                        f"🚀 {side} {ticker} | "
+
+                        f"Entry={round(price,2)} | "
+
+                        f"Target={round(target,2)}"
+
+                    )
+
+                    send_telegram(
+
+                        f"🚀 {side} {ticker}\n"
+
+                        f"💰 Entry: {round(price,2)}\n"
+
+                        f"🛑 Stop: {round(stop,2)}\n"
+
+                        f"🎯 Target: {round(target,2)}\n"
+
+                        f"📊 RR: {rr}"
+
+                    )
+
                 except Exception as e:
 
                     print(f"❌ ERRORE {ticker}: {e}")
