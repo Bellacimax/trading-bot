@@ -11,13 +11,13 @@ from datetime import datetime, UTC
 from scanner import rank_tickers
 from datetime import timedelta
 
-
 # =========================================
 # TELEGRAM
 # =========================================
 
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
+
 
 def send_telegram(msg):
 
@@ -43,22 +43,9 @@ def send_telegram(msg):
 
         print("📨 TELEGRAM RESPONSE:", response.text)
 
+    except Exception as e:
 
-                except Exception as e:
-
-                    print(f"❌ ERRORE {ticker}: {e}")
-
-                    continue
-
-            index += MAX_TICKERS
-
-            if index >= len(TICKERS):
-
-                index = 0
-
-            time.sleep(60)
-
-
+        print(f"❌ TELEGRAM ERROR: {e}")
 
 # =========================================
 # SAVE TRADE
