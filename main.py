@@ -496,6 +496,8 @@ def market_is_bullish():
 
         ):
 
+            print("📥 Download SPY...")
+
             spy = yf.download(
 
                 "SPY",
@@ -511,6 +513,8 @@ def market_is_bullish():
             )
 
             if spy is None or spy.empty:
+
+                print("⚠️ SPY RATE LIMIT -> fallback bullish")
 
                 return True
 
@@ -542,7 +546,11 @@ def market_is_bullish():
 
         print(f"❌ SPY ERROR: {e}")
 
+        print("⚠️ SPY fallback bullish")
+
         return True
+
+
 
 
 # =========================================
