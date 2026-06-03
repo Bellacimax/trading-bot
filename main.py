@@ -654,8 +654,13 @@ def trading_loop():
             if fase == "After-hours":
 
                 print("🌙 After-hours pausa")
-
+                
+            index += MAX_TICKERS 
+            if index >= len(TICKERS): 
+                index = 0
                 time.sleep(60)
+
+                
 
                 continue
 
