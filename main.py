@@ -795,7 +795,7 @@ for ticker in subset:
 
                         )
 
-                       if df is None or df.empty:
+                        if df is None or df.empty:
 
                             bad_tickers.add(ticker)
 
