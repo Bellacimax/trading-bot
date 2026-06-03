@@ -500,7 +500,7 @@ def market_is_bullish():
 
                 "SPY",
 
-                period="6mo",
+                period="3mo",
 
                 interval="1d",
 
