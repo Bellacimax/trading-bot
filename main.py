@@ -574,10 +574,13 @@ def trading_loop():
 
                 continue
 
+            # loop ticker...
 
-while True:
+        except Exception as e:
 
-    try:
+            print(f"❌ ERRORE LOOP: {e}")
+
+            time.sleep(60)
 
         # =========================================
         # LOOP TICKER
