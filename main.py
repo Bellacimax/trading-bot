@@ -711,28 +711,28 @@ def trading_loop():
                     try:
                     
                         df = yf.download(
-                    
                             ticker,
-                    
                             period="6mo",
-                    
                             interval="1d",
-                    
                             progress=False,
-                    
                             threads=False
-                    
                         )
-                    
-                        print("BBBBBBBBBBBB DOWNLOAD END")
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR: {e}")
+                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+                    
+                        bad_tickers.add(ticker)
                     
                         continue
                     
-                    print(f"📊 Rows: {len(df) if df is not None else 'None'}")
+                    if df is None or df.empty:
+                    
+                        print(f"❌ EMPTY DATA {ticker}")
+                    
+                        bad_tickers.add(ticker)
+                    
+                        continue
 
                     # =========================================
                     # INDICATORI
