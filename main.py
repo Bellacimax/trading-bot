@@ -703,51 +703,48 @@ def trading_loop():
                             print(f"⏳ COOLDOWN -> {ticker}")
 
                             continue
-
                     # =========================================
                     # DOWNLOAD
                     # =========================================
-
+                    
                     df = yf.download(
-
+                    
                         ticker,
-
-                        period="5d",
-
+                    
+                        period="6mo",
+                    
                         interval="1d",
-
+                    
                         progress=False,
-
+                    
                         threads=False
-
+                    
                     )
-
+                    
                     if df is None or df.empty:
-
+                    
                         bad_tickers.add(ticker)
-
+                    
                         print(f"❌ BAD TICKER -> {ticker}")
-
+                    
                         continue
-
+                    
                     if isinstance(df.columns, pd.MultiIndex):
-
+                    
                         df.columns = df.columns.get_level_values(0)
-
-                    df = df[[
-
-                        "Open",
-                        "High",
-                        "Low",
-                        "Close",
-                        "Volume"
-
-                    ]].dropna()
-
+                    
+                    df = df[
+                    
+                        ["Open", "High", "Low", "Close", "Volume"]
+                    
+                    ].dropna()
+                    
+                    print(f"📊 {ticker} rows = {len(df)}")
+                    
                     if len(df) < 50:
-
+                    
                         print(f"⚠️ FEW DATA -> {ticker}")
-
+                    
                         continue
 
                     # =========================================
