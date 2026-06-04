@@ -470,90 +470,18 @@ def check_earnings(ticker):
 # MAIN
 # =========================================
 
+
 # =========================================
 # MARKET FILTER
 # =========================================
 
-spy_cache = True
-spy_last_update = 0
-
-
 def market_is_bullish():
 
-    global spy_cache
-    global spy_last_update
+    print("⚠️ MARKET FILTER DISABLED")
 
-    try:
+    return True
 
-        current_time = time.time()
 
-        # aggiorna SPY ogni 15 minuti
-        if current_time - spy_last_update > 900:
-
-            print("📥 Download SPY...")
-
-            spy = yf.download(
-
-                "SPY",
-
-                period="3mo",
-
-                interval="1d",
-
-                progress=False,
-
-                threads=False
-
-            )
-
-            # RATE LIMIT / EMPTY DATA
-            if (
-
-                spy is None
-
-                or spy.empty
-
-                or "Close" not in spy.columns
-
-            ):
-
-                print("⚠️ SPY RATE LIMIT -> fallback bullish")
-
-                return True
-
-            if isinstance(spy.columns, pd.MultiIndex):
-
-                spy.columns = spy.columns.get_level_values(0)
-
-            ema200 = spy["Close"].ewm(
-
-                span=200,
-
-                adjust=False
-
-            ).mean()
-
-            spy_cache = (
-
-                spy["Close"].iloc[-1]
-
-                > ema200.iloc[-1]
-
-            )
-
-            spy_last_update = current_time
-
-            print(f"📈 SPY BULLISH: {spy_cache}")
-
-        return spy_cache
-
-    except Exception as e:
-
-        print(f"❌ MARKET FILTER ERROR: {e}")
-
-        print("⚠️ fallback bullish")
-
-        return True
 
 # =========================================
 # MAIN LOOP
