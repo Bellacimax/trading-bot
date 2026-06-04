@@ -701,9 +701,12 @@ def trading_loop():
                             print(f"⏳ COOLDOWN -> {ticker}")
 
                             continue
+                                   
                     # =========================================
                     # DOWNLOAD
                     # =========================================
+                    
+                    print(f"📥 Download {ticker}...")
                     
                     df = yf.download(
                     
@@ -719,31 +722,17 @@ def trading_loop():
                     
                     )
                     
-                    if df is None or df.empty:
+                    print("📥 Download terminato")
                     
-                        bad_tickers.add(ticker)
+                    if df is not None:
                     
-                        print(f"❌ BAD TICKER -> {ticker}")
+                        print(f"📊 Rows: {len(df)}")
                     
-                        continue
+                    else:
                     
-                    if isinstance(df.columns, pd.MultiIndex):
-                    
-                        df.columns = df.columns.get_level_values(0)
-                    
-                    df = df[
-                    
-                        ["Open", "High", "Low", "Close", "Volume"]
-                    
-                    ].dropna()
-                    
-                    print(f"📊 {ticker} rows = {len(df)}")
-                    
-                    if len(df) < 50:
-                    
-                        print(f"⚠️ FEW DATA -> {ticker}")
-                    
-                        continue
+                        print("📊 DF = None")
+
+
 
                     # =========================================
                     # INDICATORI
