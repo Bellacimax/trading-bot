@@ -722,17 +722,21 @@ def trading_loop():
                     
                     )
                     
-                    print("📥 Download terminato")
+                    print(f"📥 Download finito -> {ticker}")
                     
-                    if df is not None:
+                    if df is None:
                     
-                        print(f"📊 Rows: {len(df)}")
+                        print(f"❌ DF NONE -> {ticker}")
                     
-                    else:
+                        continue
                     
-                        print("📊 DF = None")
-
-
+                    print(f"📊 Rows -> {ticker}: {len(df)}")
+                    
+                    if df.empty:
+                    
+                        print(f"❌ DF EMPTY -> {ticker}")
+                    
+                        continue
 
                     # =========================================
                     # INDICATORI
