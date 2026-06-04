@@ -635,12 +635,9 @@ def trading_loop():
 
             print(f"🕒 Ora NY: {ora_ny}")
 
-            if 0 <= ora_ny < 4:
-
-                print("😴 Notte USA - pausa")
-
-                time.sleep(300)
-
+            if 0 <= ora_ny < 1: 
+                print("😴 Notte USA - pausa") 
+                time.sleep(300) 
                 continue
 
             # =========================================
