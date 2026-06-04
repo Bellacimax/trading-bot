@@ -1,389 +1,76 @@
 TICKERS = [
 
-    # BIG TECH / AI
-    "AAPL",
-    "MSFT",
-    "NVDA",
-    "AMZN",
-    "META",
-    "TSLA",
-    "GOOGL",
-    "AMD",
-    "NFLX",
-    "INTC",
-    "CRM",
-    "ORCL",
-    "ADBE",
-    "PYPL",
-    "SHOP",
-    "UBER",
-    "LYFT",
-    "SNOW",
-    "PLTR",
-    "COIN",
-    "ROKU",
-    "DOCU",
-    "ZM",
-    "TWLO",
-    "OKTA",
-    "CRWD",
-    "ZS",
-    "NET",
-    "DDOG",
-    "MDB",
-    "TEAM",
-    "WDAY",
-    "NOW",
-    "PANW",
-    "FTNT",
-    "AI",
-    "SMCI",
-    "ARM",
-    "ASML",
-    "AVGO",
-    "QCOM",
-    "TXN",
-    "MU",
-    "LRCX",
-    "AMAT",
-    "KLAC",
-    "NXPI",
-    "MRVL",
-    "ON",
-    "ADI",
-    "INTU",
+"AAPL","MSFT","NVDA","AMZN","META","TSLA","GOOGL","AMD","NFLX","INTC",
+"CRM","ORCL","ADBE","PYPL","SHOP","UBER","LYFT","SNOW","PLTR","COIN",
+"ROKU","DOCU","ZM","TWLO","OKTA","CRWD","ZS","NET","DDOG","MDB",
+"TEAM","WDAY","NOW","PANW","FTNT","AI","SMCI","ARM","ASML","AVGO",
+"QCOM","TXN","MU","LRCX","AMAT","KLAC","NXPI","MRVL","ON","ADI","INTU",
 
-    # HEALTHCARE / BIOTECH
-    "ISRG",
-    "REGN",
-    "VRTX",
-    "LLY",
-    "JNJ",
-    "PFE",
-    "MRNA",
-    "CVS",
-    "UNH",
-    "ABBV",
-    "HIMS",
-    "TEM",
-    "VKTX",
+"ISRG","REGN","VRTX","LLY","JNJ","PFE","MRNA","CVS","UNH","ABBV",
+"HIMS","TEM","VKTX",
 
-    # ENERGY
-    "XOM",
-    "CVX",
-    "SLB",
-    "COP",
-    "OXY",
-    "HAL",
-    "BKR",
-    "FANG",
-    "DVN",
+"XOM","CVX","SLB","COP","OXY","HAL","BKR","FANG","DVN",
 
-    # INDUSTRIAL / DEFENSE
-    "BA",
-    "LMT",
-    "NOC",
-    "RTX",
-    "CAT",
-    "DE",
-    "GE",
-    "HON",
-    "MMM",
-    "ETN",
-    "PH",
-    "TT",
-    "EMR",
-    "ROP",
+"BA","LMT","NOC","RTX","CAT","DE","GE","HON","MMM","ETN",
+"PH","TT","EMR","ROP","TXT",
 
-    # FINANCIAL
-    "SPGI",
-    "V",
-    "MA",
-    "AXP",
-    "GS",
-    "MS",
-    "JPM",
-    "BAC",
-    "C",
-    "WFC",
+"SPGI","V","MA","AXP","GS","MS","JPM","BAC","C","WFC",
 
-    # CONSUMER
-    "DIS",
-    "CMCSA",
-    "T",
-    "VZ",
-    "KO",
-    "PEP",
-    "MCD",
-    "NKE",
-    "SBUX",
-    "WMT",
-    "COST",
-    "HD",
-    "LOW",
-    "TGT",
+"DIS","CMCSA","T","VZ","KO","PEP","MCD","NKE","SBUX",
+"WMT","COST","HD","LOW","TGT",
 
-    # MEME / HIGH BETA
-    "GME",
-    "AMC",
-    "BB",
-    "NOK",
-    "BYND",
-    "CVNA",
-    "RIOT",
-    "MARA",
-    "UPST",
-    "SOFI",
-    "AFRM",
-    "LCID",
-    "RIVN",
+"GME","AMC","BB","NOK","BYND","CVNA","RIOT","MARA",
+"UPST","SOFI","AFRM","LCID","RIVN",
 
-    # AI / CLOUD
-    "ANET",
-    "DELL",
-    "HPE",
-    "PATH",
-    "ESTC",
-    "FSLY",
-    "AKAM",
-    "APP",
-    "CRWV",
-    "SOUN",
-    "BBAI",
+"ANET","DELL","HPE","PATH","ESTC","FSLY","AKAM","APP",
+"CRWV","SOUN","BBAI",
 
-    # QUANTUM / FUTURE TECH
-    "IONQ",
-    "QBTS",
-    "RGTI",
-    "QUBT",
-    "ARQQ",
+"IONQ","QBTS","RGTI","QUBT","ARQQ",
 
-    # SPACE / FUTURE MOBILITY
-    "RKLB",
-    "LUNR",
-    "ASTS",
-    "ACHR",
-    "JOBY",
+"RKLB","LUNR","ASTS","ACHR","JOBY",
 
-    # DATA / SOFTWARE
-    "PL",
-    "SNPS",
-    "CDNS",
+"PL","SNPS","CDNS",
 
-    # SEMI
-    "MCHP",
-    "MPWR",
-    "ENTG",
-    "TER",
-    "OLED",
+"MCHP","MPWR","ENTG","TER","OLED",
 
-    # CYBERSECURITY
-    "S",
-    "TENB",
-    "RPD",
+"S","TENB","RPD",
 
-    # GROWTH
-    "HOOD",
-    "DASH",
-    "ABNB",
-    "DUOL",
-    "CELH",
-    "CAVA",
+"HOOD","DASH","ABNB","DUOL","CELH","CAVA",
 
-    # ETF
-    "SPY",
-    "QQQ",
-    "IWM",
-    "SMH",
-    "ARKK",
-    "XLE"
+"SPY","QQQ","IWM","SMH","ARKK","XLE",
 
-# AI / QUANTUM
-"IONQ",
-"QBTS",
-"RGTI",
-"QUBT",
-"BBAI",
-"SOUN",
-"PL",
-"ARQQ",
+"KTOS","AVAV",
 
-# SPACE / DEFENSE
-"RKLB",
-"LUNR",
-"ASTS",
-"KTOS",
-"AVAV",
+"SOXL","TQQQ","SQQQ","XBI","IBIT",
 
-# HIGH BETA MOMENTUM
-"APP",
-"HOOD",
-"CVNA",
-"AFRM",
-"UPST",
-"SOFI",
-"CAVA",
-"CELH",
+"NVTS","ALAB","CRDO","CIEN","FLEX","SMTC",
 
-# SEMI
-"SNPS",
-"CDNS",
-"ENTG",
-"MCHP",
-"MPWR",
+"SYM","SERV",
 
-# CYBER / CLOUD
-"ESTC",
+"HCP","DOCN","GTLB","PD",
 
-# ETF
-"SOXL",
-"TQQQ",
-"SQQQ",
-"XBI",
-"IBIT",
+"MSTR","IREN","CLSK","HUT","BTDR",
 
-# AI / DATACENTER
-"NVTS",
-"ALAB",
-"CRDO",
-"CIEN",
-"FLEX",
-"SMTC",
+"QS","ENVX","CHPT","BE","ARRY",
 
-# ROBOTICS / AUTOMATION
-"SYM",
-"SERV",
-"PATH",
+"RXRX","DNA","BEAM","CRSP","NTLA",
 
-# CYBERSECURITY
-"TENB",
-"RPD",
-"S",
+"BABA","PDD","NIO","XPEV","LI",
 
-# CLOUD / SOFTWARE
-"HCP",
-"DOCN",
-"GTLB",
-"PD",
+"GEV","VRT","CEG","NRG","TLN",
 
-# FINTECH / CRYPTO
-"MSTR",
-"IREN",
-"CLSK",
-"HUT",
-"BTDR",
+"SPXL","SPXS","FNGU","UVXY",
 
-# EV / BATTERY
-"QS",
-"ENVX",
-"CHPT",
-"BE",
-"ARRY",
+"GD","LDOS","LHX","HII",
 
-# BIOTECH MOMENTUM
-"RXRX",
-"DNA",
-"BEAM",
-"CRSP",
-"NTLA",
+"RCAT","PDYN","UAVS",
 
-# CHINESE HIGH BETA
-"BABA",
-"PDD",
-"NIO",
-"XPEV",
-"LI",
+"URI","PWR","EME","VMC","MLM","NUE","FCX",
 
-# INDUSTRIAL / ENERGY MOMENTUM
-"GEV",
-"VRT",
-"CEG",
-"NRG",
-"TLN",
+"ITA","XAR","PPA",
 
-# EXTRA ETF
-"SPXL",
-"SPXS",
-"FNGU",
-"UVXY",
+"RDW","LLAP","SATS","SPCE","IRDM",
 
-# DEFENSE / ARMI
-"GD",
-"LDOS",
-"LHX",
-"HII",
+"ARKX"
 
-# DRONI / MILITARY TECH
-"RCAT",
-"PDYN",
-"UAVS",
-
-# RICOSTRUZIONE / INFRASTRUTTURE
-"URI",
-"PWR",
-"EME",
-"VMC",
-"MLM",
-"NUE",
-"FCX",
-
-# ETF DIFESA
-"ITA",
-"XAR",
-"PPA",
-
-# =========================================
-# SPACE / AEROSPACE
-# =========================================
-
-"RKLB",   # Rocket Lab
-"LUNR",   # Intuitive Machines
-"ASTS",   # AST SpaceMobile
-"PL",     # Planet Labs
-"RDW",    # Redwire
-"LLAP",   # Terran Orbital
-"SATS",   # EchoStar
-"SPCE",   # Virgin Galactic
-"IRDM",   # Iridium
-"ACHR",   # Archer Aviation
-"JOBY",   # Joby Aviation
-"KTOS",   # Kratos Defense
-"AVAV",   # AeroVironment
-
-# =========================================
-# QUANTUM COMPUTING
-# =========================================
-
-"IONQ",
-"RGTI",
-"QUBT",
-"QBTS",
-"ARQQ",
-
-# =========================================
-# AI / FUTURE TECH
-# =========================================
-
-"SOUN",
-"BBAI",
-"PLTR",
-"AI",
-"SYM",
-"TEM",
-
-# =========================================
-# SPACE / DEFENSE ETF
-# =========================================
-
-"ITA",
-"ARKX",
-
-# =========================================
-# DEFENSE / AEROSPACE
-# =========================================
-
-"BA",     # Boeing
-"LMT",    # Lockheed Martin
-"NOC",    # Northrop Grumman
-"RTX",    # Raytheon
-"TXT",    # Textron
+]
