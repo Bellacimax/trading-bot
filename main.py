@@ -864,20 +864,33 @@ def trading_loop():
 
                     strong_volume = volume_ratio > MIN_VOLUME_RATIO
 
+                    print(
+
+                        f"{ticker} | "
+                    
+                        f"BUY={score_buy} | "
+                    
+                        f"SELL={score_sell} | "
+                    
+                        f"VOL={round(volume_ratio,2)} | "
+                    
+                        f"BULL={market_bullish}"
+
+                    )
+
                     # =========================================
                     # BUY
                     # =========================================
-
+                    
                     if (
 
-                        score_buy >= 2
-
-                        and strong_volume
-
-                        and market_bullish
-
+                    score_buy >= 2
+                
+                    and strong_volume
+                
+                    and market_bullish
+                
                     ):
-
                         side = "BUY"
 
                         stop = price - atr
