@@ -681,7 +681,7 @@ def trading_loop():
 
                     print(f"🔍 Analizzo {ticker}")
 
-                    time.sleep(30)
+                    time.sleep(5)
                     # =========================================
                     # COOLDOWN
                     # =========================================
