@@ -642,9 +642,15 @@ def trading_loop():
             print(f"📈 MARKET BULLISH: {market_bullish}")
             print(f"📋 Tickers nel batch: {len(subset)}")
             
+       
             for ticker in subset:
-
+            
+                print("🔥 FOR LOOP ENTRATO")
+            
+                print(f"🔥 TICKER RAW: {ticker}")
+            
                 try:
+
 
                     if ticker in bad_tickers:
 
