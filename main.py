@@ -664,7 +664,7 @@ def trading_loop():
             
                 print(f"✅ CLEAN TICKER: {ticker}")
         
-            try:
+                try:
         
 
                     if ticker in bad_tickers:
