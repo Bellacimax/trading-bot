@@ -589,10 +589,13 @@ def trading_loop():
 
                 print("🌙 After-hours pausa")
                 
-            index += MAX_TICKERS 
-            if index >= len(TICKERS): 
+            subset = sorted(list(set(TICKERS)))[index:index+MAX_TICKERS]
+
+            index += MAX_TICKERS
+            
+            if index >= len(TICKERS):
+            
                 index = 0
-                time.sleep(60)
 
                 
 
@@ -601,8 +604,6 @@ def trading_loop():
             # =========================================
             # TICKERS
             # =========================================
-
-            subset = sorted(list(set(TICKERS)))[index:index+MAX_TICKERS]
 
             BLACKLIST = [
 
