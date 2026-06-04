@@ -707,7 +707,7 @@ def trading_loop():
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
-
+                    
                     try:
                     
                         df = yf.download(
@@ -715,31 +715,72 @@ def trading_loop():
                             period="6mo",
                             interval="1d",
                             progress=False,
-                            threads=False
+                            threads=False,
+                            auto_adjust=True
                         )
-                    
-                        print(f"📥 Download {ticker} END")
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
+                        bad_tickers.add(ticker)
+                    
                         continue
                     
                     if df is None:
                     
-                        print(f"❌ DF NONE {ticker}")
+                        print(f"❌ DF NONE -> {ticker}")
+                    
+                        bad_tickers.add(ticker)
                     
                         continue
                     
-                    if df.empty:
+                    if len(df) == 0:
                     
-                        print(f"❌ DF EMPTY {ticker}")
+                        print(f"❌ DF EMPTY -> {ticker}")
+                    
+                        bad_tickers.add(ticker)
+                    
+                        continue
+                    
+                    if isinstance(df.columns, pd.MultiIndex):
+                    
+                        df.columns = df.columns.get_level_values(0)
+                    
+                    required_cols = [
+                        "Open",
+                        "High",
+                        "Low",
+                        "Close",
+                        "Volume"
+                    ]
+                    
+                    missing = [
+                    
+                        c for c in required_cols
+                    
+                        if c not in df.columns
+                    
+                    ]
+                    
+                    if missing:
+                    
+                        print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
+                    
+                        bad_tickers.add(ticker)
+                    
+                        continue
+                    
+                    df = df[required_cols].dropna()
+                    
+                    if len(df) < 50:
+                    
+                        print(f"⚠️ FEW DATA -> {ticker}")
                     
                         continue
                     
                     print(f"✅ DOWNLOAD OK {ticker} | Rows={len(df)}")
-                    
+                                        
                     # =========================================
                     # INDICATORI
                     # =========================================
