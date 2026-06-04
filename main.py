@@ -644,13 +644,27 @@ def trading_loop():
             
        
             for ticker in subset:
-            
-                print("🔥 FOR LOOP ENTRATO")
-            
-                print(f"🔥 TICKER RAW: {ticker}")
-            
-                try:
 
+            print("🔥 FOR LOOP ENTRATO")
+        
+            print(f"🔥 TICKER RAW: {ticker}")
+        
+            ticker = str(ticker)
+        
+            ticker = ticker.split("#")[0]
+        
+            ticker = ticker.replace('"', '')
+        
+            ticker = ticker.replace("'", "")
+        
+            ticker = ticker.replace(",", "")
+        
+            ticker = ticker.strip()
+        
+            print(f"✅ CLEAN TICKER: {ticker}")
+        
+            try:
+        
 
                     if ticker in bad_tickers:
 
