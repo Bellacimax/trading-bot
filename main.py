@@ -727,13 +727,15 @@ def trading_loop():
                         continue
                     
                     if df is None or df.empty:
-                    
+
                         print(f"❌ EMPTY DATA {ticker}")
                     
                         bad_tickers.add(ticker)
                     
                         continue
 
+                    print(f"✅ DOWNLOAD OK {ticker} | Rows={len(df)}")
+                    
                     # =========================================
                     # INDICATORI
                     # =========================================
