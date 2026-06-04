@@ -623,6 +623,7 @@ def trading_loop():
 
             ]
 
+            
             print(f"🔥 Tot Tickers: {len(subset)}")
             # =========================================
             # LOOP TICKER
