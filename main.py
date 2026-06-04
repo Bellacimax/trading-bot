@@ -706,37 +706,33 @@ def trading_loop():
                     # DOWNLOAD
                     # =========================================
                     
-                    print(f"📥 Download {ticker}...")
+                    print("AAAAAAAAAAAA DOWNLOAD START")
                     
-                    df = yf.download(
+                    try:
                     
-                        ticker,
+                        df = yf.download(
                     
-                        period="6mo",
+                            ticker,
                     
-                        interval="1d",
+                            period="6mo",
                     
-                        progress=False,
+                            interval="1d",
                     
-                        threads=False
+                            progress=False,
                     
-                    )
+                            threads=False
                     
-                    print(f"📥 Download finito -> {ticker}")
+                        )
                     
-                    if df is None:
+                        print("BBBBBBBBBBBB DOWNLOAD END")
                     
-                        print(f"❌ DF NONE -> {ticker}")
+                    except Exception as e:
                     
-                        continue
-                    
-                    print(f"📊 Rows -> {ticker}: {len(df)}")
-                    
-                    if df.empty:
-                    
-                        print(f"❌ DF EMPTY -> {ticker}")
+                        print(f"❌ DOWNLOAD ERROR: {e}")
                     
                         continue
+                    
+                    print(f"📊 Rows: {len(df) if df is not None else 'None'}")
 
                     # =========================================
                     # INDICATORI
