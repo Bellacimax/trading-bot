@@ -738,9 +738,7 @@ def trading_loop():
                     
                     if len(df) == 0:
                     
-                        print(f"❌ DF EMPTY -> {ticker}")
-                    
-                        bad_tickers.add(ticker)
+                        print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
                     
                         continue
                     
