@@ -883,13 +883,11 @@ def trading_loop():
                     # =========================================
 
                     elif (
-
+                    
                         score_sell >= 2
-
+                    
                         and strong_volume
-
-                        and not market_bullish
-
+                    
                     ):
 
                         side = "SELL"
