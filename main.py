@@ -805,101 +805,75 @@ def trading_loop():
                     # =========================================
                     # SIGNALS
                     # =========================================
-
+                    
                     score_buy = 0
                     score_sell = 0
-
+                    
+                    # TREND
                     if last["EMA50"] > last["EMA200"]:
-
                         score_buy += 1
-
                     else:
-
                         score_sell += 1
-
+                    
+                    # RSI
                     if last["RSI"] > 55:
-
                         score_buy += 1
-
-                    if last["RSI"] < 45:
-
+                    
+                    elif last["RSI"] < 45:
                         score_sell += 1
-
+                    
+                    # MACD
                     if last["MACD"] > last["MACD_signal"]:
-
                         score_buy += 1
-
                     else:
-
                         score_sell += 1
-
+                    
+                    # VOLUME
                     volume_ratio = (
-
                         df["Volume"].iloc[-1]
-
-                        / df["Volume"].rolling(20).mean().iloc[-1]
-
+                        /
+                        df["Volume"].rolling(20).mean().iloc[-1]
                     )
-
+                    
                     strong_volume = volume_ratio > MIN_VOLUME_RATIO
-
+                    
                     print(
-
                         f"{ticker} | "
-                    
                         f"BUY={score_buy} | "
-                    
                         f"SELL={score_sell} | "
-                    
-                        f"VOL={round(volume_ratio,2)} | "
-                    
-                        f"BULL={market_bullish}"
-
+                        f"VOL={round(volume_ratio,2)}"
                     )
-
+                    
                     # =========================================
-                    # BUY
+                    # DECISIONE
                     # =========================================
                     
-                    if (
-
-                    score_buy >= 2
-                
-                    and strong_volume
-                
-                    and market_bullish
-                
-                    ):
+                    side = None
+                    
+                    if score_buy >= 2 and strong_volume:
+                    
                         side = "BUY"
-
+                    
                         stop = price - atr
-
+                    
                         target = price + (atr * 2)
-
+                    
                         rr = 2
-
-                    # =========================================
-                    # SELL
-                    # =========================================
-
-                    elif (
                     
-                        score_sell >= 2
+                    elif score_sell >= 2 and strong_volume:
                     
-                        and strong_volume
-                    
-                    ):
-
                         side = "SELL"
-
+                    
                         stop = price + atr
-
+                    
                         target = price - (atr * 2)
-
+                    
                         rr = 2
-
-                    else:
-
+                    
+                    if side is None:
+                    
+                        print(f"⏭️ NO SIGNAL {ticker}")
+                    
                         continue
 
                     qty = int(
