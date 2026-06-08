@@ -714,7 +714,7 @@ def trading_loop():
                     
                     try:
                     
-                    ```
+            
                     ticker_obj = yf.Ticker(ticker)
                     
                     df = ticker_obj.history(
@@ -730,23 +730,23 @@ def trading_loop():
                         time.sleep(60)
                     
                         continue
-                    ```
+             
                     
                     except Exception as e:
                     
-                    ```
+                
                     print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                     bad_tickers.add(ticker)
                     
                     continue
-                    ```
+             
                     
                     if isinstance(df.columns, pd.MultiIndex):
                     
-                    ```
+                
                     df.columns = df.columns.get_level_values(0)
-                    ```
+                
                     
                     required_cols = [
                     "Open",
@@ -758,33 +758,36 @@ def trading_loop():
                     
                     missing = [
                     
-                    ```
+           
                     c for c in required_cols
                     
                     if c not in df.columns
-                    ```
+          
                     
                     ]
                     
                     if missing:
                     
-                    ```
+              
                     print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
                     
                     bad_tickers.add(ticker)
                     
                     continue
-                    ```
+            
                     
                     df = df[required_cols].dropna()
+                    supporto = round(df["Low"].tail(20).min(), 2)
+
+                    resistenza = round(df["High"].tail(20).max(), 2)
+
                     
                     if len(df) < 50:
-                    
-                    ```
+                  
                     print(f"⚠️ FEW DATA -> {ticker}")
                     
                     continue
-                    ```
+                  
                     
                     print(f"✅ DOWNLOAD OK {ticker} | Rows={len(df)}")
 
