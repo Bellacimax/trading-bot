@@ -712,42 +712,28 @@ def trading_loop():
                     
                     try:
                     
-df = yf.download(
-    ticker,
-        period="6mo",
-        interval="1d",
-        progress=False,
-        threads=False,
-        auto_adjust=True
-)
-
-if df is None or len(df) == 0:
-
-    print(f"⚠️ RATE LIMIT -> {ticker}")
-
-    time.sleep(60)
-
-    continue
+                        df = yf.download(
+                            ticker,
+                            period="6mo",
+                            interval="1d",
+                            progress=False,
+                            threads=False,
+                            auto_adjust=True
+                        )
+                    
+                        if df is None or len(df) == 0:
+                    
+                            print(f"⚠️ RATE LIMIT -> {ticker}")
+                    
+                            time.sleep(60)
+                    
+                            continue
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                         bad_tickers.add(ticker)
-                    
-                        continue
-                    
-                    if df is None:
-                    
-                        print(f"❌ DF NONE -> {ticker}")
-                    
-                        bad_tickers.add(ticker)
-                    
-                        continue
-                    
-                    if len(df) == 0:
-                    
-                        print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
                     
                         continue
                     
