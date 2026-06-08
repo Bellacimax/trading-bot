@@ -712,14 +712,14 @@ def trading_loop():
                     
                     try:
                     
-                    df = yf.download(
+df = yf.download(
     ticker,
         period="6mo",
         interval="1d",
         progress=False,
         threads=False,
         auto_adjust=True
-    )
+)
 
 if df is None or len(df) == 0:
 
