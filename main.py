@@ -705,75 +705,89 @@ def trading_loop():
                             continue
                                    
                     # =========================================
+                    
                     # DOWNLOAD
+                    
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
                     
-                        df = yf.download(
-                            ticker,
-                            period="6mo",
-                            interval="1d",
-                            progress=False,
-                            threads=False,
-                            auto_adjust=True
-                        )
+                    ```
+                    ticker_obj = yf.Ticker(ticker)
                     
-                        if df is None or len(df) == 0:
+                    df = ticker_obj.history(
+                        period="6mo",
+                        interval="1d",
+                        auto_adjust=True
+                    )
                     
-                            print(f"⚠️ RATE LIMIT -> {ticker}")
+                    if df is None or len(df) == 0:
                     
-                            time.sleep(60)
+                        print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
                     
-                            continue
+                        time.sleep(60)
+                    
+                        continue
+                    ```
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+                    ```
+                    print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
-                        bad_tickers.add(ticker)
+                    bad_tickers.add(ticker)
                     
-                        continue
+                    continue
+                    ```
                     
                     if isinstance(df.columns, pd.MultiIndex):
                     
-                        df.columns = df.columns.get_level_values(0)
+                    ```
+                    df.columns = df.columns.get_level_values(0)
+                    ```
                     
                     required_cols = [
-                        "Open",
-                        "High",
-                        "Low",
-                        "Close",
-                        "Volume"
+                    "Open",
+                    "High",
+                    "Low",
+                    "Close",
+                    "Volume"
                     ]
                     
                     missing = [
                     
-                        c for c in required_cols
+                    ```
+                    c for c in required_cols
                     
-                        if c not in df.columns
+                    if c not in df.columns
+                    ```
                     
                     ]
                     
                     if missing:
                     
-                        print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
+                    ```
+                    print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
                     
-                        bad_tickers.add(ticker)
+                    bad_tickers.add(ticker)
                     
-                        continue
+                    continue
+                    ```
                     
                     df = df[required_cols].dropna()
                     
                     if len(df) < 50:
                     
-                        print(f"⚠️ FEW DATA -> {ticker}")
+                    ```
+                    print(f"⚠️ FEW DATA -> {ticker}")
                     
-                        continue
+                    continue
+                    ```
                     
                     print(f"✅ DOWNLOAD OK {ticker} | Rows={len(df)}")
+
                                         
                     # =========================================
                     # INDICATORI
