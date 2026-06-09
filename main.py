@@ -681,7 +681,7 @@ def trading_loop():
                     
                     print(f"🔍 Analizzo {ticker}")
 
-                    print("AAAAA")
+                    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     
                     print("PRIMA_SLEEP")
                     
