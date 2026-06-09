@@ -681,101 +681,116 @@ def trading_loop():
 
                     ticker = ticker.strip()
 
-                    print(f"🔍 Analizzo {ticker}")
-
-                    time.sleep(20)
-                    # =========================================
-                    # COOLDOWN
-                    # =========================================
-
-                    if ticker in cooldown_tickers:
-
-                        last_alert = cooldown_tickers[ticker]
-
-                        minutes_passed = (
-
-                            datetime.now() - last_alert
-
-                        ).seconds / 60
-
-                        if minutes_passed < COOLDOWN_MINUTES:
-
-                            print(f"⏳ COOLDOWN -> {ticker}")
-
-                            continue
-                                   
-        # =========================================
-        # DOWNLOAD
-        # =========================================
-        
-        print(f"📥 Download {ticker} START")
-        
-        try:
-        
-            ticker_obj = yf.Ticker(ticker)
-        
-            print("🔥 USO TICKER.HISTORY")
-        
-            df = ticker_obj.history(
-                period="6mo",
-                interval="1d",
-                auto_adjust=True
-            )
-        
-            if df is None or len(df) == 0:
-        
-                print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
-        
-                time.sleep(60)
-        
+                    
+            print(f"🔍 Analizzo {ticker}")
+            
+            time.sleep(2)
+            
+            # =========================================
+            # COOLDOWN
+            # =========================================
+            
+            if ticker in cooldown_tickers:
+            
+                last_alert = cooldown_tickers[ticker]
+            
+                minutes_passed = (
+                    datetime.now() - last_alert
+                ).seconds / 60
+            
+                if minutes_passed < COOLDOWN_MINUTES:
+            
+                    print(f"⏳ COOLDOWN -> {ticker}")
+            
+                    continue
+            
+            # =========================================
+            # DOWNLOAD
+            # =========================================
+            
+            print(f"📥 Download {ticker} START")
+            
+            try:
+            
+                ticker_obj = yf.Ticker(ticker)
+            
+                print("🔥 USO TICKER.HISTORY")
+            
+                df = ticker_obj.history(
+                    period="6mo",
+                    interval="1d",
+                    auto_adjust=True
+                )
+            
+            except Exception as e:
+            
+                print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+            
+                bad_tickers.add(ticker)
+            
                 continue
-        
-        except Exception as e:
-        
-            print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
-        
-            bad_tickers.add(ticker)
-        
-            continue
-        
-        if isinstance(df.columns, pd.MultiIndex):
-        
-            df.columns = df.columns.get_level_values(0)
-        
-        required_cols = [
-            "Open",
-            "High",
-            "Low",
-            "Close",
-            "Volume"
-        ]
-        
-        missing = [
-            c for c in required_cols
-            if c not in df.columns
-        ]
-        
-        if missing:
-        
-            print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
-        
-            bad_tickers.add(ticker)
-        
-            continue
-        
-        df = df[required_cols].dropna()
-        
-        supporto = round(df["Low"].tail(20).min(), 2)
-        
-        resistenza = round(df["High"].tail(20).max(), 2)
-        
-        if len(df) < 50:
-        
-            print(f"⚠️ FEW DATA -> {ticker}")
-        
-            continue
-        
-        print(f"✅ DOWNLOAD OK {ticker} | Rows={len(df)}")                 
+            
+            if df is None or len(df) == 0:
+            
+                print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
+            
+                time.sleep(60)
+            
+                continue
+            
+            if isinstance(df.columns, pd.MultiIndex):
+            
+                df.columns = df.columns.get_level_values(0)
+            
+            required_cols = [
+                "Open",
+                "High",
+                "Low",
+                "Close",
+                "Volume"
+            ]
+            
+            missing = [
+                c for c in required_cols
+                if c not in df.columns
+            ]
+            
+            if missing:
+            
+                print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
+            
+                bad_tickers.add(ticker)
+            
+                continue
+            
+            df = df[required_cols].dropna()
+            
+            if len(df) < 50:
+            
+                print(f"⚠️ FEW DATA -> {ticker}")
+            
+                continue
+            
+            # =========================================
+            # SUPPORTI / RESISTENZE
+            # =========================================
+            
+            supporto = round(
+                df["Low"].tail(20).min(),
+                2
+            )
+            
+            resistenza = round(
+                df["High"].tail(20).max(),
+                2
+            )
+            
+            print(
+                f"✅ DOWNLOAD OK {ticker} | "
+                f"Rows={len(df)} | "
+                f"SUP={supporto} | "
+                f"RES={resistenza}"
+            ) 
                                             
                     # =========================================
                     # INDICATORI
