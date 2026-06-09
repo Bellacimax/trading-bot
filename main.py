@@ -904,21 +904,21 @@ def trading_loop():
                     )
 
                     send_telegram(
-
-                        f"🚀 {side} {ticker}\n"
-                    
-                        f"💰 Entry: {round(price,2)}\n"
-                    
-                        f"🛑 Stop: {round(stop,2)}\n"
-                    
-                        f"🎯 Target: {round(target,2)}\n"
-                    
-                        f"📊 RR: {rr}\n"
-                    
-                        f"🟢 Supporto: {supporto}\n"
-                    
-                        f"🔴 Resistenza: {resistenza}"
-                    
+                
+                    f"🚀 {side} {ticker}\n"
+                
+                    f"💰 Entry: {round(price,2)}\n"
+                
+                    f"🛑 Stop: {round(stop,2)}\n"
+                
+                    f"🎯 Target: {round(target,2)}\n"
+                
+                    f"📊 RR: {rr}\n"
+                
+                    f"🟢 Supporto: {supporto}\n"
+                
+                    f"🔴 Resistenza: {resistenza}"
+                
                     )
 
                 except Exception as e:
