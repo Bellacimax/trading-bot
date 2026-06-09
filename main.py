@@ -728,7 +728,7 @@ def trading_loop():
                     
                         continue
                     
-                    if df is None or len(df)
+                                       if df is None or len(df) == 0:
 
                         print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
 
