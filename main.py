@@ -598,9 +598,6 @@ def trading_loop():
             
                 index = 0
 
-                
-
-                continue
 
             # =========================================
             # TICKERS
