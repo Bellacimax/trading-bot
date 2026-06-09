@@ -684,10 +684,14 @@ def trading_loop():
                     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     
                     print("PRIMA_SLEEP")
-                    
+
                     time.sleep(2)
                     
                     print("DOPO_SLEEP")
+                    
+                    while True:
+                        print("TEST_LOOP")
+                        time.sleep(5)
 
                     # =========================================
                     # COOLDOWN
