@@ -684,6 +684,8 @@ def trading_loop():
                     
                     print(f"🔍 Analizzo {ticker}")
 
+                    print("AAAAA")
+
                     time.sleep(2)
 
                     # =========================================
@@ -695,9 +697,7 @@ def trading_loop():
                         last_alert = cooldown_tickers[ticker]
 
                         minutes_passed = (
-
                             datetime.now() - last_alert
-
                         ).seconds / 60
 
                         if minutes_passed < COOLDOWN_MINUTES:
@@ -705,6 +705,8 @@ def trading_loop():
                             print(f"⏳ COOLDOWN -> {ticker}")
 
                             continue
+
+                    print("BBBBB")
 
                     # =========================================
                     # DOWNLOAD
@@ -723,6 +725,8 @@ def trading_loop():
                             interval="1d",
                             auto_adjust=True
                         )
+
+                        print(f"📊 ROWS: {len(df)}")
 
                     except Exception as e:
 
@@ -753,11 +757,8 @@ def trading_loop():
                     ]
 
                     missing = [
-
                         c for c in required_cols
-
                         if c not in df.columns
-
                     ]
 
                     if missing:
