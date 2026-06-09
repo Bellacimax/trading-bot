@@ -682,26 +682,18 @@ def trading_loop():
                     print(f"🔍 Analizzo {ticker}")
 
                     print("AAAAA")
-
+                    
+                    print("PRIMA_SLEEP")
+                    
                     time.sleep(2)
+                    
+                    print("DOPO_SLEEP")
 
                     # =========================================
                     # COOLDOWN
                     # =========================================
 
-                    if ticker in cooldown_tickers:
-
-                        last_alert = cooldown_tickers[ticker]
-
-                        minutes_passed = (
-                            datetime.now() - last_alert
-                        ).seconds / 60
-
-                        if minutes_passed < COOLDOWN_MINUTES:
-
-                            print(f"⏳ COOLDOWN -> {ticker}")
-
-                            continue
+                   
 
                     print("BBBBB")
 
