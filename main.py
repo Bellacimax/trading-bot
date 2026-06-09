@@ -18,7 +18,6 @@ from datetime import timedelta
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-
 def send_telegram(msg):
 
     try:
