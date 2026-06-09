@@ -679,56 +679,56 @@ def trading_loop():
 
                     
                     print(f"🔍 Analizzo {ticker}")
-
-                    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     
-                    print("PRIMA_SLEEP")
-
-                    time.sleep(2)
-                    
-                    print("DOPO_SLEEP")
-                    
-                    while True:
-                        print("TEST_LOOP")
-                        time.sleep(5)
-
                     # =========================================
                     # COOLDOWN
                     # =========================================
-
-                   
-
-                    print("BBBBB")
-
+                    
+                    if ticker in cooldown_tickers:
+                    
+                        last_alert = cooldown_tickers[ticker]
+                    
+                        minutes_passed = (
+                            datetime.now() - last_alert
+                        ).seconds / 60
+                    
+                        if minutes_passed < COOLDOWN_MINUTES:
+                    
+                            print(f"⏳ COOLDOWN -> {ticker}")
+                    
+                            continue
+                    
                     # =========================================
                     # DOWNLOAD
                     # =========================================
-
+                    
+                    print("BBBBB")
+                    
                     print(f"📥 Download {ticker} START")
-
+                    
                     try:
-
+                    
                         ticker_obj = yf.Ticker(ticker)
-
+                    
                         print("🔥 USO TICKER.HISTORY")
-
+                    
                         df = ticker_obj.history(
                             period="6mo",
                             interval="1d",
                             auto_adjust=True
                         )
-
+                    
                         print(f"📊 ROWS: {len(df)}")
-
+                    
                     except Exception as e:
-
+                    
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
-
+                    
                         bad_tickers.add(ticker)
-
+                    
                         continue
-
-                    if df is None or len(df) == 0:
+                    
+                    if df is None or len(df)
 
                         print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
 
