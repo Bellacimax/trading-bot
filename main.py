@@ -701,34 +701,34 @@ def trading_loop():
                     # =========================================
                     # DOWNLOAD
                     # =========================================
-                    
+
                     print("BBBBB")
-                    
+
                     print(f"📥 Download {ticker} START")
-                    
+
                     try:
-                    
+
                         ticker_obj = yf.Ticker(ticker)
-                    
+
                         print("🔥 USO TICKER.HISTORY")
-                    
+
                         df = ticker_obj.history(
                             period="6mo",
                             interval="1d",
                             auto_adjust=True
                         )
-                    
+
                         print(f"📊 ROWS: {len(df)}")
-                    
+
                     except Exception as e:
-                    
+
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
-                    
+
                         bad_tickers.add(ticker)
-                    
+
                         continue
-                    
-                                       if df is None or len(df) == 0:
+
+                    if df is None or len(df) == 0:
 
                         print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
 
