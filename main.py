@@ -708,25 +708,33 @@ def trading_loop():
                     print(f"📥 Download {ticker} START")
                     
                     try:
-                    
-                        ticker_obj = yf.Ticker(ticker)
-                    
-                        print("🔥 USO TICKER.HISTORY")
-                    
-                        print("🔥 HISTORY CHIAMATA")
-                    
-                        df = ticker_obj.history(
-                            period="6mo",
-                            interval="1d",
-                            auto_adjust=True
-                        )
-                    
-                        print(f"📊 ROWS: {len(df)}")
-                    
-                    except Exception as e:
-                    
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
-                    
+
+                    ticker_obj = yf.Ticker(ticker)
+                
+                    print("🔥 USO TICKER.HISTORY")
+                
+                    print("🔥 HISTORY CHIAMATA")
+                
+                    df = ticker_obj.history(
+                        period="6mo",
+                        interval="1d",
+                        auto_adjust=True
+                    )
+                
+                    print("🔥 HISTORY TERMINATA")
+                
+                    print(type(df))
+                
+                    print(f"📊 ROWS: {len(df)}")
+                
+                except Exception as e:
+                
+                    print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
+                
+                    bad_tickers.add(ticker)
+                
+                    continue
+                                    
                         bad_tickers.add(ticker)
                     
                         continue
