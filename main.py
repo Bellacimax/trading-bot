@@ -701,45 +701,47 @@ def trading_loop():
                     # =========================================
                     # DOWNLOAD
                     # =========================================
-
-                    print("BBBBB")
-
+                    
+                    print("🚨🚨🚨 BLOCCO DOWNLOAD NUOVO 🚨🚨🚨")
+                    
                     print(f"📥 Download {ticker} START")
-
+                    
                     try:
-
+                    
                         ticker_obj = yf.Ticker(ticker)
-
+                    
                         print("🔥 USO TICKER.HISTORY")
-
+                    
+                        print("🔥 HISTORY CHIAMATA")
+                    
                         df = ticker_obj.history(
                             period="6mo",
                             interval="1d",
                             auto_adjust=True
                         )
-
+                    
                         print(f"📊 ROWS: {len(df)}")
-
+                    
                     except Exception as e:
-
+                    
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
-
+                    
                         bad_tickers.add(ticker)
-
+                    
                         continue
-
+                    
                     if df is None or len(df) == 0:
-
+                    
                         print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
-
+                    
                         time.sleep(60)
-
+                    
                         continue
-
+                    
                     if isinstance(df.columns, pd.MultiIndex):
-
+                    
                         df.columns = df.columns.get_level_values(0)
-
+                    
                     required_cols = [
                         "Open",
                         "High",
@@ -747,47 +749,45 @@ def trading_loop():
                         "Close",
                         "Volume"
                     ]
-
+                    
                     missing = [
                         c for c in required_cols
                         if c not in df.columns
                     ]
-
+                    
                     if missing:
-
-                        print(
-                            f"❌ COLONNE MANCANTI {ticker}: {missing}"
-                        )
-
+                    
+                        print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
+                    
                         bad_tickers.add(ticker)
-
+                    
                         continue
-
+                    
                     df = df[required_cols].dropna()
-
+                    
                     if len(df) < 50:
-
+                    
                         print(f"⚠️ FEW DATA -> {ticker}")
-
+                    
                         continue
-
+                    
                     supporto = round(
                         df["Low"].tail(20).min(),
                         2
                     )
-
+                    
                     resistenza = round(
                         df["High"].tail(20).max(),
                         2
                     )
-
+                    
                     print(
                         f"✅ DOWNLOAD OK {ticker} | "
                         f"Rows={len(df)} | "
                         f"SUP={supporto} | "
                         f"RES={resistenza}"
                     )
-                                            
+                                                                
                     # =========================================
                     # INDICATORI
                     # =========================================
