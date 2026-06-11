@@ -708,6 +708,26 @@ def trading_loop():
                     print(f"📥 Download {ticker} START")
 
                     print(f"FINNHUB KEY = {FINNHUB_API_KEY}")
+                    print("1")
+
+                    url = (
+                        f"https://finnhub.io/api/v1/stock/candle"
+                        f"?symbol={ticker}"
+                        f"&resolution=D"
+                        f"&from={int(time.time()) - 180*86400}"
+                        f"&to={int(time.time())}"
+                        f"&token={FINNHUB_API_KEY}"
+                    )
+                    
+                    print("2")
+                    
+                    r = requests.get(url, timeout=15)
+                    
+                    print("3")
+                    
+                    print(r.status_code)
+                    
+                    print(r.text[:500])
 
                     try:
                     
