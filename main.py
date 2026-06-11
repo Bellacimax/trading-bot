@@ -727,34 +727,33 @@ def trading_loop():
                         print("URL FINNHUB:")
                     
                         print(url)
+                    
                         print("PRIMA REQUEST")
-                        
+                    
                         try:
-                        
+                    
                             r = requests.get(
                                 url,
-                                timeout=(3, 5),
-                                verify=False
+                                timeout=10
                             )
-                        
+                    
                             print("DOPO REQUEST")
-                        
+                    
+                            print(f"STATUS = {r.status_code}")
+                    
+                            print(r.text[:300])
+                    
                         except Exception as e:
-                        
+                    
                             print("ECCEZIONE REQUEST")
-                        
+                    
                             print(type(e))
-                        
+                    
                             print(repr(e))
-                        
+                    
                             continue
-
-                        
+                    
                         print("3")
-                    
-                        print(f"STATUS = {r.status_code}")
-                    
-                        print(r.text[:500])
                     
                         data = r.json()
                     
