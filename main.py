@@ -706,30 +706,12 @@ def trading_loop():
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
-
+                    
                     print(f"FINNHUB KEY = {FINNHUB_API_KEY}")
-                    print("1")
-
-                    url = (
-                        f"https://finnhub.io/api/v1/stock/candle"
-                        f"?symbol={ticker}"
-                        f"&resolution=D"
-                        f"&from={int(time.time()) - 180*86400}"
-                        f"&to={int(time.time())}"
-                        f"&token={FINNHUB_API_KEY}"
-                    )
                     
-                    print("2")
-                    
-                    r = requests.get(url, timeout=15)
-                    
-                    print("3")
-                    
-                    print(r.status_code)
-                    
-                    print(r.text[:500])
-
                     try:
+                    
+                        print("1")
                     
                         url = (
                             f"https://finnhub.io/api/v1/stock/candle"
@@ -740,7 +722,22 @@ def trading_loop():
                             f"&token={FINNHUB_API_KEY}"
                         )
                     
-                        r = requests.get(url, timeout=15)
+                        print("2")
+                    
+                        print("URL FINNHUB:")
+                    
+                        print(url)
+                    
+                        r = requests.get(
+                            url,
+                            timeout=(5, 10)
+                        )
+                    
+                        print("3")
+                    
+                        print(f"STATUS = {r.status_code}")
+                    
+                        print(r.text[:500])
                     
                         data = r.json()
                     
@@ -748,19 +745,23 @@ def trading_loop():
                     
                             print(f"❌ NO DATA -> {ticker}")
                     
+                            print(data)
+                    
                             continue
                     
                         df = pd.DataFrame({
+                    
                             "Open": data["o"],
                             "High": data["h"],
                             "Low": data["l"],
                             "Close": data["c"],
                             "Volume": data["v"]
+                    
                         })
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+                        print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
                     
