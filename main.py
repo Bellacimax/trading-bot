@@ -725,11 +725,7 @@ def trading_loop():
                     
                     print(f"📥 Download {ticker} START")
                     
-                    print(f"FINNHUB KEY = {FINNHUB_API_KEY}")
-                    
                     try:
-                    
-                        print("1")
                     
                         url = (
                             f"https://finnhub.io/api/v1/stock/candle"
@@ -740,38 +736,13 @@ def trading_loop():
                             f"&token={FINNHUB_API_KEY}"
                         )
                     
-                        print("2")
+                        r = requests.get(url, timeout=5)
                     
-                        print("URL FINNHUB:")
+                        if r.status_code != 200:
                     
-                        print(url)
-                    
-                        print("PRIMA REQUEST")
-                    
-                        try:
-                    
-                            r = requests.get(
-                                url,
-                                timeout=10
-                            )
-                    
-                            print("DOPO REQUEST")
-                    
-                            print(f"STATUS = {r.status_code}")
-                    
-                            print(r.text[:300])
-                    
-                        except Exception as e:
-                    
-                            print("ECCEZIONE REQUEST")
-                    
-                            print(type(e))
-                    
-                            print(repr(e))
+                            print(f"❌ FINNHUB STATUS {r.status_code}")
                     
                             continue
-                    
-                        print("3")
                     
                         data = r.json()
                     
@@ -779,48 +750,27 @@ def trading_loop():
                     
                             print(f"❌ NO DATA -> {ticker}")
                     
-                            print(data)
-                    
                             continue
                     
                         df = pd.DataFrame({
-                    
                             "Open": data["o"],
                             "High": data["h"],
                             "Low": data["l"],
                             "Close": data["c"],
                             "Volume": data["v"]
-                    
                         })
+                    
+                    except requests.exceptions.Timeout:
+                    
+                        print(f"❌ FINNHUB TIMEOUT -> {ticker}")
+                    
+                        continue
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
+                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                         continue
-                    
-                    if len(df) < 50:
-                    
-                        print(f"⚠️ FEW DATA -> {ticker}")
-                    
-                        continue
-                    
-                    supporto = round(
-                        df["Low"].tail(20).min(),
-                        2
-                    )
-                    
-                    resistenza = round(
-                        df["High"].tail(20).max(),
-                        2
-                    )
-                    
-                    print(
-                        f"✅ DOWNLOAD OK {ticker} | "
-                        f"Rows={len(df)} | "
-                        f"SUP={supporto} | "
-                        f"RES={resistenza}"
-                    )
                                                                                     
                     # =========================================
                     # INDICATORI
