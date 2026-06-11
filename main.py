@@ -10,6 +10,7 @@ import csv
 from datetime import datetime, UTC
 from scanner import rank_tickers
 from datetime import timedelta
+
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 
 print(f"FINNHUB KEY OK: {FINNHUB_API_KEY is not None}")
