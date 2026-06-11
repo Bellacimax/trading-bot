@@ -714,7 +714,7 @@ def trading_loop():
                     
                         print("🔥 HISTORY CHIAMATA")
                     
-                       print("🔥 PRIMA HISTORY")
+                        print("🔥 PRIMA HISTORY")
 
                         df = ticker_obj.history(
                             period="6mo",
