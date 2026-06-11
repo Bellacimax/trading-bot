@@ -706,7 +706,9 @@ def trading_loop():
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
-                    
+
+                    print(f"FINNHUB KEY = {FINNHUB_API_KEY}")
+
                     try:
                     
                         url = (
