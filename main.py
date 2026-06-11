@@ -11,26 +11,6 @@ from datetime import datetime, UTC
 from scanner import rank_tickers
 from datetime import timedelta
 
-FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
-
-print(f"FINNHUB KEY OK: {FINNHUB_API_KEY is not None}")
-
-print("TEST FINNHUB AVVIO")
-
-try:
-
-    r = requests.get(
-        "https://finnhub.io/api/v1/quote?symbol=AAPL&token=" + FINNHUB_API_KEY,
-        timeout=10
-    )
-
-    print("FINNHUB STATUS:", r.status_code)
-
-    print(r.text[:200])
-
-except Exception as e:
-
-    print("FINNHUB ERRORE:", repr(e))
 # =========================================
 # TELEGRAM
 # =========================================
@@ -718,59 +698,85 @@ def trading_loop():
                     
                             continue
                     
-                    
+                  
                     # =========================================
-                    # DOWNLOAD FINNHUB
+                    # DOWNLOAD YAHOO
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
                     
-                        url = (
-                            f"https://finnhub.io/api/v1/stock/candle"
-                            f"?symbol={ticker}"
-                            f"&resolution=D"
-                            f"&from={int(time.time()) - 180*86400}"
-                            f"&to={int(time.time())}"
-                            f"&token={FINNHUB_API_KEY}"
+                        df = yf.download(
+                            ticker,
+                            period="6mo",
+                            interval="1d",
+                            progress=False,
+                            threads=False,
+                            auto_adjust=True
                         )
-                    
-                        r = requests.get(url, timeout=5)
-                    
-                        if r.status_code != 200:
-                    
-                            print(f"❌ FINNHUB STATUS {r.status_code}")
-                    
-                            continue
-                    
-                        data = r.json()
-                    
-                        if data.get("s") != "ok":
-                    
-                            print(f"❌ NO DATA -> {ticker}")
-                    
-                            continue
-                    
-                        df = pd.DataFrame({
-                            "Open": data["o"],
-                            "High": data["h"],
-                            "Low": data["l"],
-                            "Close": data["c"],
-                            "Volume": data["v"]
-                        })
-                    
-                    except requests.exceptions.Timeout:
-                    
-                        print(f"❌ FINNHUB TIMEOUT -> {ticker}")
-                    
-                        continue
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                         continue
+                    
+                    if df is None or len(df) == 0:
+                    
+                        print(f"⚠️ NO DATA -> {ticker}")
+                    
+                        time.sleep(5)
+                    
+                        continue
+                    
+                    if isinstance(df.columns, pd.MultiIndex):
+                    
+                        df.columns = df.columns.get_level_values(0)
+                    
+                    required_cols = [
+                        "Open",
+                        "High",
+                        "Low",
+                        "Close",
+                        "Volume"
+                    ]
+                    
+                    missing = [
+                        c for c in required_cols
+                        if c not in df.columns
+                    ]
+                    
+                    if missing:
+                    
+                        print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
+                    
+                        continue
+                    
+                    df = df[required_cols].dropna()
+                    
+                    if len(df) < 50:
+                    
+                        print(f"⚠️ FEW DATA -> {ticker}")
+                    
+                        continue
+                    
+                    supporto = round(
+                        df["Low"].tail(20).min(),
+                        2
+                    )
+                    
+                    resistenza = round(
+                        df["High"].tail(20).max(),
+                        2
+                    )
+                    
+                    print(
+                        f"✅ DOWNLOAD OK {ticker} | "
+                        f"Rows={len(df)} | "
+                        f"SUP={supporto} | "
+                        f"RES={resistenza}"
+                    )
                                                                                     
                     # =========================================
                     # INDICATORI
