@@ -714,13 +714,17 @@ def trading_loop():
                     
                         print("🔥 HISTORY CHIAMATA")
                     
+                       print("🔥 PRIMA HISTORY")
+
                         df = ticker_obj.history(
                             period="6mo",
                             interval="1d",
                             auto_adjust=True
                         )
-                    
-                        print("🔥 HISTORY TERMINATA")
+                        
+                        print("🔥 DOPO HISTORY")
+                            
+                                print("🔥 HISTORY TERMINATA")
                     
                         print(type(df))
                     
