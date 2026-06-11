@@ -1,3 +1,5 @@
+import requests
+FINNHUB_API_KEY = "LA_TUA_API_KEY"
 from flask import Flask
 from threading import Thread
 from stats import init_stats, save_trade
@@ -698,77 +700,47 @@ def trading_loop():
                     
                             continue
                     
-                    # =========================================
-                    # DOWNLOAD
-                    # =========================================
                     
-                    print("🚨🚨🚨 BLOCCO DOWNLOAD NUOVO 🚨🚨🚨")
+                    # =========================================
+                    # DOWNLOAD FINNHUB
+                    # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
-
-                        ticker_obj = yf.Ticker(ticker)
                     
-                        print("🔥 USO TICKER.HISTORY")
-                    
-                        print("🔥 HISTORY CHIAMATA")
-                    
-                        print("🔥 PRIMA HISTORY")
-
-                        df = ticker_obj.history(
-                            period="6mo",
-                            interval="1d",
-                            auto_adjust=True
+                        url = (
+                            f"https://finnhub.io/api/v1/stock/candle"
+                            f"?symbol={ticker}"
+                            f"&resolution=D"
+                            f"&from={int(time.time()) - 180*86400}"
+                            f"&to={int(time.time())}"
+                            f"&token={FINNHUB_API_KEY}"
                         )
-                        
-                        print("🔥 DOPO HISTORY")
-                            
-                        print("🔥 HISTORY TERMINATA")
                     
-                        print(type(df))
+                        r = requests.get(url, timeout=15)
                     
-                        print(f"📊 ROWS: {len(df)}")
+                        data = r.json()
+                    
+                        if data.get("s") != "ok":
+                    
+                            print(f"❌ NO DATA -> {ticker}")
+                    
+                            continue
+                    
+                        df = pd.DataFrame({
+                            "Open": data["o"],
+                            "High": data["h"],
+                            "Low": data["l"],
+                            "Close": data["c"],
+                            "Volume": data["v"]
+                        })
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
-                    
-                        bad_tickers.add(ticker)
+                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                         continue
-                    
-                    if df is None or len(df) == 0:
-                    
-                        print(f"⚠️ RATE LIMIT / EMPTY -> {ticker}")
-                    
-                        time.sleep(60)
-                    
-                        continue
-                    
-                    if isinstance(df.columns, pd.MultiIndex):
-                    
-                        df.columns = df.columns.get_level_values(0)
-                    
-                    required_cols = [
-                        "Open",
-                        "High",
-                        "Low",
-                        "Close",
-                        "Volume"
-                    ]
-                    
-                    missing = [
-                        c for c in required_cols
-                        if c not in df.columns
-                    ]
-                    
-                    if missing:
-                    
-                        print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
-                    
-                    
-                    df = df[required_cols].dropna()
                     
                     if len(df) < 50:
                     
@@ -792,7 +764,7 @@ def trading_loop():
                         f"SUP={supporto} | "
                         f"RES={resistenza}"
                     )
-                                                                
+                                                                                    
                     # =========================================
                     # INDICATORI
                     # =========================================
