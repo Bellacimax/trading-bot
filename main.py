@@ -724,7 +724,7 @@ def trading_loop():
                         
                         print("🔥 DOPO HISTORY")
                             
-                                print("🔥 HISTORY TERMINATA")
+                        print("🔥 HISTORY TERMINATA")
                     
                         print(type(df))
                     
