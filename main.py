@@ -728,11 +728,14 @@ def trading_loop():
                     
                         print(url)
                     
-                        r = requests.get(
-                            url,
-                            timeout=(5, 10)
-                        )
-                    
+                        print("PRIMA REQUEST")
+
+                        try:
+                            r = requests.get(url, timeout=5)
+                            print("DOPO REQUEST")
+                        except Exception as e:
+                            print(f"ERRORE REQUEST: {repr(e)}")
+                            continue
                         print("3")
                     
                         print(f"STATUS = {r.status_code}")
