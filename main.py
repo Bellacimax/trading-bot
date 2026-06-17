@@ -713,33 +713,35 @@ def trading_loop():
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
-
+                    
                     print("🚨 TWELVE DATA ATTIVO 🚨")
                     print(f"API KEY PRESENTE: {TWELVE_API_KEY is not None}")
                     print(f"API KEY LENGTH: {len(TWELVE_API_KEY) if TWELVE_API_KEY else 0}")
                     
                     try:
-                                
-                                    url = (
+                    
+                        url = (
                             f"https://api.twelvedata.com/time_series"
                             f"?symbol={ticker}"
                             f"&interval=1day"
                             f"&outputsize=180"
                             f"&apikey={TWELVE_API_KEY}"
                         )
-                        
+                    
                         print("🚨 PRIMA REQUEST 🚨")
-
-                        r = requests.get(url, timeout=15)
-                        
+                    
+                        r = requests.get(
+                            url,
+                            timeout=15
+                        )
+                    
                         print("🚨 DOPO REQUEST 🚨")
-                                            
+                    
                         data = r.json()
                     
                         if "values" not in data:
                     
                             print(f"❌ NO DATA -> {ticker}")
-                    
                             print(data)
                     
                             continue
@@ -749,13 +751,11 @@ def trading_loop():
                         for x in reversed(data["values"]):
                     
                             rows.append({
-                    
                                 "Open": float(x["open"]),
                                 "High": float(x["high"]),
                                 "Low": float(x["low"]),
                                 "Close": float(x["close"]),
                                 "Volume": float(x["volume"])
-                    
                             })
                     
                         df = pd.DataFrame(rows)
@@ -764,7 +764,7 @@ def trading_loop():
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+                        print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
                     
@@ -790,7 +790,6 @@ def trading_loop():
                         f"SUP={supporto} | "
                         f"RES={resistenza}"
                     )
-                                        
                                                                                     
                     # =========================================
                     # INDICATORI
