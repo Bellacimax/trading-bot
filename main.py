@@ -640,8 +640,15 @@ def trading_loop():
             print("🚀 INIZIO LOOP TICKER")
             print(f"📈 MARKET BULLISH: {market_bullish}")
             print(f"📋 Tickers nel batch: {len(subset)}")
+
+            print("📋 LISTA TICKERS:")
             
-       
+            for x in subset:
+            
+                print(f"➡️ {x}")
+            
+            print("📋 FINE LISTA")
+                   
             for ticker in subset:
     
                 print("🔥 FOR LOOP ENTRATO")
