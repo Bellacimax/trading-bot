@@ -730,10 +730,17 @@ def trading_loop():
                     
                         print("🚨 PRIMA REQUEST 🚨")
                     
+                        print("TEST GOOGLE")
+
                         r = requests.get(
-                            url,
+                            "https://www.google.com",
                             timeout=10
                         )
+                        
+                        print("GOOGLE OK")
+                        print(r.status_code)
+                        
+                        continue
                     
                         print("🚨 DOPO REQUEST 🚨")
                         print(r.status_code)
