@@ -716,9 +716,21 @@ def trading_loop():
                             auto_adjust=True
                         )
                     
+                        print(f"📊 DOWNLOAD FINITO {ticker}")
+                    
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+                    
+                        continue
+                    
+                    try:
+                    
+                        print(f"📊 LEN DF = {len(df)}")
+                    
+                    except:
+                    
+                        print(f"❌ DF NON VALIDO {ticker}")
                     
                         continue
                     
