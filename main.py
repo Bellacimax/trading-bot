@@ -729,16 +729,16 @@ def trading_loop():
                         )
                     
                         print("🚨 PRIMA REQUEST 🚨")
-                        
-                            r = requests.get(
-                                url,
-                                timeout=10
-                            )
-                            
+                    
+                        r = requests.get(
+                            url,
+                            timeout=10
+                        )
+                    
                         print("🚨 DOPO REQUEST 🚨")
                         print(r.status_code)
                         print(r.text[:300])
-                                            
+                    
                         data = r.json()
                     
                         if "values" not in data:
@@ -791,8 +791,7 @@ def trading_loop():
                         f"Rows={len(df)} | "
                         f"SUP={supporto} | "
                         f"RES={resistenza}"
-                    )
-                                                                                    
+                    )                                       
                     # =========================================
                     # INDICATORI
                     # =========================================
