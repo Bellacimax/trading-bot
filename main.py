@@ -714,7 +714,7 @@ def trading_loop():
                     
                     print(f"📥 Download {ticker} START")
                     
-                                    df = yf.download(
+                    df = yf.download(
                     ticker,
                     period="6mo",
                     interval="1d",
