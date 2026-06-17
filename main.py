@@ -725,13 +725,25 @@ def trading_loop():
                             f"&apikey={TWELVE_API_KEY}"
                         )
                     
-                        r = requests.get(
+                        print("URL:")
+                        print(url)
+                    
+                        print("PRIMA REQUEST")
+                    
+                        session = requests.Session()
+                    
+                        r = session.get(
                             url,
-                            timeout=10
+                            timeout=(3, 5)
                         )
                     
-                        print("REQUEST TERMINATA")
+                        print("DOPO REQUEST")
+                    
+                        print("STATUS:")
                         print(r.status_code)
+                    
+                        print("TESTO:")
+                        print(r.text[:300])
                     
                         data = r.json()
                     
