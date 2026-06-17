@@ -712,17 +712,19 @@ def trading_loop():
                     # DOWNLOAD YAHOO
                     # =========================================
                     
-                    print(f"📥 Download {ticker} START")
+                    try:
+                        
+                        print(f"📥 Download {ticker} START")
                     
-                    df = yf.download(
-                    ticker,
-                    period="6mo",
-                    interval="1d",
-                    progress=False,
-                    threads=False,
-                    auto_adjust=True
-                    )
-                                    
+                        df = yf.download(
+                            ticker,
+                            period="6mo",
+                            interval="1d",
+                            progress=False,
+                            threads=False,
+                            auto_adjust=True
+                            )
+                                        
                         print(f"📊 DOWNLOAD FINITO {ticker}")
                     
                     except Exception as e:
