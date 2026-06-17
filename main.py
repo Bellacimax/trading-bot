@@ -707,27 +707,49 @@ def trading_loop():
                     
                             continue
                     
-                  
                     # =========================================
-                    # DOWNLOAD YAHOO
+                    # DOWNLOAD TWELVE DATA
                     # =========================================
+                    
+                    print(f"📥 Download {ticker} START")
                     
                     try:
-
-                        print(f"📥 Download {ticker} START")
                     
-                        print("AAAAA")
-                    
-                        df = yf.download(
-                            ticker,
-                            period="6mo",
-                            interval="1d",
-                            progress=False,
-                            threads=False,
-                            auto_adjust=True
+                        url = (
+                            f"https://api.twelvedata.com/time_series"
+                            f"?symbol={ticker}"
+                            f"&interval=1day"
+                            f"&outputsize=180"
+                            f"&apikey={TWELVE_API_KEY}"
                         )
                     
-                        print("BBBBB")
+                        r = requests.get(url, timeout=15)
+                    
+                        data = r.json()
+                    
+                        if "values" not in data:
+                    
+                            print(f"❌ NO DATA -> {ticker}")
+                    
+                            print(data)
+                    
+                            continue
+                    
+                        rows = []
+                    
+                        for x in reversed(data["values"]):
+                    
+                            rows.append({
+                    
+                                "Open": float(x["open"]),
+                                "High": float(x["high"]),
+                                "Low": float(x["low"]),
+                                "Close": float(x["close"]),
+                                "Volume": float(x["volume"])
+                    
+                            })
+                    
+                        df = pd.DataFrame(rows)
                     
                         print(f"📊 DOWNLOAD FINITO {ticker}")
                     
@@ -736,49 +758,6 @@ def trading_loop():
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                         continue
-                                                          
-                    try:
-                    
-                        print(f"📊 LEN DF = {len(df)}")
-                    
-                    except:
-                    
-                        print(f"❌ DF NON VALIDO {ticker}")
-                    
-                        continue
-                    
-                    if df is None or len(df) == 0:
-                    
-                        print(f"⚠️ NO DATA -> {ticker}")
-                    
-                        time.sleep(5)
-                    
-                        continue
-                    
-                    if isinstance(df.columns, pd.MultiIndex):
-                    
-                        df.columns = df.columns.get_level_values(0)
-                    
-                    required_cols = [
-                        "Open",
-                        "High",
-                        "Low",
-                        "Close",
-                        "Volume"
-                    ]
-                    
-                    missing = [
-                        c for c in required_cols
-                        if c not in df.columns
-                    ]
-                    
-                    if missing:
-                    
-                        print(f"❌ COLONNE MANCANTI {ticker}: {missing}")
-                    
-                        continue
-                    
-                    df = df[required_cols].dropna()
                     
                     if len(df) < 50:
                     
@@ -802,6 +781,7 @@ def trading_loop():
                         f"SUP={supporto} | "
                         f"RES={resistenza}"
                     )
+                                        
                                                                                     
                     # =========================================
                     # INDICATORI
