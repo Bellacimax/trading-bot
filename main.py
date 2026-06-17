@@ -729,14 +729,17 @@ def trading_loop():
                         )
                     
                         print("🚨 PRIMA REQUEST 🚨")
-                    
+                        
                         r = requests.get(
                             url,
-                            timeout=15
+                            timeout=(5, 10),
+                            verify=False
                         )
-                    
+                        
                         print("🚨 DOPO REQUEST 🚨")
-                    
+                        print(r.status_code)
+                        print(r.text[:300])
+                                            
                         data = r.json()
                     
                         if "values" not in data:
