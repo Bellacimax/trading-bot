@@ -10,7 +10,6 @@ import csv
 from datetime import datetime, UTC
 from scanner import rank_tickers
 from datetime import timedelta
-
 TWELVE_API_KEY = os.getenv("TWELVE_API_KEY")
 
 
@@ -714,19 +713,27 @@ def trading_loop():
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
+
+                    print("🚨 TWELVE DATA ATTIVO 🚨")
+                    print(f"API KEY PRESENTE: {TWELVE_API_KEY is not None}")
+                    print(f"API KEY LENGTH: {len(TWELVE_API_KEY) if TWELVE_API_KEY else 0}")
                     
                     try:
-                    
-                        url = (
+                                
+                                    url = (
                             f"https://api.twelvedata.com/time_series"
                             f"?symbol={ticker}"
                             f"&interval=1day"
                             f"&outputsize=180"
                             f"&apikey={TWELVE_API_KEY}"
                         )
-                    
+                        
+                        print("🚨 PRIMA REQUEST 🚨")
+
                         r = requests.get(url, timeout=15)
-                    
+                        
+                        print("🚨 DOPO REQUEST 🚨")
+                                            
                         data = r.json()
                     
                         if "values" not in data:
