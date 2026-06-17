@@ -715,25 +715,24 @@ def trading_loop():
                     print(f"📥 Download {ticker} START")
                     
                     try:
-                    
+                
                         df = yf.download(
-                        ticker,
-                        period="6mo",
-                        interval="1d",
-                        progress=False,
-                        threads=False,
-                        auto_adjust=True,
-                        timeout=10
-                    )
+                            ticker,
+                            period="6mo",
+                            interval="1d",
+                            progress=False,
+                            threads=False,
+                            auto_adjust=True
+                        )
                     
-                    print(f"📊 DOWNLOAD FINITO {ticker}")
+                        print(f"📊 DOWNLOAD FINITO {ticker}")
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
                     
                         continue
-                    
+                                                          
                     try:
                     
                         print(f"📊 LEN DF = {len(df)}")
