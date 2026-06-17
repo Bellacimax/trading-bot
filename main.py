@@ -714,91 +714,27 @@ def trading_loop():
                     
                     print(f"📥 Download {ticker} START")
                     
-                    print("🚨 TWELVE DATA ATTIVO 🚨")
-                    print(f"API KEY PRESENTE: {TWELVE_API_KEY is not None}")
-                    print(f"API KEY LENGTH: {len(TWELVE_API_KEY) if TWELVE_API_KEY else 0}")
-                    
+                                        
                     try:
                     
-                        url = (
-                            f"https://api.twelvedata.com/time_series"
-                            f"?symbol={ticker}"
-                            f"&interval=1day"
-                            f"&outputsize=180"
-                            f"&apikey={TWELVE_API_KEY}"
-                        )
+                        print("TEST TELEGRAM REQUEST")
                     
-                        print("🚨 PRIMA REQUEST 🚨")
-                    
-                        print("TEST GOOGLE")
-
                         r = requests.get(
-                            "https://www.google.com",
-                            timeout=10
+                            "https://api.telegram.org",
+                            timeout=5
                         )
-                        
-                        print("GOOGLE OK")
+                    
+                        print("TELEGRAM REQUEST OK")
                         print(r.status_code)
-                        
+                    
                         continue
-                    
-                        print("🚨 DOPO REQUEST 🚨")
-                        print(r.status_code)
-                        print(r.text[:300])
-                    
-                        data = r.json()
-                    
-                        if "values" not in data:
-                    
-                            print(f"❌ NO DATA -> {ticker}")
-                            print(data)
-                    
-                            continue
-                    
-                        rows = []
-                    
-                        for x in reversed(data["values"]):
-                    
-                            rows.append({
-                                "Open": float(x["open"]),
-                                "High": float(x["high"]),
-                                "Low": float(x["low"]),
-                                "Close": float(x["close"]),
-                                "Volume": float(x["volume"])
-                            })
-                    
-                        df = pd.DataFrame(rows)
-                    
-                        print(f"📊 DOWNLOAD FINITO {ticker}")
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
+                        print("TELEGRAM REQUEST ERROR")
+                        print(repr(e))
                     
-                        continue
-                    
-                    if len(df) < 50:
-                    
-                        print(f"⚠️ FEW DATA -> {ticker}")
-                    
-                        continue
-                    
-                    supporto = round(
-                        df["Low"].tail(20).min(),
-                        2
-                    )
-                    
-                    resistenza = round(
-                        df["High"].tail(20).max(),
-                        2
-                    )
-                    
-                    print(
-                        f"✅ DOWNLOAD OK {ticker} | "
-                        f"Rows={len(df)} | "
-                        f"SUP={supporto} | "
-                        f"RES={resistenza}"
-                    )                                       
+                        continue           
                     # =========================================
                     # INDICATORI
                     # =========================================
