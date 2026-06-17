@@ -730,12 +730,11 @@ def trading_loop():
                     
                         print("🚨 PRIMA REQUEST 🚨")
                         
-                        r = requests.get(
-                            url,
-                            timeout=(5, 10),
-                            verify=False
-                        )
-                        
+                            r = requests.get(
+                                url,
+                                timeout=10
+                            )
+                            
                         print("🚨 DOPO REQUEST 🚨")
                         print(r.status_code)
                         print(r.text[:300])
