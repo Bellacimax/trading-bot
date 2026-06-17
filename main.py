@@ -959,8 +959,6 @@ def trading_loop():
             
 if __name__ == "__main__":
 
-    Thread(target=trading_loop).start()
-
-    run_dashboard()
+    trading_loop()
 
     
