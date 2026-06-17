@@ -711,11 +711,9 @@ def trading_loop():
                     # DOWNLOAD TWELVE DATA
                     # =========================================
                     
-                    print(f"📥 Download {ticker} START")
-                    
+                   print(f"📥 Download {ticker} START")
+
                     try:
-                    
-                        print("ARRIVATO PRIMA DEL DOWNLOAD")
                     
                         url = (
                             f"https://api.twelvedata.com/time_series"
@@ -725,25 +723,10 @@ def trading_loop():
                             f"&apikey={TWELVE_API_KEY}"
                         )
                     
-                        print("URL:")
-                        print(url)
-                    
-                        print("PRIMA REQUEST")
-                    
-                        session = requests.Session()
-                    
-                        r = session.get(
+                        r = requests.get(
                             url,
-                            timeout=(3, 5)
+                            timeout=10
                         )
-                    
-                        print("DOPO REQUEST")
-                    
-                        print("STATUS:")
-                        print(r.status_code)
-                    
-                        print("TESTO:")
-                        print(r.text[:300])
                     
                         data = r.json()
                     
@@ -775,29 +758,6 @@ def trading_loop():
                         print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
-                    
-                    if len(df) < 50:
-                    
-                        print(f"⚠️ FEW DATA -> {ticker}")
-                    
-                        continue
-                    
-                    supporto = round(
-                        df["Low"].tail(20).min(),
-                        2
-                    )
-                    
-                    resistenza = round(
-                        df["High"].tail(20).max(),
-                        2
-                    )
-                    
-                    print(
-                        f"✅ DOWNLOAD OK {ticker} | "
-                        f"Rows={len(df)} | "
-                        f"SUP={supporto} | "
-                        f"RES={resistenza}"
-                    )
                     
                     # =========================================
                     # INDICATORI
@@ -959,6 +919,7 @@ def trading_loop():
             
 if __name__ == "__main__":
 
-    trading_loop()
+    Thread(target=trading_loop).start()
 
+    run_dashboard()
     
