@@ -725,13 +725,16 @@ def trading_loop():
                             f"&apikey={TWELVE_API_KEY}"
                         )
                     
+                        print("URL =", url)
+
                         r = requests.get(
                             url,
-                            timeout=10
+                            timeout=(3, 10),
+                            verify=False
                         )
-                    
+                        
                         print("DOPO REQUEST")
-                        print(f"STATUS = {r.status_code}")
+                        print(r.status_code)
                     
                         data = r.json()
                     
