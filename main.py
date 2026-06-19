@@ -949,6 +949,10 @@ def trading_loop():
 
             time.sleep(60)
             
+        # =========================================
+        # START BOT
+        # =========================================
+        
         if __name__ == "__main__":
         
             Thread(
@@ -957,6 +961,3 @@ def trading_loop():
             ).start()
         
             run_dashboard()
-        
-            run_dashboard()
-    
