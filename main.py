@@ -12,7 +12,6 @@ from scanner import rank_tickers
 from datetime import timedelta
 TWELVE_API_KEY = os.getenv("TWELVE_API_KEY")
 
-
 # =========================================
 # TELEGRAM
 # =========================================
