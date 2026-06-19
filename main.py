@@ -941,7 +941,7 @@ def trading_loop():
 
                     continue
 
-            time.sleep(60)
+time.sleep(60)
 
 except Exception as e:
 
