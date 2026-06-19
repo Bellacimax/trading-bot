@@ -726,13 +726,15 @@ def trading_loop():
                         )
                     
                         print("URL =", url)
-
                         r = requests.get(
                             url,
-                            timeout=(3, 10),
-                            verify=False
+                            timeout=10
                         )
                         
+                        print("DOPO REQUEST")
+                        print("STATUS =", r.status_code)
+                        print(r.text[:200])
+                                            
                         print("DOPO REQUEST")
                         print(r.status_code)
                     
