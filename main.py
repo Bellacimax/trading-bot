@@ -708,37 +708,89 @@ def trading_loop():
                     
                             continue
                     # =========================================
-                    # DOWNLOAD TEST
+                    # DOWNLOAD TWELVE DATA
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
                     
-                        print("TEST TELEGRAM NEL LOOP")
-
-                        url = f"https://api.telegram.org/bot{TOKEN}/getMe"
-                        
+                        url = (
+                            f"https://api.twelvedata.com/time_series"
+                            f"?symbol={ticker}"
+                            f"&interval=1day"
+                            f"&outputsize=180"
+                            f"&apikey={TWELVE_API_KEY}"
+                        )
+                    
+                        print("PRIMA REQUEST")
+                        print("URL =", url)
+                    
                         r = requests.get(
                             url,
-                            timeout=5
+                            timeout=10
                         )
-                        
-                        print("ARRIVATO DOPO TELEGRAM")
-                        
-                        continue
-                        
-                        print("RISPOSTA TELEGRAM NEL LOOP")
-                        print(r.status_code)
-                        print(r.text[:200])
                     
-                        continue
+                        print("DOPO REQUEST")
+                        print("STATUS =", r.status_code)
+                    
+                        data = r.json()
+                    
+                        if "values" not in data:
+                    
+                            print(f"❌ NO DATA -> {ticker}")
+                            print(data)
+                    
+                            continue
+                    
+                        rows = []
+                    
+                        for x in reversed(data["values"]):
+                    
+                            rows.append({
+                    
+                                "Open": float(x["open"]),
+                                "High": float(x["high"]),
+                                "Low": float(x["low"]),
+                                "Close": float(x["close"]),
+                                "Volume": float(x["volume"])
+                    
+                            })
+                    
+                        df = pd.DataFrame(rows)
+                    
+                        print(f"📊 DOWNLOAD FINITO {ticker}")
+                        print(f"📊 ROWS = {len(df)}")
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
+                    
+                    if len(df) < 50:
+                    
+                        print(f"⚠️ FEW DATA -> {ticker}")
+                    
+                        continue
+                    
+                    supporto = round(
+                        df["Low"].tail(20).min(),
+                        2
+                    )
+                    
+                    resistenza = round(
+                        df["High"].tail(20).max(),
+                        2
+                    )
+                    
+                    print(
+                        f"✅ DOWNLOAD OK {ticker} | "
+                        f"Rows={len(df)} | "
+                        f"SUP={supporto} | "
+                        f"RES={resistenza}"
+                    )
+                    
                     # =========================================
                     # INDICATORI
                     # =========================================
@@ -897,9 +949,14 @@ def trading_loop():
 
             time.sleep(60)
             
-if __name__ == "__main__":
-
-    Thread(target=trading_loop).start()
-
-    run_dashboard()
+        if __name__ == "__main__":
+        
+            Thread(
+                target=trading_loop,
+                daemon=True
+            ).start()
+        
+            run_dashboard()
+        
+            run_dashboard()
     
