@@ -758,7 +758,8 @@ def trading_loop():
                         print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
-                    
+
+                
                     # =========================================
                     # INDICATORI
                     # =========================================
