@@ -949,15 +949,15 @@ def trading_loop():
 
             time.sleep(60)
             
-        # =========================================
-        # START BOT
-        # =========================================
+# =========================================
+# START BOT
+# =========================================
         
-        if __name__ == "__main__":
+if __name__ == "__main__":
         
-            Thread(
-                target=trading_loop,
-                daemon=True
-            ).start()
+    Thread(
+        target=trading_loop,
+        daemon=True
+    ).start()
         
-            run_dashboard()
+    run_dashboard()
