@@ -707,13 +707,16 @@ def trading_loop():
                             print(f"⏳ COOLDOWN -> {ticker}")
                     
                             continue
+
                     # =========================================
                     # DOWNLOAD TWELVE DATA
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
-
+                    
                     try:
+                    
+                        print("PRIMA REQUEST")
                     
                         url = (
                             f"https://api.twelvedata.com/time_series"
@@ -727,6 +730,9 @@ def trading_loop():
                             url,
                             timeout=10
                         )
+                    
+                        print("DOPO REQUEST")
+                        print(f"STATUS = {r.status_code}")
                     
                         data = r.json()
                     
@@ -758,8 +764,7 @@ def trading_loop():
                         print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
-
-                
+                    
                     # =========================================
                     # INDICATORI
                     # =========================================
