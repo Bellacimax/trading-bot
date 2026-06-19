@@ -715,6 +715,7 @@ def trading_loop():
                     print(f"📥 Download {ticker} START")
                     
                     try:
+
                     
                         print("PRIMA REQUEST")
                     
