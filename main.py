@@ -727,6 +727,7 @@ def trading_loop():
                             f"&apikey={TWELVE_API_KEY}"
                         )
                     
+                        print("VERSIONE GIUGNO 19")
                         print("URL =", url)
                         r = requests.get(
                             url,
