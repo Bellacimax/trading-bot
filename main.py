@@ -943,21 +943,21 @@ def trading_loop():
 
             time.sleep(60)
 
-        except Exception as e:
+except Exception as e:
 
-            print(f"❌ ERRORE LOOP: {e}")
+    print(f"❌ ERRORE LOOP: {e}")
 
-            time.sleep(60)
-            
+    time.sleep(60)
+
 # =========================================
 # START BOT
 # =========================================
-        
+
 if __name__ == "__main__":
-        
+
     Thread(
         target=trading_loop,
         daemon=True
     ).start()
-        
+
     run_dashboard()
