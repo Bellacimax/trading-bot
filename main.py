@@ -717,26 +717,22 @@ def trading_loop():
                     try:
 
                     
-                        print("PRIMA REQUEST")
-                    
-                        url = (
-                            f"https://api.twelvedata.com/time_series"
-                            f"?symbol={ticker}"
-                            f"&interval=1day"
-                            f"&outputsize=180"
-                            f"&apikey={TWELVE_API_KEY}"
-                        )
-                    
-                        print("VERSIONE GIUGNO 19")
-                        print("TEST TELEGRAM URL")
+                        print("TEST 1")
 
-                        r = requests.get(
-                            "https://api.telegram.org",
-                            timeout=10
-                        )
+                        try:
                         
-                        print("DOPO TELEGRAM URL")
-                        print(r.status_code)
+                            r = requests.get(
+                                "http://example.com",
+                                timeout=5
+                            )
+                        
+                            print("TEST 2")
+                            print(r.status_code)
+                        
+                        except Exception as e:
+                        
+                            print("ERRORE")
+                            print(repr(e))
                         
                         continue
                         
