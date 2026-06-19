@@ -728,11 +728,17 @@ def trading_loop():
                         )
                     
                         print("VERSIONE GIUGNO 19")
-                        print("URL =", url)
+                        print("TEST TELEGRAM URL")
+
                         r = requests.get(
-                            url,
+                            "https://api.telegram.org",
                             timeout=10
                         )
+                        
+                        print("DOPO TELEGRAM URL")
+                        print(r.status_code)
+                        
+                        continue
                         
                         print("DOPO REQUEST")
                         print("STATUS =", r.status_code)
