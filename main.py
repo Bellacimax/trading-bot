@@ -711,7 +711,7 @@ def trading_loop():
                     # DOWNLOAD TWELVE DATA
                     # =========================================
                     
-                   print(f"📥 Download {ticker} START")
+                    print(f"📥 Download {ticker} START")
 
                     try:
                     
