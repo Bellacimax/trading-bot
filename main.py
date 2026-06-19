@@ -707,73 +707,31 @@ def trading_loop():
                             print(f"⏳ COOLDOWN -> {ticker}")
                     
                             continue
-
                     # =========================================
-                    # DOWNLOAD TWELVE DATA
+                    # DOWNLOAD TEST
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
-
                     
-                        print("TEST 1")
-
-                        try:
-                        
-                            r = requests.get(
-                                "http://example.com",
-                                timeout=5
-                            )
-                        
-                            print("TEST 2")
-                            print(r.status_code)
-                        
-                        except Exception as e:
-                        
-                            print("ERRORE")
-                            print(repr(e))
-                        
-                        continue
-                        
-                        print("DOPO REQUEST")
-                        print("STATUS =", r.status_code)
-                        print(r.text[:200])
-                                            
-                        print("DOPO REQUEST")
+                        print("TEST TELEGRAM NEL LOOP")
+                    
+                        url = f"https://api.telegram.org/bot{TOKEN}/getMe"
+                    
+                        r = requests.get(url)
+                    
+                        print("RISPOSTA TELEGRAM NEL LOOP")
                         print(r.status_code)
+                        print(r.text[:200])
                     
-                        data = r.json()
-                    
-                        if "values" not in data:
-                    
-                            print(f"❌ NO DATA -> {ticker}")
-                            print(data)
-                    
-                            continue
-                    
-                        rows = []
-                    
-                        for x in reversed(data["values"]):
-                    
-                            rows.append({
-                                "Open": float(x["open"]),
-                                "High": float(x["high"]),
-                                "Low": float(x["low"]),
-                                "Close": float(x["close"]),
-                                "Volume": float(x["volume"])
-                            })
-                    
-                        df = pd.DataFrame(rows)
-                    
-                        print(f"📊 DOWNLOAD FINITO {ticker}")
+                        continue
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
                     
                         continue
-                    
                     # =========================================
                     # INDICATORI
                     # =========================================
