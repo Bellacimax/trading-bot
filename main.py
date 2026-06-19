@@ -716,11 +716,18 @@ def trading_loop():
                     try:
                     
                         print("TEST TELEGRAM NEL LOOP")
-                    
+
                         url = f"https://api.telegram.org/bot{TOKEN}/getMe"
-                    
-                        r = requests.get(url)
-                    
+                        
+                        r = requests.get(
+                            url,
+                            timeout=5
+                        )
+                        
+                        print("ARRIVATO DOPO TELEGRAM")
+                        
+                        continue
+                        
                         print("RISPOSTA TELEGRAM NEL LOOP")
                         print(r.status_code)
                         print(r.text[:200])
