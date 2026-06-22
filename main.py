@@ -725,10 +725,18 @@ def trading_loop():
                         print("PRIMA REQUEST")
                         print("URL =", url)
                     
-                        r = requests.get(
+                        print("CREO SESSION")
+
+                        session = requests.Session()
+                        
+                        print("CHIAMATA GET")
+                        
+                        r = session.get(
                             url,
-                            timeout=10
+                            timeout=(3, 10)
                         )
+                        
+                        print("RISPOSTA RICEVUTA")
                     
                         print("DOPO REQUEST")
                         print("STATUS =", r.status_code)
