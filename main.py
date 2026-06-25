@@ -944,19 +944,20 @@ def trading_loop():
                     )
 
                 
-                except Exception as e:
+                    except Exception as e:
 
-                    print(f"❌ ERRORE {ticker}: {e}")
+                        print(f"❌ ERRORE {ticker}: {e}")
 
-                    continue
+                        continue
 
-             time.sleep(60)
+                time.sleep(60)
 
-        except Exception as e:
+            except Exception as e:
 
-            print(f"❌ ERRORE LOOP: {e}")
+                print(f"❌ ERRORE LOOP: {e}")
 
-            time.sleep(60)
+                time.sleep(60)
+
 
 # =========================================
 # START BOT
