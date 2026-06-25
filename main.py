@@ -943,6 +943,7 @@ def trading_loop():
                 
                     )
 
+                
                 except Exception as e:
 
                     print(f"❌ ERRORE {ticker}: {e}")
