@@ -730,18 +730,33 @@ def trading_loop():
                         print("PRIMA REQUEST")
                         print("URL =", url)
                     
-                        print("CREO SESSION")
+                        print("DOWNLOAD CON YFINANCE")
 
-                        session = requests.Session()
-                        
-                        print("CHIAMATA GET")
-                        
-                        r = session.get(
-                            url,
-                            timeout=(3, 10)
+                        df = yf.download(
+                            ticker,
+                            period="9mo",
+                            interval="1d",
+                            progress=False,
+                            auto_adjust=False,
+                            threads=False
                         )
                         
-                        print("RISPOSTA RICEVUTA")
+                        if df.empty:
+                        
+                            print(f"❌ NO DATA {ticker}")
+                        
+                            continue
+                        
+                        df = df.rename(columns={
+                            "Open": "Open",
+                            "High": "High",
+                            "Low": "Low",
+                            "Close": "Close",
+                            "Volume": "Volume"
+                        })
+                        
+                        print(f"📊 DOWNLOAD OK {ticker}")
+                        print(df.tail())
                     
                         print("DOPO REQUEST")
                         print("STATUS =", r.status_code)
