@@ -591,6 +591,10 @@ def trading_loop():
             if fase == "After-hours":
 
                 print("🌙 After-hours pausa")
+            
+                time.sleep(300)
+            
+                continue
                 
             subset = sorted(list(set(TICKERS)))[index:index+MAX_TICKERS]
 
