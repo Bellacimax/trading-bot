@@ -927,28 +927,28 @@ def trading_loop():
 
                     send_telegram(
                 
-                    f"🚀 {side} {ticker}\n"
+                        f"🚀 {side} {ticker}\n"
+                    
+                        f"💰 Entry: {round(price,2)}\n"
+                    
+                        f"🛑 Stop: {round(stop,2)}\n"
+                    
+                        f"🎯 Target: {round(target,2)}\n"
+                    
+                        f"📊 RR: {rr}\n"
+                    
+                        f"🟢 Supporto: {supporto}\n"
+                    
+                        f"🔴 Resistenza: {resistenza}"
                 
-                    f"💰 Entry: {round(price,2)}\n"
-                
-                    f"🛑 Stop: {round(stop,2)}\n"
-                
-                    f"🎯 Target: {round(target,2)}\n"
-                
-                    f"📊 RR: {rr}\n"
-                
-                    f"🟢 Supporto: {supporto}\n"
-                
-                    f"🔴 Resistenza: {resistenza}"
-                
-                    )
+                        )
 
                 
-                    except Exception as e:
+                        except Exception as e:
 
-                        print(f"❌ ERRORE {ticker}: {e}")
+                            print(f"❌ ERRORE {ticker}: {e}")
 
-                        continue
+                            continue
 
                 time.sleep(60)
 
