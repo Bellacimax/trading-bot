@@ -532,6 +532,8 @@ market_data_cache = {}
 
 last_download = {}
 
+CACHE_MINUTES = 30
+
 def trading_loop():
 
     index = 0
@@ -712,68 +714,83 @@ def trading_loop():
                             continue
 
                     # =========================================
-                    # DOWNLOAD ALPHA VANTAGE
+                    # DOWNLOAD DATI (CACHE 30 MIN)
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
                     
-                        url = (
-                            "https://www.alphavantage.co/query"
-                            f"?function=TIME_SERIES_DAILY"
-                            f"&symbol={ticker}"
-                            f"&outputsize=compact"
-                            f"&apikey={ALPHA_API_KEY}"
-                        )
+                        use_cache = False
                     
-                        print("DOWNLOAD ALPHA VANTAGE")
+                        if ticker in market_data_cache and ticker in last_download:
                     
-                        r = requests.get(
-                            url,
-                            timeout=20
-                        )
+                            elapsed = (
+                                datetime.now() - last_download[ticker]
+                            ).total_seconds() / 60
                     
-                        print("STATUS =", r.status_code)
+                            if elapsed < CACHE_MINUTES:
                     
-                        data = r.json()
+                                df = market_data_cache[ticker]
                     
-                        if "Time Series (Daily)" not in data:
+                                use_cache = True
                     
-                            print(data)
+                                print(f"📦 CACHE {ticker}")
                     
-                            continue
+                        if not use_cache:
                     
-                        rows = []
+                            url = (
+                                f"https://api.twelvedata.com/time_series"
+                                f"?symbol={ticker}"
+                                f"&interval=1day"
+                                f"&outputsize=180"
+                                f"&apikey={TWELVE_API_KEY}"
+                            )
                     
-                        for date, x in reversed(
-                            list(data["Time Series (Daily)"].items())
-                        ):
+                            print("⬇️ DOWNLOAD API")
                     
-                            rows.append({
+                            r = requests.get(
+                                url,
+                                timeout=20
+                            )
                     
-                                "Open": float(x["1. open"]),
+                            data = r.json()
                     
-                                "High": float(x["2. high"]),
+                            if "values" not in data:
                     
-                                "Low": float(x["3. low"]),
+                                print(data)
                     
-                                "Close": float(x["4. close"]),
+                                continue
                     
-                                "Volume": float(x["5. volume"])
+                            rows = []
                     
-                            })
+                            for x in reversed(data["values"]):
                     
-                        df = pd.DataFrame(rows)
+                                rows.append({
                     
-                        print(f"📊 DOWNLOAD OK {ticker}")
-                        print(f"ROWS = {len(df)}")
+                                    "Open": float(x["open"]),
+                                    "High": float(x["high"]),
+                                    "Low": float(x["low"]),
+                                    "Close": float(x["close"]),
+                                    "Volume": float(x["volume"])
+                    
+                                })
+                    
+                            df = pd.DataFrame(rows)
+                    
+                            market_data_cache[ticker] = df
+                    
+                            last_download[ticker] = datetime.now()
+                    
+                            print(f"✅ DOWNLOAD {ticker}")
+                    
+                            time.sleep(1)
                     
                     except Exception as e:
                     
                         print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
-
-    continue
+                    
+                        continue
                     
 
                     # =========================================
