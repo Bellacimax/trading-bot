@@ -747,33 +747,33 @@ def trading_loop():
                         continue
                     
 
-# =========================================
-# CONTROLLO DATI
-# =========================================
-
-if len(df) < 50:
-
-    print(f"⚠️ FEW DATA -> {ticker}")
-
-    continue
-
-
-supporto = round(
-    df["Low"].tail(20).min(),
-    2
-)
-
-resistenza = round(
-    df["High"].tail(20).max(),
-    2
-)
-
-print(
-    f"✅ DOWNLOAD OK {ticker} | "
-    f"Rows={len(df)} | "
-    f"SUP={supporto} | "
-    f"RES={resistenza}"
-)
+                    # =========================================
+                    # CONTROLLO DATI
+                    # =========================================
+                    
+                    if len(df) < 50:
+                    
+                        print(f"⚠️ FEW DATA -> {ticker}")
+                    
+                        continue
+                    
+                    
+                    supporto = round(
+                        df["Low"].tail(20).min(),
+                        2
+                    )
+                    
+                    resistenza = round(
+                        df["High"].tail(20).max(),
+                        2
+                    )
+                    
+                    print(
+                        f"✅ DOWNLOAD OK {ticker} | "
+                        f"Rows={len(df)} | "
+                        f"SUP={supporto} | "
+                        f"RES={resistenza}"
+                    )
                     
                     # =========================================
                     # INDICATORI
