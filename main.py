@@ -709,27 +709,17 @@ def trading_loop():
                             print(f"⏳ COOLDOWN -> {ticker}")
                     
                             continue
+
                     # =========================================
-                    # DOWNLOAD TWELVE DATA
+                    # DOWNLOAD DATI
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
                     
-                        url = (
-                            f"https://api.twelvedata.com/time_series"
-                            f"?symbol={ticker}"
-                            f"&interval=1day"
-                            f"&outputsize=180"
-                            f"&apikey={TWELVE_API_KEY}"
-                        )
-                    
-                        print("PRIMA REQUEST")
-                        print("URL =", url)
-                    
                         print("DOWNLOAD CON YFINANCE")
-
+                    
                         df = yf.download(
                             ticker,
                             period="9mo",
@@ -738,53 +728,16 @@ def trading_loop():
                             auto_adjust=False,
                             threads=False
                         )
-                        
+                    
                         if df.empty:
-                        
-                            print(f"❌ NO DATA {ticker}")
-                        
-                            continue
-                        
-                        df = df.rename(columns={
-                            "Open": "Open",
-                            "High": "High",
-                            "Low": "Low",
-                            "Close": "Close",
-                            "Volume": "Volume"
-                        })
-                        
-                        print(f"📊 DOWNLOAD OK {ticker}")
-                        print(df.tail())
-                    
-                        print("DOPO REQUEST")
-                        print("STATUS =", r.status_code)
-                    
-                        data = r.json()
-                    
-                        if "values" not in data:
                     
                             print(f"❌ NO DATA -> {ticker}")
-                            print(data)
                     
                             continue
                     
-                        rows = []
+                        df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
                     
-                        for x in reversed(data["values"]):
-                    
-                            rows.append({
-                    
-                                "Open": float(x["open"]),
-                                "High": float(x["high"]),
-                                "Low": float(x["low"]),
-                                "Close": float(x["close"]),
-                                "Volume": float(x["volume"])
-                    
-                            })
-                    
-                        df = pd.DataFrame(rows)
-                    
-                        print(f"📊 DOWNLOAD FINITO {ticker}")
+                        print(f"📊 DOWNLOAD OK {ticker}")
                         print(f"📊 ROWS = {len(df)}")
                     
                     except Exception as e:
@@ -793,28 +746,34 @@ def trading_loop():
                     
                         continue
                     
-                    if len(df) < 50:
-                    
-                        print(f"⚠️ FEW DATA -> {ticker}")
-                    
-                        continue
-                    
-                    supporto = round(
-                        df["Low"].tail(20).min(),
-                        2
-                    )
-                    
-                    resistenza = round(
-                        df["High"].tail(20).max(),
-                        2
-                    )
-                    
-                    print(
-                        f"✅ DOWNLOAD OK {ticker} | "
-                        f"Rows={len(df)} | "
-                        f"SUP={supporto} | "
-                        f"RES={resistenza}"
-                    )
+
+# =========================================
+# CONTROLLO DATI
+# =========================================
+
+if len(df) < 50:
+
+    print(f"⚠️ FEW DATA -> {ticker}")
+
+    continue
+
+
+supporto = round(
+    df["Low"].tail(20).min(),
+    2
+)
+
+resistenza = round(
+    df["High"].tail(20).max(),
+    2
+)
+
+print(
+    f"✅ DOWNLOAD OK {ticker} | "
+    f"Rows={len(df)} | "
+    f"SUP={supporto} | "
+    f"RES={resistenza}"
+)
                     
                     # =========================================
                     # INDICATORI
