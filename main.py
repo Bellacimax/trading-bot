@@ -712,40 +712,68 @@ def trading_loop():
                             continue
 
                     # =========================================
-                    # DOWNLOAD DATI
+                    # DOWNLOAD ALPHA VANTAGE
                     # =========================================
                     
                     print(f"📥 Download {ticker} START")
                     
                     try:
                     
-                        print("DOWNLOAD CON YFINANCE")
-                    
-                        df = yf.download(
-                            ticker,
-                            period="9mo",
-                            interval="1d",
-                            progress=False,
-                            auto_adjust=False,
-                            threads=False
+                        url = (
+                            "https://www.alphavantage.co/query"
+                            f"?function=TIME_SERIES_DAILY"
+                            f"&symbol={ticker}"
+                            f"&outputsize=compact"
+                            f"&apikey={ALPHA_API_KEY}"
                         )
                     
-                        if df.empty:
+                        print("DOWNLOAD ALPHA VANTAGE")
                     
-                            print(f"❌ NO DATA -> {ticker}")
+                        r = requests.get(
+                            url,
+                            timeout=20
+                        )
+                    
+                        print("STATUS =", r.status_code)
+                    
+                        data = r.json()
+                    
+                        if "Time Series (Daily)" not in data:
+                    
+                            print(data)
                     
                             continue
                     
-                        df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
+                        rows = []
+                    
+                        for date, x in reversed(
+                            list(data["Time Series (Daily)"].items())
+                        ):
+                    
+                            rows.append({
+                    
+                                "Open": float(x["1. open"]),
+                    
+                                "High": float(x["2. high"]),
+                    
+                                "Low": float(x["3. low"]),
+                    
+                                "Close": float(x["4. close"]),
+                    
+                                "Volume": float(x["5. volume"])
+                    
+                            })
+                    
+                        df = pd.DataFrame(rows)
                     
                         print(f"📊 DOWNLOAD OK {ticker}")
-                        print(f"📊 ROWS = {len(df)}")
+                        print(f"ROWS = {len(df)}")
                     
                     except Exception as e:
                     
-                        print(f"❌ DOWNLOAD ERROR {ticker}: {repr(e)}")
-                    
-                        continue
+                        print(f"❌ DOWNLOAD ERROR {ticker}: {e}")
+
+    continue
                     
 
                     # =========================================
