@@ -13,7 +13,6 @@ from datetime import timedelta
 TWELVE_API_KEY = os.getenv("TWELVE_API_KEY")
 ALPHA_API_KEY = os.getenv("ALPHA_API_KEY")
 
-
 # =========================================
 # TELEGRAM
 # =========================================
