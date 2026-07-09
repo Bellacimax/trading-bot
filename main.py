@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from flask import Flask, jsonify, render_template_string, send_file
 
+
 # =========================================
 # LOGGING
 # =========================================
