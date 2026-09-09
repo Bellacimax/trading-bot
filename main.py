@@ -1178,6 +1178,82 @@ def analyze_signal(ticker, df):
         return {"action": "SELL"}
     return {"action": "NEUTRAL"}
 
+def check_positions(df_by_ticker):
+    """Controlla se i trade attivi hanno toccato Stop o Target"""
+    to_close = []
+    with state_lock:
+        for ticker, pos in list(active_trades.items()):
+            df = df_by_ticker.get(ticker)
+            if df is None or df.empty: 
+                continue
+            
+            last = df.iloc[-1]
+            high, low = float(last["High"]), float(last["Low"])
+            hit, exit_price = None, None
+            
+            if pos["side"] == "BUY":
+                if low <= pos["stop"]: 
+                    hit, exit_price = "STOP", pos["stop"]
+                elif high >= pos["target"]: 
+                    hit, exit_price = "TARGET", pos["target"]
+            else:  # SELL
+                if high >= pos["stop"]: 
+                    hit, exit_price = "STOP", pos["stop"]
+                elif low <= pos["target"]: 
+                    hit, exit_price = "TARGET", pos["target"]
+            
+            if hit:
+                qty = pos["qty"]
+                pnl = (exit_price - pos["entry"]) * qty if pos["side"] == "BUY" else (pos["entry"] - exit_price) * qty
+                result = "WIN" if pnl > 0 else "LOSS"
+                to_close.append((ticker, pos, exit_price, pnl, result, hit))
+    
+    # Esegue le chiusure
+    for ticker, pos, exit_price, pnl, result, hit in to_close:
+        with state_lock:
+            active_trades.pop(ticker, None)
+            traded_today.add(ticker)
+            stats["wins" if result == "WIN" else "losses"] += 1
+            stats["pnl"] += pnl
+            daily_stats["pnl"] += pnl
+            daily_stats["trades"] += 1
+            
+            # 1. Salva nel Trade History
+            save_trade(ticker, pos["side"], pos["entry"], exit_price, pnl, 2, result, hit)
+            
+            # 2. Aggiorna anche il Signals Log da PENDING a WIN/LOSS
+            update_signal_log(ticker, exit_price, pnl, result, hit)
+            
+        # 3. Invia Notifica Telegram
+        send_telegram(f"{'✅' if result=='WIN' else '❌'} *{hit} {pos['side']} {ticker}*\nEntry: {round(pos['entry'],2)} | Exit: {round(exit_price,2)}\n💵 PnL: {round(pnl, 2)} €")
+        log.info(f"{hit} {ticker} -> {result} ({round(pnl, 2)}€)")
+
+
+def update_signal_log(ticker, exit_price, pnl, result, exit_reason):
+    """Aggiorna il file signals_log.csv quando un trade si chiude"""
+    if not os.path.exists(SIGNALS_FILE): 
+        return
+    try:
+        df = pd.read_csv(SIGNALS_FILE)
+        # Trova l'ultima riga PENDING per questo ticker
+        mask = (df['ticker'] == ticker) & (df['result'] == 'PENDING')
+        if mask.any():
+            idx = df[mask].index[-1]
+            df.at[idx, 'result'] = result
+            df.at[idx, 'exit_price'] = round(exit_price, 2)
+            df.at[idx, 'pnl'] = round(pnl, 2)
+            # Calcola la % sul capitale impiegato
+            entry = float(df.at[idx, 'entry'])
+            qty = max(1, int(CAPITALE_PER_TRADE / entry))
+            pnl_pct = (pnl / (entry * qty)) * 100
+            df.at[idx, 'pnl_pct'] = round(pnl_pct, 2)
+            df.at[idx, 'exit_timestamp'] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+            df.at[idx, 'exit_reason'] = exit_reason
+            df.to_csv(SIGNALS_FILE, index=False)
+            log.info(f"📝 signals_log.csv aggiornato per {ticker}: {result}")
+    except Exception as e:
+        log.error(f"Errore aggiornamento signals_log: {e}")
+
 def analyze_ticker(ticker, df):
     if not BOT_ENABLED:
         return
