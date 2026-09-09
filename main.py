@@ -1048,12 +1048,19 @@ def generate_chart_image(ticker: str, df, side: str, entry: float, stop: float, 
         return None
 
 # =========================================
-# DATA DOWNLOAD
+# DATA DOWNLOAD (🆕 OTTIMIZZATA PER MEMORIA)
 # =========================================
 def download_ticker(ticker: str, max_retries=3):
     cache_key = f"{ticker}_{datetime.now().date()}"
     if not hasattr(download_ticker, 'cache'):
         download_ticker.cache = {}
+    
+    # 🆕 FIX MEMORIA CRITICO: Limita la cache agli ultimi 60 ticker.
+    # Senza questo, la cache cresce all'infinito fino a far crashare Render (512MB).
+    if len(download_ticker.cache) > 60:
+        oldest_keys = list(download_ticker.cache.keys())[:len(download_ticker.cache) - 60]
+        for key in oldest_keys:
+            del download_ticker.cache[key]
     
     if cache_key in download_ticker.cache:
         return download_ticker.cache[cache_key]
@@ -1079,7 +1086,10 @@ def download_ticker(ticker: str, max_retries=3):
         try:
             delay = 1 + random.random() * 2
             time.sleep(delay)
-            df = yf.download(ticker, period="1y", interval="1d", progress=False)
+            # 🆕 FIX MEMORIA: Ridotto periodo da "1y" a "6mo". 
+            # Gli indicatori (EMA200, ecc.) funzionano perfettamente con 6 mesi di dati, 
+            # ma usano la METÀ della RAM.
+            df = yf.download(ticker, period="6mo", interval="1d", progress=False)
             if df.empty:
                 return None
             df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
