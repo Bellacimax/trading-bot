@@ -209,20 +209,17 @@ def get_signals_stats():
         return {"total": 0, "signals": []}
 
 def monitor_signals():
-    log.info("🔍 Signal monitor started")
+    log.info("🔍 Signal monitor started (solo gestione TIMEOUT)")
     while not stop_event.is_set():
         try:
             if not os.path.exists(SIGNALS_FILE):
-                stop_event.wait(300)
+                stop_event.wait(600)
                 continue
             
             df = pd.read_csv(SIGNALS_FILE)
-            if df.empty:
-                stop_event.wait(300)
+            if df.empty or "result" not in df.columns:
+                stop_event.wait(600)
                 continue
-            
-            if "result" not in df.columns:
-                df["result"] = "PENDING"
             
             pending = df[df["result"] == "PENDING"]
             if pending.empty:
@@ -230,60 +227,22 @@ def monitor_signals():
                 continue
             
             now = datetime.now(timezone.utc)
+            updated = False
             for idx, row in pending.iterrows():
-                ticker = row["ticker"]
-                side = row["side"]
-                entry = float(row["entry"])
-                stop = float(row["stop"])
-                target = float(row["target"])
                 signal_time = datetime.strptime(row["timestamp"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-                
+                # Se il segnale è aperto da più di SIGNAL_TIMEOUT_DAYS, lo chiude
                 if (now - signal_time).days >= SIGNAL_TIMEOUT_DAYS:
                     df.at[idx, "result"] = "EXPIRED"
                     df.at[idx, "exit_reason"] = "TIMEOUT"
                     df.at[idx, "exit_timestamp"] = now.strftime("%Y-%m-%d %H:%M:%S")
-                    continue
-                
-                try:
-                    current_df = download_ticker(ticker)
-                    if current_df is None or current_df.empty:
-                        continue
-                    last = current_df.iloc[-1]
-                    high, low = float(last["High"]), float(last["Low"])
-                except Exception as e:
-                    log.warning(f"Error downloading {ticker} for signal monitor: {e}")
-                    continue
-                
-                hit = None
-                exit_price = None
-                exit_reason = None
-                
-                if side == "BUY":
-                    if low <= stop:
-                        hit, exit_price, exit_reason = "LOSS", stop, "STOP"
-                    elif high >= target:
-                        hit, exit_price, exit_reason = "WIN", target, "TARGET"
-                else:
-                    if high >= stop:
-                        hit, exit_price, exit_reason = "LOSS", stop, "STOP"
-                    elif low <= target:
-                        hit, exit_price, exit_reason = "WIN", target, "TARGET"
-                
-                if hit:
-                    pnl = (exit_price - entry) if side == "BUY" else (entry - exit_price)
-                    pnl_pct = (pnl / entry) * 100
-                    df.at[idx, "result"] = hit
-                    df.at[idx, "exit_price"] = round(exit_price, 2)
-                    df.at[idx, "pnl"] = round(pnl, 2)
-                    df.at[idx, "pnl_pct"] = round(pnl_pct, 2)
-                    df.at[idx, "exit_timestamp"] = now.strftime("%Y-%m-%d %H:%M:%S")
-                    df.at[idx, "exit_reason"] = exit_reason
-                    log.info(f"✅ Segnale chiuso: {side} {ticker} -> {hit} ({round(pnl, 2)}€)")
+                    updated = True
+                    log.info(f"⏰ Segnale {row['ticker']} scaduto (TIMEOUT)")
             
-            df.to_csv(SIGNALS_FILE, index=False)
+            if updated:
+                df.to_csv(SIGNALS_FILE, index=False)
         except Exception as e:
             log.error(f"Signal monitor error: {e}")
-        stop_event.wait(600)
+        stop_event.wait(600)  # Controlla le scadenze ogni 10 minuti
 
 # =========================================
 # MARKET FILTER
