@@ -129,19 +129,24 @@ def send_telegram_document(file_path: str, caption: str = ""):
 # =========================================
 HISTORY_FILE = "trade_history.csv"
 
-def save_trade(ticker, side, entry, exit_price, pnl, rr, result):
+def save_trade(ticker, side, entry, exit_price, pnl, rr, result, exit_reason):
+    """Salva il trade chiuso nel file trade_history.csv"""
+    qty = max(1, int(CAPITALE_PER_TRADE / entry))
+    pnl_pct = (pnl / (entry * qty)) * 100
     row = {
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
         "ticker": ticker,
         "side": side,
         "entry": round(entry, 2),
         "exit": round(exit_price, 2),
         "pnl": round(pnl, 2),
-        "rr": rr,
-        "result": result,
-        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+        "pnl_percent": round(pnl_pct, 2),
+        "status": result,
+        "exit_reason": exit_reason
     }
     exists = os.path.exists(HISTORY_FILE)
-    pd.DataFrame([row]).to_csv(HISTORY_FILE, mode="a", header=not exists, index=False)
+    pd.DataFrame([row]).to_csv(HISTORY_FILE, mode="a", header=not exists, index=False,
+        columns=["date", "ticker", "side", "entry", "exit", "pnl", "pnl_percent", "status", "exit_reason"])
 
 # =========================================
 # SIGNALS LOG
