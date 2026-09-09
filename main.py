@@ -268,19 +268,49 @@ def update_signal_log(ticker, exit_price, pnl, result, exit_reason):
 # =========================================
 def check_market_conditions():
     try:
-        time.sleep(2)
-        spy = yf.Ticker("SPY").history(period="5d")
-        if spy.empty or len(spy) < 2: return True, "Dati SPY non disponibili"
-        time.sleep(2)
-        spy_last = float(spy['Close'].iloc[-1]); spy_prev = float(spy['Close'].iloc[-2])
-        spy_change = ((spy_last - spy_prev) / spy_prev) * 100
-        vix = yf.Ticker("^VIX").history(period="5d")
-        vix_level = float(vix['Close'].iloc[-1]) if not vix.empty else 20.0
+        if TWELVE_DATA_API_KEY:
+            # Usa Twelve Data per SPY
+            url_spy = f"https://api.twelvedata.com/time_series?symbol=SPY&interval=1day&outputsize=5&apikey={TWELVE_DATA_API_KEY}"
+            r_spy = requests.get(url_spy, timeout=10)
+            data_spy = r_spy.json()
+            
+            if "values" not in data_spy or len(data_spy["values"]) < 2:
+                return True, "Dati SPY non disponibili"
+            
+            spy_last = float(data_spy["values"][0]["close"])
+            spy_prev = float(data_spy["values"][1]["close"])
+            spy_change = ((spy_last - spy_prev) / spy_prev) * 100
+            
+            # Usa Twelve Data per VIX
+            url_vix = f"https://api.twelvedata.com/time_series?symbol=VIX&interval=1day&outputsize=1&apikey={TWELVE_DATA_API_KEY}"
+            r_vix = requests.get(url_vix, timeout=10)
+            data_vix = r_vix.json()
+            
+            vix_level = 20.0
+            if "values" in data_vix and len(data_vix["values"]) > 0:
+                vix_level = float(data_vix["values"][0]["close"])
+        else:
+            # Fallback a Yahoo Finance (solo se non hai Twelve Data)
+            time.sleep(2)
+            spy = yf.Ticker("SPY").history(period="5d")
+            if spy.empty or len(spy) < 2:
+                return True, "Dati SPY non disponibili"
+            time.sleep(2)
+            spy_last = float(spy['Close'].iloc[-1])
+            spy_prev = float(spy['Close'].iloc[-2])
+            spy_change = ((spy_last - spy_prev) / spy_prev) * 100
+            
+            vix = yf.Ticker("^VIX").history(period="5d")
+            vix_level = float(vix['Close'].iloc[-1]) if not vix.empty else 20.0
         
-        if spy_change < -2.0: return False, f"🔴 Mercato in forte ribasso ({spy_change:.2f}%)"
-        elif vix_level > 30: return False, f"🔴 Volatilità troppo alta (VIX: {vix_level:.1f})"
-        elif spy_change < -1.0: return True, f"🟡 Mercato in leggero ribasso ({spy_change:.2f}%) - Cautela"
-        else: return True, f"🟢 Mercato OK (SPY: {spy_change:+.2f}%, VIX: {vix_level:.1f})"
+        if spy_change < -2.0:
+            return False, f" Mercato in forte ribasso ({spy_change:.2f}%)"
+        elif vix_level > 30:
+            return False, f"🔴 Volatilità troppo alta (VIX: {vix_level:.1f})"
+        elif spy_change < -1.0:
+            return True, f"🟡 Mercato in leggero ribasso ({spy_change:.2f}%) - Cautela"
+        else:
+            return True, f"🟢 Mercato OK (SPY: {spy_change:+.2f}%, VIX: {vix_level:.1f})"
     except Exception as e:
         log.error(f"Error checking market conditions: {e}")
         return True, "Errore controllo mercato - Procedo in sicurezza"
