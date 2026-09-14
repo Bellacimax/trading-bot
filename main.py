@@ -246,7 +246,6 @@ def check_market_conditions():
         else:
             return True, "Twelve Data non configurato"
         
-        # 🆕 FILTRI PIÙ STRICTI
         if spy_change < -1.5: return False, f" Mercato in ribasso ({spy_change:.2f}%) - Trading sospeso"
         elif vix_level > 25: return False, f" Volatilità alta (VIX: {vix_level:.1f})"
         elif spy_change < -1.0: return True, f"🟡 Mercato in leggero ribasso ({spy_change:.2f}%) - Cautela"
@@ -275,11 +274,11 @@ def send_daily_report():
     
     winrate = round((wins_today / trades_today) * 100, 1) if trades_today > 0 else 0
     msg = (f"📊 *REPORT GIORNALIERO*\n━━━━━━━━━━━━━━━━━━\n📅 Data: {today.strftime('%d/%m/%Y')}\n"
-           f"🎯 Trade: {trades_today}\n✅ Wins: {wins_today}\n Losses: {losses_today}\n Winrate: {winrate}%\n"
+           f" Trade: {trades_today}\n✅ Wins: {wins_today}\n Losses: {losses_today}\n Winrate: {winrate}%\n"
            f"💰 PnL Oggi: {round(pnl_today, 2)} €\n━━━━━━━━━━━━━━━━━━\n💵 PnL Totale: {round(stats['pnl'], 2)} €\n"
            f"🏆 Record: {stats['wins']}W - {stats['losses']}L")
     send_telegram(msg)
-    if os.path.exists(SIGNALS_FILE): send_telegram_document(SIGNALS_FILE, f"💾 Backup segnali")
+    if os.path.exists(SIGNALS_FILE): send_telegram_document(SIGNALS_FILE, f" Backup segnali")
     if os.path.exists(HISTORY_FILE): send_telegram_document(HISTORY_FILE, f"💾 Backup trade history")
 
 def daily_report_loop():
@@ -303,7 +302,7 @@ def keep_alive_loop():
     while not stop_event.is_set():
         try:
             requests.get("http://localhost:10000/health", timeout=5)
-            log.info("🔄 Keep-alive ping OK")
+            log.info(" Keep-alive ping OK")
         except: pass
         stop_event.wait(300)
 
@@ -342,7 +341,7 @@ def handle_command(text: str):
         for ticker, pos in active_trades.items():
             emoji = "🟢" if pos["side"] == "BUY" else ""
             msg += f"{emoji} *{pos['side']} {ticker}*\n   Entry: {round(pos['entry'], 2)}\n  🛑 Stop: {round(pos['stop'], 2)}\n" \
-                   f"  🎯 Target: {round(pos['target'], 2)}\n  📦 Qty: {pos['qty']} azioni\n  ⏰ Aperto: {pos['ts'][:16]}\n━━━━━━━━━━━━━━━━━━\n"
+                   f"  🎯 Target: {round(pos['target'], 2)}\n  📦 Qty: {pos['qty']} azioni\n   Aperto: {pos['ts'][:16]}\n━━━━━━━━━━━━━━━━━━\n"
         send_telegram(msg)
     elif cmd == "/stop": BOT_ENABLED = False; send_telegram("🔴 Bot fermato")
     elif cmd == "/start": BOT_ENABLED = True; send_telegram("🟢 Bot avviato")
@@ -478,7 +477,7 @@ def check_positions(df_by_ticker):
                         pos["stop"] = new_stop; pos["trailing_updated"] = True
                         send_telegram(f"🔒 *Trailing Stop {ticker}*\nStop spostato a breakeven: {round(new_stop, 2)}\nPnL attuale: {pnl_pct:+.2f}%")
             
-            # 3. 🆕 ALERT PROSSIMITÀ
+            # 3.  ALERT PROSSIMITÀ
             if pos["side"] == "BUY":
                 dist_target = ((pos["target"] - close) / pos["target"]) * 100
                 dist_stop = ((close - pos["stop"]) / pos["stop"]) * 100
