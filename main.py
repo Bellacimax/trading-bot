@@ -1,3 +1,4 @@
+# FORZA AGGIORNAMENTO RENDER - VERSIONE 14 REALE
 import random
 import os
 import time
