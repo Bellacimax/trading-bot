@@ -1,4 +1,3 @@
-# FORZA AGGIORNAMENTO RENDER - VERSIONE 14 REALE
 import random
 import os
 import time
@@ -333,8 +332,8 @@ def handle_command(text: str):
     if cmd == "/status":
         _, market_msg = check_market_conditions()
         send_telegram(f"🤖 *STATO BOT*\n━━━━━━━━━━━━━━━━━━\n{'🟢 ATTIVO' if BOT_ENABLED else '🔴 DISATTIVATO'}\n"
-                      f"📊 Trade attivi: {len(active_trades)}/{MAX_TRADES}\n💰 PnL totale: {round(stats['pnl'], 2)} €\n"
-                      f"🏆 Record: {stats['wins']}W - {stats['losses']}L\n━━━━━━━━━━━━━━━━━━\n{market_msg}")
+                      f" Trade attivi: {len(active_trades)}/{MAX_TRADES}\n💰 PnL totale: {round(stats['pnl'], 2)} €\n"
+                      f" Record: {stats['wins']}W - {stats['losses']}L\n━━━━━━━━━━━━━━━━━━\n{market_msg}")
     elif cmd == "/trades":
         if not active_trades:
             send_telegram("📊 *TRADE ATTIVI*\n━━━━━━━━━━━━━━━━━━\nNessun trade aperto al momento"); return
@@ -346,7 +345,7 @@ def handle_command(text: str):
         send_telegram(msg)
     elif cmd == "/stop": BOT_ENABLED = False; send_telegram("🔴 Bot fermato")
     elif cmd == "/start": BOT_ENABLED = True; send_telegram("🟢 Bot avviato")
-    elif cmd == "/help": send_telegram("🤖 *COMANDI*\n/status, /trades, /start, /stop, /help")
+    elif cmd == "/help": send_telegram(" *COMANDI*\n/status, /trades, /start, /stop, /help")
 
 # =========================================
 # INDICATORS & CHARTS
@@ -548,7 +547,7 @@ def analyze_ticker(ticker, df):
     
     with state_lock:
         if ticker in active_trades or len(active_trades) >= MAX_TRADES:
-            log.info(f"⏸️ Slot pieni ({len(active_trades)}/{MAX_TRADES}) - Skip {ticker}")
+            log.info(f"️ Slot pieni ({len(active_trades)}/{MAX_TRADES}) - Skip {ticker}")
             return
         log_signal(ticker, side, price, stop, target)
         logged_today.add(ticker)
@@ -558,7 +557,7 @@ def analyze_ticker(ticker, df):
     
     sr = calculate_support_resistance(df)
     msg = (f"🚀 *{side} {ticker}*\n━━━━━━━━━━━━━━━━━━\n💰 *Entry:* {round(price, 2)}\n🛑 *Stop:* {round(stop, 2)}\n"
-           f"🎯 *Target:* {round(target, 2)}\n📊 *R/R:* 1:2 | 💼 *Qty:* {qty}\n━━━━━━━━━━━━━━━━━━\n"
+           f" *Target:* {round(target, 2)}\n📊 *R/R:* 1:2 | 💼 *Qty:* {qty}\n━━━━━━━━━━━━━━━━━━\n"
            f"📈 *S1:* {sr['S1']} | *S2:* {sr['S2']}\n📉 *R1:* {sr['R1']} | *R2:* {sr['R2']}")
     send_telegram(msg)
     chart_img = generate_chart_image(ticker, df, side, price, stop, target)
