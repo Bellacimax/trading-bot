@@ -1,6 +1,5 @@
 import random
 import os
-import csv
 import time
 import signal
 import logging
@@ -8,7 +7,6 @@ import threading
 import gc
 from datetime import datetime, timezone, timedelta
 import io
-import base64
 import requests
 import json
 import pandas as pd
@@ -16,8 +14,7 @@ import yfinance as yf
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from flask import Flask, jsonify, render_template_string, send_file
+from flask import Flask, jsonify
 
 # =========================================
 # LOGGING
@@ -36,21 +33,13 @@ TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY")
 CAPITALE_PER_TRADE = int(os.getenv("CAPITALE_PER_TRADE", "1000"))
-MAX_TRADES = int(os.getenv("MAX_TRADES", "5"))
+MAX_TRADES = int(os.getenv("MAX_TRADES", "7"))
 MIN_VOLUME_RATIO = float(os.getenv("MIN_VOLUME_RATIO", "0.7"))
 COOLDOWN_MINUTES = int(os.getenv("COOLDOWN_MINUTES", "60"))
-LOOP_INTERVAL = int(os.getenv("LOOP_INTERVAL", "180"))
+LOOP_INTERVAL = int(os.getenv("LOOP_INTERVAL", "1800"))
 SIGNAL_TIMEOUT_DAYS = int(os.getenv("SIGNAL_TIMEOUT_DAYS", "5"))
 MAX_DAILY_LOSS = float(os.getenv("MAX_DAILY_LOSS", "200"))
 BOT_ENABLED = True
-
-# =========================================
-# FASE 1: ALERT, PAPER TRADING & SCREENER
-# =========================================
-PAPER_MODE = False
-ALERTS_FILE = "price_alerts.json"
-PAPER_HISTORY_FILE = "paper_trade_history.csv"
-price_alerts = {}
 
 # =========================================
 # STATE
@@ -58,8 +47,8 @@ price_alerts = {}
 state_lock = threading.Lock()
 active_trades = {}
 cooldown_tickers = {}
-traded_today = set()       # 🆕 Traccia i trade chiusi oggi
-logged_today = set()       # 🆕 Traccia i ticker già loggati oggi (Anti-Duplicati)
+traded_today = set()
+logged_today = set()
 bad_tickers = set()
 stats = {"wins": 0, "losses": 0, "pnl": 0.0}
 daily_stats = {"date": datetime.now().date(), "pnl": 0.0, "trades": 0}
@@ -84,13 +73,10 @@ log.info(f"Caricati {len(TICKERS)} tickers")
 # TELEGRAM
 # =========================================
 def send_telegram(msg: str, parse_mode="Markdown"):
-    if not TOKEN or not CHAT_ID:
-        log.warning("Telegram non configurato")
-        return
+    if not TOKEN or not CHAT_ID: return
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-        r = requests.get(url, params={"chat_id": CHAT_ID, "text": msg, "parse_mode": parse_mode}, timeout=10)
-        log.info(f"Telegram status: {r.status_code}")
+        requests.get(url, params={"chat_id": CHAT_ID, "text": msg, "parse_mode": parse_mode}, timeout=10)
     except Exception as e:
         log.error(f"Telegram error: {e}")
 
@@ -117,33 +103,22 @@ def send_telegram_document(file_path: str, caption: str = ""):
         log.error(f"Telegram document error: {e}")
 
 # =========================================
-# TRADE HISTORY
+# TRADE HISTORY & SIGNALS LOG
 # =========================================
 HISTORY_FILE = "trade_history.csv"
+SIGNALS_FILE = "signals_log.csv"
 
 def save_trade(ticker, side, entry, exit_price, pnl, rr, result, exit_reason):
-    """Salva il trade chiuso nel file trade_history.csv"""
     qty = max(1, int(CAPITALE_PER_TRADE / entry))
     pnl_pct = (pnl / (entry * qty)) * 100
     row = {
         "date": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
-        "ticker": ticker,
-        "side": side,
-        "entry": round(entry, 2),
-        "exit": round(exit_price, 2),
-        "pnl": round(pnl, 2),
-        "pnl_percent": round(pnl_pct, 2),
-        "status": result,
-        "exit_reason": exit_reason
+        "ticker": ticker, "side": side, "entry": round(entry, 2), "exit": round(exit_price, 2),
+        "pnl": round(pnl, 2), "pnl_percent": round(pnl_pct, 2), "status": result, "exit_reason": exit_reason
     }
     exists = os.path.exists(HISTORY_FILE)
     pd.DataFrame([row]).to_csv(HISTORY_FILE, mode="a", header=not exists, index=False,
         columns=["date", "ticker", "side", "entry", "exit", "pnl", "pnl_percent", "status", "exit_reason"])
-
-# =========================================
-# SIGNALS LOG
-# =========================================
-SIGNALS_FILE = "signals_log.csv"
 
 def log_signal(ticker, side, entry, stop, target):
     row = {
@@ -153,7 +128,7 @@ def log_signal(ticker, side, entry, stop, target):
     }
     exists = os.path.exists(SIGNALS_FILE)
     pd.DataFrame([row]).to_csv(SIGNALS_FILE, mode="a", header=not exists, index=False)
-    log.info(f"📝 Segnale registrato: {side} {ticker} @ {entry}")
+    log.info(f" Segnale registrato: {side} {ticker} @ {entry}")
 
 def get_signals_stats():
     if not os.path.exists(SIGNALS_FILE):
@@ -162,7 +137,6 @@ def get_signals_stats():
         df = pd.read_csv(SIGNALS_FILE)
         if df.empty: return {"total": 0, "signals": []}
         if "result" not in df.columns: df["result"] = "PENDING"
-        
         wins = df[df["result"] == "WIN"]; losses = df[df["result"] == "LOSS"]
         pending = df[df["result"] == "PENDING"]; expired = df[df["result"] == "EXPIRED"]
         total_closed = len(wins) + len(losses)
@@ -171,7 +145,6 @@ def get_signals_stats():
         avg_loss = round(abs(losses["pnl"].astype(float).mean()), 2) if len(losses) > 0 else 0
         profit_factor = round(avg_win / avg_loss, 2) if avg_loss > 0 else 0
         total_pnl = round(df["pnl"].astype(float).sum(), 2) if "pnl" in df.columns else 0
-        
         return {"total": len(df), "wins": len(wins), "losses": len(losses), "pending": len(pending), "expired": len(expired),
                 "winrate": winrate, "profit_factor": profit_factor, "avg_win": avg_win, "avg_loss": avg_loss, "total_pnl": total_pnl, "signals": df.tail(50).to_dict("records")}
     except Exception as e:
@@ -179,7 +152,7 @@ def get_signals_stats():
         return {"total": 0, "signals": []}
 
 def monitor_signals():
-    log.info("🔍 Signal monitor started (solo gestione TIMEOUT)")
+    log.info(" Signal monitor started (solo gestione TIMEOUT)")
     while not stop_event.is_set():
         try:
             if not os.path.exists(SIGNALS_FILE):
@@ -208,33 +181,26 @@ def monitor_signals():
         stop_event.wait(600)
 
 def load_active_trades_from_csv():
-    """Recupera i trade PENDING dal CSV all'avvio del bot"""
     global active_trades, logged_today
-    if not os.path.exists(SIGNALS_FILE):
-        log.info("Nessun file signals_log.csv trovato")
-        return
+    if not os.path.exists(SIGNALS_FILE): return
     try:
         df = pd.read_csv(SIGNALS_FILE)
         if df.empty: return
-        
         pending = df[df['result'] == 'PENDING']
         if pending.empty: return
-        
         loaded_count = 0
         for idx, row in pending.iterrows():
             ticker = str(row['ticker']).strip()
             if ticker not in active_trades:
                 active_trades[ticker] = {
-                    "side": str(row['side']).strip(),
-                    "entry": float(row['entry']),
-                    "stop": float(row['stop']),
-                    "target": float(row['target']),
+                    "side": str(row['side']).strip(), "entry": float(row['entry']),
+                    "stop": float(row['stop']), "target": float(row['target']),
                     "qty": max(1, int(CAPITALE_PER_TRADE / float(row['entry']))),
-                    "ts": str(row['timestamp'])
+                    "ts": str(row['timestamp']), 
+                    "alerted_target": False, "alerted_stop": False, "trailing_updated": False
                 }
                 loaded_count += 1
                 logged_today.add(ticker)
-        
         if loaded_count > 0:
             log.info(f"♻️ Recupero {loaded_count} trade pendenti dal CSV all'avvio")
             send_telegram(f"♻️ Recuperati {loaded_count} trade pendenti all'avvio")
@@ -242,7 +208,6 @@ def load_active_trades_from_csv():
         log.error(f"Errore recupero trade pendenti: {e}")
 
 def update_signal_log(ticker, exit_price, pnl, result, exit_reason):
-    """Aggiorna il file signals_log.csv quando un trade si chiude"""
     if not os.path.exists(SIGNALS_FILE): return
     try:
         df = pd.read_csv(SIGNALS_FILE)
@@ -264,65 +229,39 @@ def update_signal_log(ticker, exit_price, pnl, result, exit_reason):
         log.error(f"Errore aggiornamento signals_log: {e}")
 
 # =========================================
-# MARKET FILTER
+# MARKET FILTER ( PIÙ STRICTO & TWELVE DATA)
 # =========================================
 def check_market_conditions():
     try:
         if TWELVE_DATA_API_KEY:
-            # Usa Twelve Data per SPY
             url_spy = f"https://api.twelvedata.com/time_series?symbol=SPY&interval=1day&outputsize=5&apikey={TWELVE_DATA_API_KEY}"
-            r_spy = requests.get(url_spy, timeout=10)
-            data_spy = r_spy.json()
-            
-            if "values" not in data_spy or len(data_spy["values"]) < 2:
-                return True, "Dati SPY non disponibili"
-            
-            spy_last = float(data_spy["values"][0]["close"])
-            spy_prev = float(data_spy["values"][1]["close"])
+            r_spy = requests.get(url_spy, timeout=10); data_spy = r_spy.json()
+            if "values" not in data_spy or len(data_spy["values"]) < 2: return True, "Dati SPY non disponibili"
+            spy_last = float(data_spy["values"][0]["close"]); spy_prev = float(data_spy["values"][1]["close"])
             spy_change = ((spy_last - spy_prev) / spy_prev) * 100
             
-            # Usa Twelve Data per VIX
             url_vix = f"https://api.twelvedata.com/time_series?symbol=VIX&interval=1day&outputsize=1&apikey={TWELVE_DATA_API_KEY}"
-            r_vix = requests.get(url_vix, timeout=10)
-            data_vix = r_vix.json()
-            
-            vix_level = 20.0
-            if "values" in data_vix and len(data_vix["values"]) > 0:
-                vix_level = float(data_vix["values"][0]["close"])
+            r_vix = requests.get(url_vix, timeout=10); data_vix = r_vix.json()
+            vix_level = float(data_vix["values"][0]["close"]) if "values" in data_vix and data_vix["values"] else 20.0
         else:
-            # Fallback a Yahoo Finance (solo se non hai Twelve Data)
-            time.sleep(2)
-            spy = yf.Ticker("SPY").history(period="5d")
-            if spy.empty or len(spy) < 2:
-                return True, "Dati SPY non disponibili"
-            time.sleep(2)
-            spy_last = float(spy['Close'].iloc[-1])
-            spy_prev = float(spy['Close'].iloc[-2])
-            spy_change = ((spy_last - spy_prev) / spy_prev) * 100
-            
-            vix = yf.Ticker("^VIX").history(period="5d")
-            vix_level = float(vix['Close'].iloc[-1]) if not vix.empty else 20.0
+            return True, "Twelve Data non configurato"
         
-        if spy_change < -2.0:
-            return False, f" Mercato in forte ribasso ({spy_change:.2f}%)"
-        elif vix_level > 30:
-            return False, f"🔴 Volatilità troppo alta (VIX: {vix_level:.1f})"
-        elif spy_change < -1.0:
-            return True, f"🟡 Mercato in leggero ribasso ({spy_change:.2f}%) - Cautela"
-        else:
-            return True, f"🟢 Mercato OK (SPY: {spy_change:+.2f}%, VIX: {vix_level:.1f})"
+        # 🆕 FILTRI PIÙ STRICTI
+        if spy_change < -1.5: return False, f" Mercato in ribasso ({spy_change:.2f}%) - Trading sospeso"
+        elif vix_level > 25: return False, f" Volatilità alta (VIX: {vix_level:.1f})"
+        elif spy_change < -1.0: return True, f"🟡 Mercato in leggero ribasso ({spy_change:.2f}%) - Cautela"
+        else: return True, f"🟢 Mercato OK (SPY: {spy_change:+.2f}%, VIX: {vix_level:.1f})"
     except Exception as e:
         log.error(f"Error checking market conditions: {e}")
         return True, "Errore controllo mercato - Procedo in sicurezza"
 
 # =========================================
-# DAILY REPORT
+# DAILY REPORT & KEEP ALIVE
 # =========================================
 def send_daily_report():
     log.info("📊 Generazione report giornaliero...")
     today = datetime.now().date()
     trades_today = pnl_today = wins_today = losses_today = 0
-    
     if os.path.exists(HISTORY_FILE):
         try:
             df = pd.read_csv(HISTORY_FILE)
@@ -332,22 +271,16 @@ def send_daily_report():
                 trades_today = len(today_trades); pnl_today = today_trades["pnl"].sum()
                 wins_today = len(today_trades[today_trades["status"] == "WIN"])
                 losses_today = len(today_trades[today_trades["status"] == "LOSS"])
-        except Exception as e: log.error(f"Error reading history for report: {e}")
+        except Exception as e: log.error(f"Error reading history: {e}")
     
     winrate = round((wins_today / trades_today) * 100, 1) if trades_today > 0 else 0
     msg = (f"📊 *REPORT GIORNALIERO*\n━━━━━━━━━━━━━━━━━━\n📅 Data: {today.strftime('%d/%m/%Y')}\n"
-           f"🎯 Trade: {trades_today}\n✅ Wins: {wins_today}\n❌ Losses: {losses_today}\n📈 Winrate: {winrate}%\n"
+           f"🎯 Trade: {trades_today}\n✅ Wins: {wins_today}\n Losses: {losses_today}\n Winrate: {winrate}%\n"
            f"💰 PnL Oggi: {round(pnl_today, 2)} €\n━━━━━━━━━━━━━━━━━━\n💵 PnL Totale: {round(stats['pnl'], 2)} €\n"
            f"🏆 Record: {stats['wins']}W - {stats['losses']}L")
     send_telegram(msg)
-    
-    if os.path.exists(SIGNALS_FILE):
-        send_telegram_document(SIGNALS_FILE, f"💾 Backup segnali del {today.strftime('%d/%m/%Y')}")
-    if os.path.exists(HISTORY_FILE):
-        send_telegram_document(HISTORY_FILE, f"💾 Backup trade history del {today.strftime('%d/%m/%Y')}")
-    
-    equity_img = generate_equity_curve()
-    if equity_img: send_telegram_photo(equity_img, "📈 Equity Curve - Andamento PnL")
+    if os.path.exists(SIGNALS_FILE): send_telegram_document(SIGNALS_FILE, f"💾 Backup segnali")
+    if os.path.exists(HISTORY_FILE): send_telegram_document(HISTORY_FILE, f"💾 Backup trade history")
 
 def daily_report_loop():
     log.info("📊 Daily report scheduler started")
@@ -395,29 +328,28 @@ def handle_telegram_commands():
         stop_event.wait(5)
 
 def handle_command(text: str):
-    global BOT_ENABLED, PAPER_MODE
+    global BOT_ENABLED
     cmd = text.lower().strip()
     if cmd == "/status":
         _, market_msg = check_market_conditions()
         send_telegram(f"🤖 *STATO BOT*\n━━━━━━━━━━━━━━━━━━\n{'🟢 ATTIVO' if BOT_ENABLED else '🔴 DISATTIVATO'}\n"
-                      f"Modalità: {'PAPER 📝' if PAPER_MODE else 'REAL 💰'}\n📊 Trade attivi: {len(active_trades)}/{MAX_TRADES}\n"
-                      f"💰 PnL totale: {round(stats['pnl'], 2)} €\n🏆 Record: {stats['wins']}W - {stats['losses']}L\n━━━━━━━━━━━━━━━━━━\n{market_msg}")
+                      f"📊 Trade attivi: {len(active_trades)}/{MAX_TRADES}\n💰 PnL totale: {round(stats['pnl'], 2)} €\n"
+                      f"🏆 Record: {stats['wins']}W - {stats['losses']}L\n━━━━━━━━━━━━━━━━━━\n{market_msg}")
     elif cmd == "/trades":
         if not active_trades:
-            send_telegram("📊 *TRADE ATTIVI*\n━━━━━━━━━━━━━━━━━━\nNessun trade aperto al momento")
-            return
-        msg = f"📊 *TRADE ATTIVI ({len(active_trades)}/{MAX_TRADES})*\n━━━━━━━━━━━━━━━━━━\n"
+            send_telegram("📊 *TRADE ATTIVI*\n━━━━━━━━━━━━━━━━━━\nNessun trade aperto al momento"); return
+        msg = f" *TRADE ATTIVI ({len(active_trades)}/{MAX_TRADES})*\n━━━━━━━━━━━━━━━━━━\n"
         for ticker, pos in active_trades.items():
-            emoji = "🟢" if pos["side"] == "BUY" else "🔴"
-            msg += f"{emoji} *{pos['side']} {ticker}*\n  💰 Entry: {round(pos['entry'], 2)}\n  🛑 Stop: {round(pos['stop'], 2)}\n" \
+            emoji = "🟢" if pos["side"] == "BUY" else ""
+            msg += f"{emoji} *{pos['side']} {ticker}*\n   Entry: {round(pos['entry'], 2)}\n  🛑 Stop: {round(pos['stop'], 2)}\n" \
                    f"  🎯 Target: {round(pos['target'], 2)}\n  📦 Qty: {pos['qty']} azioni\n  ⏰ Aperto: {pos['ts'][:16]}\n━━━━━━━━━━━━━━━━━━\n"
         send_telegram(msg)
     elif cmd == "/stop": BOT_ENABLED = False; send_telegram("🔴 Bot fermato")
     elif cmd == "/start": BOT_ENABLED = True; send_telegram("🟢 Bot avviato")
-    elif cmd == "/help": send_telegram("🤖 *COMANDI*\n/status, /trades, /start, /stop, /backup, /help")
+    elif cmd == "/help": send_telegram("🤖 *COMANDI*\n/status, /trades, /start, /stop, /help")
 
 # =========================================
-# INDICATORS
+# INDICATORS & CHARTS
 # =========================================
 def compute_atr(df, period=14):
     high_low = df["High"] - df["Low"]
@@ -440,14 +372,6 @@ def compute_indicators(df):
     df["MACD_signal"] = df["MACD"].ewm(span=9, adjust=False).mean()
     return df
 
-def check_price_alerts(ticker, current_price):
-    if ticker in price_alerts:
-        target = price_alerts[ticker]
-        if current_price >= target or current_price <= target:
-            send_telegram(f"🔔 *ALERT PREZZO*\n━━━━━━━━━━━━━━━━━━\n{ticker} ha raggiunto ${target}!\n💰 Prezzo attuale: ${current_price:.2f}")
-            del price_alerts[ticker]
-            with open(ALERTS_FILE, 'w') as f: json.dump(price_alerts, f, indent=2)
-
 def calculate_support_resistance(df):
     last = df.iloc[-1]; prev = df.iloc[-2] if len(df) > 1 else last
     H, L, C = float(prev["High"]), float(prev["Low"]), float(prev["Close"])
@@ -463,25 +387,6 @@ def calculate_support_resistance(df):
     while len(resistances) < 3: resistances.append(price + atr * (len(resistances) + 2))
     return {"S1": round(supports[0], 2), "S2": round(supports[1], 2), "R1": round(resistances[0], 2), "R2": round(resistances[1], 2)}
 
-def generate_equity_curve():
-    if not os.path.exists(HISTORY_FILE): return None
-    try:
-        df = pd.read_csv(HISTORY_FILE)
-        if df.empty or len(df) < 2: return None
-        df["date"] = pd.to_datetime(df["date"]); df = df.sort_values("date")
-        df["cumulative_pnl"] = df["pnl"].cumsum()
-        fig, ax = plt.subplots(figsize=(12, 6))
-        ax.plot(df["date"], df["cumulative_pnl"], color="#10b981", linewidth=2)
-        ax.fill_between(df["date"], df["cumulative_pnl"], alpha=0.3, color="#10b981")
-        ax.axhline(y=0, color="#64748b", linestyle="--", linewidth=1, alpha=0.5)
-        fig.patch.set_facecolor('#0f172a'); ax.set_facecolor('#1e293b')
-        img_buf = io.BytesIO(); plt.savefig(img_buf, format='png', dpi=100, bbox_inches='tight', facecolor=fig.get_facecolor())
-        img_buf.seek(0); plt.close(); return img_buf.getvalue()
-    except: return None
-
-# =========================================
-# CHART GENERATION
-# =========================================
 def generate_chart_image(ticker: str, df, side: str, entry: float, stop: float, target: float):
     try:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), height_ratios=[3, 1], gridspec_kw={'hspace': 0.3})
@@ -497,17 +402,14 @@ def generate_chart_image(ticker: str, df, side: str, entry: float, stop: float, 
     except: return None
 
 # =========================================
-# DATA DOWNLOAD (🆕 OTTIMIZZATA PER MEMORIA)
+# DATA DOWNLOAD (OTTIMIZZATA)
 # =========================================
 def download_ticker(ticker: str, max_retries=3):
     cache_key = f"{ticker}_{datetime.now().date()}"
     if not hasattr(download_ticker, 'cache'): download_ticker.cache = {}
-    
-    # 🆕 FIX MEMORIA CRITICO: Limita la cache agli ultimi 60 ticker.
     if len(download_ticker.cache) > 60:
         oldest_keys = list(download_ticker.cache.keys())[:len(download_ticker.cache) - 60]
         for key in oldest_keys: del download_ticker.cache[key]
-    
     if cache_key in download_ticker.cache: return download_ticker.cache[cache_key]
     
     if TWELVE_DATA_API_KEY:
@@ -521,11 +423,9 @@ def download_ticker(ticker: str, max_retries=3):
             except:
                 if attempt < max_retries - 1: time.sleep(2 ** attempt)
                 continue
-    
     for attempt in range(max_retries):
         try:
             time.sleep(1 + random.random() * 2)
-            # 🆕 FIX MEMORIA: Ridotto periodo da "1y" a "6mo"
             df = yf.download(ticker, period="6mo", interval="1d", progress=False)
             if df.empty: return None
             df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
@@ -536,21 +436,19 @@ def download_ticker(ticker: str, max_retries=3):
     return None
 
 # =========================================
-# POSITION MONITOR (UNIFICATA E CORRETTA)
+# POSITION MONITOR (🆕 CON TRAILING STOP & ALERT)
 # =========================================
 def check_positions(df_by_ticker):
-    """Controlla se i trade attivi hanno toccato Stop o Target"""
     to_close = []
     with state_lock:
         for ticker, pos in list(active_trades.items()):
             df = df_by_ticker.get(ticker)
-            if df is not None and not df.empty:
-                check_price_alerts(ticker, float(df.iloc[-1]["Close"]))
             if df is None or df.empty: continue
             
-            last = df.iloc[-1]; high, low = float(last["High"]), float(last["Low"])
+            last = df.iloc[-1]; high, low, close = float(last["High"]), float(last["Low"]), float(last["Close"])
             hit, exit_price = None, None
             
+            # 1. Controllo Hit (Stop/Target)
             if pos["side"] == "BUY":
                 if low <= pos["stop"]: hit, exit_price = "STOP", pos["stop"]
                 elif high >= pos["target"]: hit, exit_price = "TARGET", pos["target"]
@@ -563,35 +461,64 @@ def check_positions(df_by_ticker):
                 pnl = (exit_price - pos["entry"]) * qty if pos["side"] == "BUY" else (pos["entry"] - exit_price) * qty
                 result = "WIN" if pnl > 0 else "LOSS"
                 to_close.append((ticker, pos, exit_price, pnl, result, hit))
-    
+                continue # Skip trailing/alert se chiude
+            
+            # 2. 🆕 TRAILING STOP (Breakeven)
+            pnl_pct = ((close - pos["entry"]) / pos["entry"]) * 100 if pos["side"] == "BUY" else ((pos["entry"] - close) / pos["entry"]) * 100
+            
+            if pnl_pct > 1.5 and not pos.get("trailing_updated", False):
+                if pos["side"] == "BUY":
+                    new_stop = pos["entry"] * 1.005
+                    if new_stop > pos["stop"]:
+                        pos["stop"] = new_stop; pos["trailing_updated"] = True
+                        send_telegram(f"🔒 *Trailing Stop {ticker}*\nStop spostato a breakeven: {round(new_stop, 2)}\nPnL attuale: {pnl_pct:+.2f}%")
+                else:
+                    new_stop = pos["entry"] * 0.995
+                    if new_stop < pos["stop"]:
+                        pos["stop"] = new_stop; pos["trailing_updated"] = True
+                        send_telegram(f"🔒 *Trailing Stop {ticker}*\nStop spostato a breakeven: {round(new_stop, 2)}\nPnL attuale: {pnl_pct:+.2f}%")
+            
+            # 3. 🆕 ALERT PROSSIMITÀ
+            if pos["side"] == "BUY":
+                dist_target = ((pos["target"] - close) / pos["target"]) * 100
+                dist_stop = ((close - pos["stop"]) / pos["stop"]) * 100
+            else:
+                dist_target = ((close - pos["target"]) / pos["target"]) * 100
+                dist_stop = ((pos["stop"] - close) / pos["stop"]) * 100
+            
+            if dist_target < 5 and not pos.get("alerted_target", False):
+                send_telegram(f"🎯 *{ticker} vicino al TARGET!*\nMancano solo {dist_target:.1f}%\n💰 PnL attuale: {pnl_pct:+.2f}%")
+                pos["alerted_target"] = True
+            
+            if dist_stop < 3 and not pos.get("alerted_stop", False):
+                send_telegram(f"⚠️ *{ticker} vicino allo STOP!*\nMancano {dist_stop:.1f}%\n💰 PnL attuale: {pnl_pct:+.2f}%")
+                pos["alerted_stop"] = True
+
+    # Esecuzione chiusure
     for ticker, pos, exit_price, pnl, result, hit in to_close:
         with state_lock:
             active_trades.pop(ticker, None)
             traded_today.add(ticker)
             stats["wins" if result == "WIN" else "losses"] += 1
             stats["pnl"] += pnl; daily_stats["pnl"] += pnl; daily_stats["trades"] += 1
-            
             save_trade(ticker, pos["side"], pos["entry"], exit_price, pnl, 2, result, hit)
             update_signal_log(ticker, exit_price, pnl, result, hit)
-            
         send_telegram(f"{'✅' if result=='WIN' else '❌'} *{hit} {pos['side']} {ticker}*\nEntry: {round(pos['entry'],2)} | Exit: {round(exit_price,2)}\n💵 PnL: {round(pnl, 2)} €")
         log.info(f"{hit} {ticker} -> {result} ({round(pnl, 2)}€)")
-        
         if daily_stats["pnl"] <= -MAX_DAILY_LOSS:
             global BOT_ENABLED; BOT_ENABLED = False
             send_telegram(f"🚨 *MAX DAILY LOSS*\nPerdita giornaliera massima raggiunta: {round(daily_stats['pnl'], 2)}€\nBot fermato.")
 
 # =========================================
-# SIGNAL GENERATOR
+# SIGNAL GENERATOR (🆕 POSITION SIZING STANDARD)
 # =========================================
 def analyze_ticker(ticker, df):
     if not BOT_ENABLED or ticker in bad_tickers or not ticker.isalpha() or len(ticker) > 5: return
-    
     with state_lock:
-        if ticker in logged_today: return  # 🆕 Anti-Duplicati
+        if ticker in logged_today: return
         if ticker in cooldown_tickers and (datetime.now() - cooldown_tickers[ticker]).total_seconds() / 60 < COOLDOWN_MINUTES: return
-    
     if df is None or len(df) < 50: return
+    
     df["ATR"] = compute_atr(df); df = compute_indicators(df)
     last = df.iloc[-1]
     if pd.isna(last["ATR"]) or last["ATR"] == 0: return
@@ -615,17 +542,18 @@ def analyze_ticker(ticker, df):
     
     stop = price - atr if side == "BUY" else price + atr
     target = price + (atr * 2) if side == "BUY" else price - (atr * 2)
+    
+    # 🆕 POSITION SIZING STANDARD (Nessuna riduzione per volatilità)
     qty = max(1, int(CAPITALE_PER_TRADE / price))
     
-    # 🆕 CONTROLLO SLOT PRIMA DI REGISTRARE NEL CSV
     with state_lock:
         if ticker in active_trades or len(active_trades) >= MAX_TRADES:
             log.info(f"⏸️ Slot pieni ({len(active_trades)}/{MAX_TRADES}) - Skip {ticker}")
             return
-        
         log_signal(ticker, side, price, stop, target)
         logged_today.add(ticker)
-        active_trades[ticker] = {"side": side, "entry": price, "stop": stop, "target": target, "qty": qty, "ts": datetime.now().isoformat()}
+        active_trades[ticker] = {"side": side, "entry": price, "stop": stop, "target": target, "qty": qty, 
+                                 "ts": datetime.now().isoformat(), "alerted_target": False, "alerted_stop": False, "trailing_updated": False}
         cooldown_tickers[ticker] = datetime.now()
     
     sr = calculate_support_resistance(df)
@@ -633,7 +561,6 @@ def analyze_ticker(ticker, df):
            f"🎯 *Target:* {round(target, 2)}\n📊 *R/R:* 1:2 | 💼 *Qty:* {qty}\n━━━━━━━━━━━━━━━━━━\n"
            f"📈 *S1:* {sr['S1']} | *S2:* {sr['S2']}\n📉 *R1:* {sr['R1']} | *R2:* {sr['R2']}")
     send_telegram(msg)
-    
     chart_img = generate_chart_image(ticker, df, side, price, stop, target)
     if chart_img: send_telegram_photo(chart_img, f"📊 {side} {ticker} @ {round(price, 2)}")
     log.info(f"🚀 {side} {ticker} @ {round(price, 2)}")
@@ -651,7 +578,6 @@ def trading_loop():
             now_utc = datetime.now(timezone.utc); now_ny = now_utc - timedelta(hours=4)
             if now_ny.weekday() >= 5 or not (9 <= now_ny.hour < 16):
                 stop_event.wait(600); continue
-            
             market_ok, _ = check_market_conditions()
             if not market_ok: stop_event.wait(600); continue
             
@@ -659,15 +585,13 @@ def trading_loop():
             batch_size = 25; batch = subset[idx * batch_size : (idx + 1) * batch_size]
             if not batch: idx = 0; batch = subset[:batch_size]
             idx += 1
-            
             log.info(f"📊 Analisi batch {idx}: {len(batch)} ticker")
-            df_by_ticker = {}; threads = []
             
+            df_by_ticker = {}; threads = []
             def download_single(t):
                 df = download_ticker(t)
                 if df is not None:
                     with state_lock: df_by_ticker[t] = df
-            
             for t in batch:
                 thread = threading.Thread(target=download_single, args=(t,))
                 threads.append(thread); thread.start(); time.sleep(0.5)
@@ -680,11 +604,11 @@ def trading_loop():
                     except Exception as e: log.error(f"Error {t}: {e}")
             
             df_by_ticker.clear(); gc.collect()
-            stop_event.wait(180)
+            stop_event.wait(LOOP_INTERVAL)
         except Exception as e: log.error(f"Loop error: {e}"); stop_event.wait(60)
 
 # =========================================
-# FLASK APP (Semplificata per stabilità)
+# FLASK APP
 # =========================================
 app = Flask(__name__)
 
@@ -708,9 +632,9 @@ signal.signal(signal.SIGTERM, handle_sigterm)
 signal.signal(signal.SIGINT, handle_sigterm)
 
 if __name__ == "__main__":
-    log.info("🚀 BOT AVVIATO (Versione 13 - Fix Memoria & Recupero Trade)")
-    load_active_trades_from_csv()  # 🆕 RECUPERA I TRADE APERTI DAL CSV
-    send_telegram("🚀 BOT ONLINE - Versione 13\n\n✅ Twelve Data API attiva\n✅ Recupero trade pendenti all'avvio\n✅ Monitoraggio Stop/Target attivo\n✅ Anti-duplicati in memoria")
+    log.info("🚀 BOT AVVIATO (Versione 14 - Pro Features)")
+    load_active_trades_from_csv()
+    send_telegram("🚀 BOT ONLINE - Versione 14 PRO\n\n✅ Trailing Stop a Breakeven\n✅ Alert Prossimità Target/Stop\n✅ Filtro Mercato Stricto (VIX<25)\n✅ Position Sizing Standard (No riduzioni)")
     
     threading.Thread(target=trading_loop, daemon=True).start()
     threading.Thread(target=monitor_signals, daemon=True).start()
